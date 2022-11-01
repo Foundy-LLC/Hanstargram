@@ -41,11 +41,13 @@ dependencies {
     // Firebase
     implementation platform('com.google.firebase:firebase-bom:31.0.2')
     implementation 'com.google.firebase:firebase-analytics-ktx'
+    implementation 'com.google.firebase:firebase-auth-ktx:21.1.0'
+    implementation 'com.google.android.gms:play-services-base:18.1.0'
+    implementation 'com.google.android.gms:play-services-auth:20.3.0'
 
     // Coroutine
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$life_cycle_version"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$life_cycle_version"
-    implementation 'com.google.android.gms:play-services-base:18.1.0'
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutine_version"
 
     // fragment
