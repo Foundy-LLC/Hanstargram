@@ -1,4 +1,4 @@
-package io.foundy.hanstargram.view
+package io.foundy.hanstargram.view.login
 
 import androidx.lifecycle.ViewModel
 

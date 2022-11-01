@@ -1,4 +1,4 @@
-package io.foundy.hanstargram.view
+package io.foundy.hanstargram.view.login
 
 import android.os.Bundle
 import android.view.LayoutInflater
