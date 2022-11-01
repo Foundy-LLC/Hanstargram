@@ -5,12 +5,12 @@
 ```console
 root
     - util 
-        extensions
+        DateTimeExtension
     - repository
         AuthRepository
     - view
         - login
-            LoginView
+            LoginActivity or Fragment
             LoginViewModel
             LoginUiState
 ```
