@@ -30,9 +30,22 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+    buildFeatures {
+        viewBinding true
+    }
 }
 
 dependencies {
+
+    // Coroutine
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$life_cycle_version"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:$life_cycle_version"
+    implementation 'com.google.android.gms:play-services-base:18.1.0'
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutine_version"
+
+    // fragment
+    debugImplementation "androidx.fragment:fragment-testing:$fragment_version"
+    implementation "androidx.fragment:fragment-ktx:$fragment_version"
 
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.appcompat:appcompat:1.5.1'
