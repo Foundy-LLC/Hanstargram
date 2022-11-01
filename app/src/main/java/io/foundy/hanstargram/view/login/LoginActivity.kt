@@ -7,8 +7,9 @@ import androidx.activity.viewModels
 import io.foundy.hanstargram.R
 import io.foundy.hanstargram.base.ViewBindingActivity
 import io.foundy.hanstargram.databinding.ActivityLoginBinding
+import io.foundy.hanstargram.view.home.HomeActivity
 
-class LoginView : ViewBindingActivity<ActivityLoginBinding>() {
+class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
 
     private val viewModel: LoginViewModel by viewModels()
 
@@ -33,5 +34,10 @@ class LoginView : ViewBindingActivity<ActivityLoginBinding>() {
 
     private fun signIn() {
         // TODO(민성): 구현하기
+    }
+
+    private fun navigateToHomeView() {
+        val intent = HomeActivity.getIntent(this)
+        startActivity(intent)
     }
 }
