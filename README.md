@@ -12,6 +12,7 @@ root
         - login
             LoginView
             LoginViewModel
+            LoginUiState
 ```
 
 ## 작업 순서
