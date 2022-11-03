@@ -22,4 +22,8 @@
         <item>갤러리에서 선택</item>
         <item>기본 이미지로 변경</item>
     </string-array>
+
+    <!-- Post -->
+    <string name="post_more_button_content_description">게시글 더보기 버튼</string>
+    <string name="post_image_content_description">게시글 이미지</string>
 </resources>
