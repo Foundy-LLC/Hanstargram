@@ -1,5 +1,6 @@
 package io.foundy.hanstargram.view.login
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -17,6 +18,7 @@ import io.foundy.hanstargram.R
 import io.foundy.hanstargram.base.ViewBindingActivity
 import io.foundy.hanstargram.databinding.ActivityLoginBinding
 import io.foundy.hanstargram.view.home.HomeActivity
+import io.foundy.hanstargram.view.welcome.WelcomeActivity
 
 class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
 
@@ -36,7 +38,20 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
         super.onCreate(savedInstanceState)
 
         if (viewModel.signedIn) {
-            navigateToHomeView()
+            val sharedPreferences = getSharedPreferences(
+                getString(R.string.preference_file_key),
+                Context.MODE_PRIVATE
+            )
+            val hasUserInfo = sharedPreferences.getBoolean(
+                getString(R.string.prefs_has_user_info),
+                false
+            )
+
+            if (hasUserInfo) {
+                navigateToHomeView()
+            } else {
+                navigateToWelcomeView()
+            }
         }
 
         initSignInLauncher()
@@ -88,7 +103,13 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
 
     private fun onCompleteSignIn(result: Result<Any>) {
         if (result.isSuccess) {
-            navigateToHomeView()
+            viewModel.checkUserInfoExists { exists ->
+                if (exists) {
+                    navigateToHomeView()
+                } else {
+                    navigateToWelcomeView()
+                }
+            }
         } else {
             showSnackBar(getString(R.string.failed_to_sign_in))
             Log.e(TAG, "Failed firebase sign in: " + result.exceptionOrNull())
@@ -101,6 +122,14 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
 
     private fun navigateToHomeView() {
         val intent = HomeActivity.getIntent(this).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME
+        }
+        startActivity(intent)
+        finish()
+    }
+
+    private fun navigateToWelcomeView() {
+        val intent = WelcomeActivity.getIntent(this).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME
         }
         startActivity(intent)

@@ -2,6 +2,7 @@ package io.foundy.hanstargram.repository
 
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
 object AuthRepository {
@@ -19,5 +20,16 @@ object AuthRepository {
                 onComplete(Result.failure(task.exception!!))
             }
         }
+    }
+
+    fun hasUserInfo(uuid: String, hasUserInfoCallback: (Boolean) -> Unit) {
+        val db = Firebase.firestore
+        db.collection("users").document(uuid).get()
+            .addOnSuccessListener {
+                hasUserInfoCallback(it.data != null)
+            }
+            .addOnFailureListener {
+                hasUserInfoCallback(false)
+            }
     }
 }
