@@ -10,10 +10,12 @@ import android.view.LayoutInflater
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
 import androidx.activity.viewModels
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import io.foundy.hanstargram.R
 import io.foundy.hanstargram.base.ViewBindingActivity
@@ -59,7 +61,7 @@ class WelcomeActivity : ViewBindingActivity<ActivityWelcomeBinding>() {
         viewModel.selectedImage?.run { binding.profileImage.setImageBitmap(this) }
 
         binding.profileImage.setOnClickListener {
-            showImagePicker()
+            onClickImage()
         }
 
         binding.userNameEditText.addTextChangedListener {
@@ -100,6 +102,32 @@ class WelcomeActivity : ViewBindingActivity<ActivityWelcomeBinding>() {
         binding.doneButton.apply {
             isEnabled = hasName && !isLoading
             text = getString(if (isLoading) R.string.loading else R.string.done)
+        }
+    }
+
+    private fun onClickImage() {
+        if (viewModel.selectedImage != null) {
+            MaterialAlertDialogBuilder(this)
+                .setItems(R.array.image_options) { _, which ->
+                    when (which) {
+                        0 -> {
+                            showImagePicker()
+                        }
+                        1 -> {
+                            viewModel.selectedImage = null
+                            binding.profileImage.setImageDrawable(
+                                AppCompatResources.getDrawable(
+                                    this,
+                                    R.drawable.ic_baseline_person_24
+                                )
+                            )
+                        }
+                        else -> throw IllegalArgumentException()
+                    }
+                }.create()
+                .show()
+        } else {
+            showImagePicker()
         }
     }
 

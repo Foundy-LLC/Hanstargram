@@ -12,5 +12,10 @@
     <string name="input_name">이름 입력…</string>
     <string name="done">완료</string>
     <string name="failed_to_save_data">데이터 저장을 실패했습니다.</string>
-    <string name="loading">로딩중...</string>
+    <string name="loading">로딩중…</string>
+    <string name="remove_image">이미지 제거</string>
+    <string-array name="image_options">
+        <item>갤러리에서 선택</item>
+        <item>기본 이미지로 변경</item>
+    </string-array>
 </resources>
