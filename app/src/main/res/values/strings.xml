@@ -1,6 +1,10 @@
 <resources>
     <string name="app_name">Hanstargram</string>
 
+    <!-- preferences -->
+    <string name="preference_file_key">hanstargram</string>
+    <string name="prefs_has_user_info">shownWelcomePage</string>
+
     <!-- Login -->
     <string name="sign_in_with_google">Google 계정으로 로그인</string>
     <string name="failed_to_sign_in">로그인에 실패했습니다.</string>

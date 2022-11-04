@@ -86,6 +86,14 @@ class WelcomeActivity : ViewBindingActivity<ActivityWelcomeBinding>() {
         updateDoneButton()
         when (uiState) {
             WelcomeUiState.SuccessToSave -> {
+                val sharedPreferences = getSharedPreferences(
+                    getString(R.string.preference_file_key),
+                    Context.MODE_PRIVATE
+                )
+                sharedPreferences.edit()
+                    .putBoolean(getString(R.string.prefs_has_user_info), true)
+                    .apply()
+
                 navigateToHomeView()
             }
             is WelcomeUiState.FailedToSave -> {

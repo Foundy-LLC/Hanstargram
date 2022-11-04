@@ -1,5 +1,6 @@
 package io.foundy.hanstargram.view.login
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -37,12 +38,19 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
         super.onCreate(savedInstanceState)
 
         if (viewModel.signedIn) {
-            viewModel.checkUserInfoExists { exists ->
-                if (exists) {
-                    navigateToHomeView()
-                } else {
-                    navigateToWelcomeView()
-                }
+            val sharedPreferences = getSharedPreferences(
+                getString(R.string.preference_file_key),
+                Context.MODE_PRIVATE
+            )
+            val hasUserInfo = sharedPreferences.getBoolean(
+                getString(R.string.prefs_has_user_info),
+                false
+            )
+
+            if (hasUserInfo) {
+                navigateToHomeView()
+            } else {
+                navigateToWelcomeView()
             }
         }
 
