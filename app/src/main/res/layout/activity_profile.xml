@@ -8,7 +8,7 @@
     android:padding="24dp">
 
     <LinearLayout
-        android:id="@+id/Header_linearLayout"
+        android:id="@+id/header_linearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:baselineAligned="false"
@@ -20,7 +20,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
-            android:id="@+id/UserName"
+            android:id="@+id/profile_header_username_textview"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="8"
@@ -31,7 +31,7 @@
             android:textSize="24sp" />
 
         <Button
-            android:id="@+id/PostButton"
+            android:id="@+id/profile_header_addpost_button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="2"
@@ -40,7 +40,7 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/Info_linearLayout"
+        android:id="@+id/info_linearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
@@ -48,12 +48,12 @@
         android:weightSum="4"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/Header_linearLayout">
+        app:layout_constraintTop_toBottomOf="@+id/header_linearLayout">
 
         <ImageView
-            android:id="@+id/ProfileImage"
+            android:id="@+id/profile_image"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="90dp"
             android:layout_weight="1"
             android:scaleType="centerInside"
             tools:srcCompat="@drawable/ic_baseline_star_24" />
@@ -66,13 +66,13 @@
             android:textAlignment="center">
 
             <TableRow
-                android:id="@+id/InfoNum_TableRow"
+                android:id="@+id/profile_info_num_row"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:weightSum="3">
 
                 <TextView
-                    android:id="@+id/PostNum"
+                    android:id="@+id/profile_info_postnum_textview"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -83,7 +83,7 @@
                     android:textSize="48sp" />
 
                 <TextView
-                    android:id="@+id/FollowerNum"
+                    android:id="@+id/profile_info_followernum_textview"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -94,7 +94,7 @@
                     android:textSize="48sp" />
 
                 <TextView
-                    android:id="@+id/FollowingNum"
+                    android:id="@+id/profile_info_followingnum_textview"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -106,13 +106,13 @@
             </TableRow>
 
             <TableRow
-                android:id="@+id/InfoText_TableRow"
+                android:id="@+id/profile_info_text_row"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:weightSum="3">
 
                 <TextView
-                    android:id="@+id/PostText"
+                    android:id="@+id/profile_info_posttext_textview"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -120,7 +120,7 @@
                     android:textAlignment="center" />
 
                 <TextView
-                    android:id="@+id/FollowerText"
+                    android:id="@+id/profile_info_followertext_textview"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -128,7 +128,7 @@
                     android:textAlignment="center" />
 
                 <TextView
-                    android:id="@+id/FollowingText"
+                    android:id="@+id/profile_info_followingtext_textview"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -141,7 +141,7 @@
     </LinearLayout>
 
     <TextView
-        android:id="@+id/introduceText"
+        android:id="@+id/profile_introduce_textview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
@@ -151,20 +151,20 @@
         android:text="자기소개입니다."
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/Info_linearLayout" />
+        app:layout_constraintTop_toBottomOf="@+id/info_linearLayout" />
 
     <Button
-        android:id="@+id/button2"
+        android:id="@+id/profile_modify_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="프로필 수정"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/introduceText" />
+        app:layout_constraintTop_toBottomOf="@+id/profile_introduce_textview" />
 
     <GridView
-        android:id="@+id/postGridView"
+        android:id="@+id/profile_post_grid"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="8dp"
@@ -172,6 +172,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button2" />
+        app:layout_constraintTop_toBottomOf="@+id/profile_modify_button" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
