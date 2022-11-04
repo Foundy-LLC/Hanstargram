@@ -10,6 +10,7 @@ import androidx.navigation.ui.setupWithNavController
 import io.foundy.common.base.ViewBindingActivity
 import io.foundy.hanstargram.R
 import io.foundy.hanstargram.databinding.ActivityHomeBinding
+import io.foundy.hanstargram.view.profile.ProfileActivity
 
 class HomeActivity : ViewBindingActivity<ActivityHomeBinding>() {
 
@@ -20,7 +21,7 @@ class HomeActivity : ViewBindingActivity<ActivityHomeBinding>() {
 
     companion object {
         fun getIntent(context: Context): Intent {
-            return Intent(context, HomeActivity::class.java)
+            return Intent(context, ProfileActivity::class.java)
         }
     }
 

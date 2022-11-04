@@ -15,7 +15,7 @@
         android:theme="@style/Theme.Hanstargram"
         tools:targetApi="31">
         <activity
-            android:name=".view.login.LoginActivity"
+            android:name=".view.profile.ProfileActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
