@@ -4,4 +4,11 @@
     <!-- Login -->
     <string name="sign_in_with_google">Google 계정으로 로그인</string>
     <string name="failed_to_sign_in">로그인에 실패했습니다.</string>
+
+    <!-- Welcome -->
+    <string name="welcome">환영합니다!</string>
+    <string name="please_input_your_info">정보를 입력해주세요.</string>
+    <string name="select_user_image">회원 이미지 선택</string>
+    <string name="input_name">이름 입력…</string>
+    <string name="done">완료</string>
 </resources>
