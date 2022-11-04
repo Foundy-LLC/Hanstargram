@@ -38,6 +38,14 @@ android {
 
 dependencies {
 
+    // Glide
+    implementation "com.github.bumptech.glide:glide:$glide"
+    annotationProcessor "com.github.bumptech.glide:compiler:$glide"
+
+    // Paging
+    implementation "androidx.paging:paging-common-ktx:$paging"
+    implementation "androidx.paging:paging-runtime-ktx:$paging"
+
     // Firebase
     implementation platform('com.google.firebase:firebase-bom:31.0.2')
     implementation 'com.google.firebase:firebase-analytics-ktx'
@@ -59,6 +67,9 @@ dependencies {
     // navigation
     implementation 'androidx.navigation:navigation-fragment:2.5.3'
     implementation 'androidx.navigation:navigation-ui-ktx:2.5.3'
+
+    // swipe refresh
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
 
     implementation 'androidx.activity:activity-ktx:1.6.1'
     implementation 'androidx.core:core-ktx:1.7.0'

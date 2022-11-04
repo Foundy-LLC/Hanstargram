@@ -16,7 +16,7 @@
         tools:srcCompat="@drawable/ic_launcher_background" />
 
     <TextView
-        android:id="@+id/name"
+        android:id="@+id/userName"
         style="?attr/textAppearanceTitleSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -28,6 +28,7 @@
         tools:text="김민성" />
 
     <ImageButton
+        android:id="@+id/more_info_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
@@ -48,18 +49,31 @@
         app:layout_constraintTop_toBottomOf="@id/profileImage"
         tools:srcCompat="@drawable/ic_launcher_background" />
 
+    <TextView
+        android:id="@+id/content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        style="?attr/textAppearanceBodyMedium"
+        android:textColor="?attr/colorOnBackground"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/postImage"
+        tools:text="여기에는 내용을 적는 곳이에요."/>
+
     <ImageButton
         android:id="@+id/likeButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:background="@null"
-        android:contentDescription="@string/post_more_button_content_description"
+        android:contentDescription="@string/like_button"
         android:src="@drawable/ic_baseline_like_border_24"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/postImage" />
+        app:layout_constraintTop_toBottomOf="@+id/content" />
 
     <TextView
+        android:id="@+id/likeCount"
         style="?attr/textAppearanceBodySmall"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
