@@ -2,6 +2,7 @@ package io.foundy.hanstargram.view.welcome
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.os.Build
 import android.os.Bundle
@@ -10,14 +11,22 @@ import android.view.LayoutInflater
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
 import androidx.activity.viewModels
-import androidx.core.graphics.drawable.toBitmap
 import androidx.core.widget.addTextChangedListener
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import com.google.android.material.snackbar.Snackbar
+import io.foundy.hanstargram.R
 import io.foundy.hanstargram.base.ViewBindingActivity
 import io.foundy.hanstargram.databinding.ActivityWelcomeBinding
+import io.foundy.hanstargram.view.home.HomeActivity
+import kotlinx.coroutines.launch
 
 class WelcomeActivity : ViewBindingActivity<ActivityWelcomeBinding>() {
 
     private val viewModel: WelcomeViewModel by viewModels()
+
+    private var profileImageBitmap: Bitmap? = null
 
     private val pickMedia = registerForActivityResult(PickVisualMedia()) { imageUri ->
         if (imageUri != null) {
@@ -32,6 +41,7 @@ class WelcomeActivity : ViewBindingActivity<ActivityWelcomeBinding>() {
             } else {
                 MediaStore.Images.Media.getBitmap(contentResolver, imageUri)
             }
+            profileImageBitmap = bitmap
             binding.profileImage.setImageBitmap(bitmap)
         }
     }
@@ -54,18 +64,58 @@ class WelcomeActivity : ViewBindingActivity<ActivityWelcomeBinding>() {
 
         binding.userNameEditText.addTextChangedListener {
             if (it != null) {
-                binding.doneButton.isEnabled = it.isNotEmpty()
+                updateDoneButton()
             }
         }
 
         binding.doneButton.setOnClickListener {
             val name = binding.userNameEditText.text.toString()
-            val bitmap = binding.profileImage.drawable?.toBitmap()
-            viewModel.sendInfo(name, bitmap)
+            viewModel.sendInfo(name, profileImageBitmap)
+        }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.uiState.collect(::updateUi)
+            }
+        }
+    }
+
+    private fun updateUi(uiState: WelcomeUiState) {
+        updateDoneButton()
+        when (uiState) {
+            WelcomeUiState.SuccessToSave -> {
+                navigateToHomeView()
+            }
+            is WelcomeUiState.FailedToSave -> {
+                showSnackBar(getString(R.string.failed_to_save_data))
+            }
+            else -> {}
+        }
+    }
+
+    private fun updateDoneButton() {
+        val isLoading = viewModel.uiState.value is WelcomeUiState.Loading
+        val hasName = binding.userNameEditText.text.toString().isNotEmpty()
+
+        binding.doneButton.apply {
+            isEnabled = hasName && !isLoading
+            text = getString(if (isLoading) R.string.loading else R.string.done)
         }
     }
 
     private fun showImagePicker() {
         pickMedia.launch(PickVisualMediaRequest(PickVisualMedia.ImageOnly))
+    }
+
+    private fun showSnackBar(message: String) {
+        Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
+    }
+
+    private fun navigateToHomeView() {
+        val intent = HomeActivity.getIntent(this).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME
+        }
+        startActivity(intent)
+        finish()
     }
 }
