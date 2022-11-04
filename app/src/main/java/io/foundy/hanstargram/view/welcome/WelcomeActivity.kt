@@ -2,7 +2,6 @@ package io.foundy.hanstargram.view.welcome
 
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.os.Build
 import android.os.Bundle
@@ -26,8 +25,6 @@ class WelcomeActivity : ViewBindingActivity<ActivityWelcomeBinding>() {
 
     private val viewModel: WelcomeViewModel by viewModels()
 
-    private var profileImageBitmap: Bitmap? = null
-
     private val pickMedia = registerForActivityResult(PickVisualMedia()) { imageUri ->
         if (imageUri != null) {
             @Suppress("DEPRECATION")
@@ -41,7 +38,7 @@ class WelcomeActivity : ViewBindingActivity<ActivityWelcomeBinding>() {
             } else {
                 MediaStore.Images.Media.getBitmap(contentResolver, imageUri)
             }
-            profileImageBitmap = bitmap
+            viewModel.selectedImage = bitmap
             binding.profileImage.setImageBitmap(bitmap)
         }
     }
@@ -58,19 +55,22 @@ class WelcomeActivity : ViewBindingActivity<ActivityWelcomeBinding>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        binding.userNameEditText.setText(viewModel.name)
+        viewModel.selectedImage?.run { binding.profileImage.setImageBitmap(this) }
+
         binding.profileImage.setOnClickListener {
             showImagePicker()
         }
 
         binding.userNameEditText.addTextChangedListener {
             if (it != null) {
+                viewModel.name = it.toString()
                 updateDoneButton()
             }
         }
 
         binding.doneButton.setOnClickListener {
-            val name = binding.userNameEditText.text.toString()
-            viewModel.sendInfo(name, profileImageBitmap)
+            viewModel.sendInfo()
         }
 
         lifecycleScope.launch {

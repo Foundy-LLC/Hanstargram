@@ -16,10 +16,13 @@ class WelcomeViewModel : ViewModel() {
         MutableStateFlow(WelcomeUiState.None)
     val uiState = _uiState.asStateFlow()
 
-    fun sendInfo(name: String, profileImage: Bitmap?) {
+    var name: String = ""
+    var selectedImage: Bitmap? = null
+
+    fun sendInfo() {
         _uiState.update { WelcomeUiState.Loading }
         viewModelScope.launch(Dispatchers.IO) {
-            val result = UserRepository.saveInitUserInfo(name, profileImage)
+            val result = UserRepository.saveInitUserInfo(name, selectedImage)
             if (result.isSuccess) {
                 _uiState.update { WelcomeUiState.SuccessToSave }
             } else {
