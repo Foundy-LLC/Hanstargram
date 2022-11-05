@@ -46,4 +46,6 @@
 
     <!-- Search -->
     <string name="search">검색</string>
+    <string name="clear_query_content_description">검색어 삭제 버튼</string>
+    <string name="user_image">회원 사진</string>
 </resources>

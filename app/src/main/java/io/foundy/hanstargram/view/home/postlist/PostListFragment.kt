@@ -76,8 +76,6 @@ class PostListFragment : ViewBindingFragment<FragmentPostListBinding>() {
 
     private fun initRecyclerView(adapter: PostAdapter) {
         binding.apply {
-            swipeRefreshLayout.setOnRefreshListener { adapter.refresh() }
-
             recyclerView.adapter = adapter.withLoadStateFooter(
                 PagingLoadStateAdapter { adapter.retry() }
             )
