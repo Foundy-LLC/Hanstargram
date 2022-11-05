@@ -26,7 +26,7 @@ class ProfilePostAdapter(var context : Context, var arrayList: ArrayList<Profile
 
     @SuppressLint("ViewHolder")
     override fun getView(pos: Int, convertView: View?, parent: ViewGroup?): View {
-        val view : View = View.inflate(context, R.layout.grid_item, null)
+        val view : View = View.inflate(context, R.layout.profile_gird_item, null)
         val icons : ImageView = view.findViewById(R.id.icons)
         val profilePostItem: ProfilePostItem = arrayList.get(pos)
 
