@@ -1,5 +1,8 @@
 <resources>
     <string name="app_name">Hanstargram</string>
+    <string name="home">홈</string>
+    <string name="fail_to_connect">연결에 실패했습니다.</string>
+    <string name="retry">다시 시도</string>
 
     <!-- preferences -->
     <string name="preference_file_key">hanstargram</string>
@@ -22,4 +25,22 @@
         <item>갤러리에서 선택</item>
         <item>기본 이미지로 변경</item>
     </string-array>
+
+    <!-- Post -->
+    <string name="follow_some_people">친구를 팔로우하여 게시글을 확인하세요.</string>
+    <string name="post_more_button_content_description">게시글 더보기 버튼</string>
+    <string name="post_image_content_description">게시글 이미지</string>
+    <string name="like_button">좋아요 버튼</string>
+    <string name="like_count">좋아요 %d개</string>
+    <string name="empty">텅</string>
+    <string name="edit_button">편집 버튼</string>
+    <string name="remove_button">삭제 버튼</string>
+    <string name="edit">편집하기</string>
+    <string name="delete">삭제하기</string>
+    <string name="are_you_sure_you_want_to_delete">정말로 삭제할까요?</string>
+    <string name="delete_post">게시글 삭제</string>
+    <string name="cancel">취소</string>
+    <string name="failed_to_toggle_like_button">좋아요 토글을 실패했습니다.</string>
+    <string name="failed_to_delete_post">게시글 삭제에 실패했습니다.</string>
+    <string name="post_deleted">게시글을 삭제했습니다.</string>
 </resources>

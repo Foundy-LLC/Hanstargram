@@ -105,6 +105,14 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
         if (result.isSuccess) {
             viewModel.checkUserInfoExists { exists ->
                 if (exists) {
+                    val sharedPreferences = getSharedPreferences(
+                        getString(R.string.preference_file_key),
+                        Context.MODE_PRIVATE
+                    )
+                    sharedPreferences.edit()
+                        .putBoolean(getString(R.string.prefs_has_user_info), true)
+                        .apply()
+
                     navigateToHomeView()
                 } else {
                     navigateToWelcomeView()

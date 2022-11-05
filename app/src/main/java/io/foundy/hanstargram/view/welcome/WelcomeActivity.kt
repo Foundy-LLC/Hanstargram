@@ -58,7 +58,7 @@ class WelcomeActivity : ViewBindingActivity<ActivityWelcomeBinding>() {
         super.onCreate(savedInstanceState)
 
         binding.userNameEditText.setText(viewModel.name)
-        viewModel.selectedImage?.run { binding.profileImage.setImageBitmap(this) }
+        viewModel.selectedImage?.let { binding.profileImage.setImageBitmap(it) }
 
         binding.profileImage.setOnClickListener {
             onClickImage()
