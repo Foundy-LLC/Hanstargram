@@ -17,7 +17,7 @@ import java.util.UUID
 
 object UserRepository {
 
-    private const val PAGE_SIZE = 20
+    private const val PAGE_SIZE = 30
 
     suspend fun saveInitUserInfo(
         name: String,
