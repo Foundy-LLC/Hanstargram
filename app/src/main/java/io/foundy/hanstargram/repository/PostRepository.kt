@@ -4,6 +4,7 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObjects
 import com.google.firebase.ktx.Firebase
@@ -37,7 +38,9 @@ object PostRepository {
                 val followerDto = it.toObject(FollowDto::class.java)
                 followerDto!!.followeeUuid
             }
-            val queryPostsByFollower = postCollection.whereIn("writerUuid", followeeUuids)
+            val queryPostsByFollower = postCollection
+                .whereIn("writerUuid", followeeUuids)
+                .orderBy("dateTime", Query.Direction.DESCENDING)
 
             return Pager(PagingConfig(pageSize = 20)) {
                 PostPagingSource(queryPostsByFollower = queryPostsByFollower)
