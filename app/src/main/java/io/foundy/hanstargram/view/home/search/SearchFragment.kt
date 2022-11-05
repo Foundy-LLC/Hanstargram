@@ -13,11 +13,11 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
-import io.foundy.hanstargram.R
 import io.foundy.hanstargram.base.ViewBindingFragment
 import io.foundy.hanstargram.databinding.FragmentSearchBinding
+import io.foundy.hanstargram.util.debounce
 import io.foundy.hanstargram.view.common.PagingLoadStateAdapter
 import io.foundy.hanstargram.view.common.setListeners
 import kotlinx.coroutines.launch
@@ -39,9 +39,11 @@ class SearchFragment : ViewBindingFragment<FragmentSearchBinding>() {
             showSoftKeyboard()
         }
 
+        val debounceTextChange = debounce(300L, viewModel.viewModelScope, viewModel::searchUser)
         binding.queryInput.addTextChangedListener {
             if (it != null) {
                 binding.clearButton.isVisible = it.isNotEmpty()
+                debounceTextChange(it.toString())
             }
         }
         binding.queryInput.setOnEditorActionListener { textView, actionId, _ ->
