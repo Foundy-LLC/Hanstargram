@@ -21,6 +21,7 @@ abstract class ViewBindingActivity<VB : ViewBinding> : AppCompatActivity() {
         setContentView(binding.root)
     }
 
+    @CallSuper
     override fun onDestroy() {
         super.onDestroy()
         _binding = null
