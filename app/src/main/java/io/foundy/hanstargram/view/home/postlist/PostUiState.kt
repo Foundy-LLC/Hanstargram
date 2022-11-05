@@ -9,7 +9,7 @@ data class PostListUiState(
 data class PostItemUiState(
     val uuid: String,
     val writerName: String,
-    val writerProfileImageUrl: String,
+    val writerProfileImageUrl: String?,
     val content: String,
     val imageUrl: String,
     val likeCount: Int,
