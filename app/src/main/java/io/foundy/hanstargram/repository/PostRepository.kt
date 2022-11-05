@@ -19,6 +19,8 @@ import java.util.UUID
 
 object PostRepository {
 
+    private const val PAGE_SIZE = 20
+
     suspend fun getPostsByFollower(): Flow<PagingData<PostItemUiState>> {
         try {
             val currentUser = Firebase.auth.currentUser
@@ -41,8 +43,9 @@ object PostRepository {
             val queryPostsByFollower = postCollection
                 .whereIn("writerUuid", followeeUuids)
                 .orderBy("dateTime", Query.Direction.DESCENDING)
+                .limit(PAGE_SIZE.toLong())
 
-            return Pager(PagingConfig(pageSize = 20)) {
+            return Pager(PagingConfig(pageSize = PAGE_SIZE)) {
                 PostPagingSource(queryPostsByFollower = queryPostsByFollower)
             }.flow
         } catch (e: Exception) {
