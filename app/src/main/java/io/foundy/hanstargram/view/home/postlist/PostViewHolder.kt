@@ -1,5 +1,10 @@
 package io.foundy.hanstargram.view.home.postlist
 
+import android.annotation.SuppressLint
+import android.graphics.Typeface
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.StyleSpan
 import android.widget.ToggleButton
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
@@ -33,8 +38,6 @@ class PostViewHolder(
         glide.load(storageReference.child(uiState.imageUrl))
             .into(postImage)
 
-        content.text = uiState.content
-
         likeToggleButton.isChecked = uiState.meLiked
         likeToggleButton.setOnClickListener {
             val isChecked = (it as ToggleButton).isChecked
@@ -47,5 +50,17 @@ class PostViewHolder(
         }
 
         likeCount.text = root.context.getString(R.string.like_count, uiState.likeCount)
+
+        @SuppressLint("SetTextI18n")
+        val spannable = SpannableString("${uiState.writerName} ${uiState.content}")
+        spannable.setSpan(
+            StyleSpan(Typeface.BOLD),
+            0,
+            uiState.writerName.length,
+            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+        content.text = spannable
+
+        timeAgo.text = uiState.timeAgo
     }
 }

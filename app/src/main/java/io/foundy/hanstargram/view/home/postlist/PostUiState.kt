@@ -18,5 +18,6 @@ data class PostItemUiState(
     val imageUrl: String,
     val likeCount: Int,
     val meLiked: Boolean,
-    val isMine: Boolean
+    val isMine: Boolean,
+    val timeAgo: String
 )

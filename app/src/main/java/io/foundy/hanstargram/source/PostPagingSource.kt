@@ -10,6 +10,7 @@ import com.google.firebase.ktx.Firebase
 import io.foundy.hanstargram.repository.model.LikeDto
 import io.foundy.hanstargram.repository.model.PostDto
 import io.foundy.hanstargram.repository.model.UserDto
+import io.foundy.hanstargram.util.timeAgoString
 import io.foundy.hanstargram.view.home.postlist.PostItemUiState
 import kotlinx.coroutines.tasks.await
 
@@ -55,7 +56,8 @@ class PostPagingSource(
                     imageUrl = postDto.imageUrl,
                     likeCount = likes.size,
                     meLiked = meLiked,
-                    isMine = postDto.writerUuid == currentUserId
+                    isMine = postDto.writerUuid == currentUserId,
+                    timeAgo = postDto.dateTime.timeAgoString()
                 )
             }
 
