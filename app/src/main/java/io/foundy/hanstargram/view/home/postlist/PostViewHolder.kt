@@ -1,6 +1,7 @@
 package io.foundy.hanstargram.view.home.postlist
 
 import android.widget.ToggleButton
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.google.firebase.ktx.Firebase
@@ -24,6 +25,7 @@ class PostViewHolder(
 
         userName.text = uiState.writerName
 
+        moreInfoButton.isVisible = uiState.isMine
         moreInfoButton.setOnClickListener {
             onClickMoreButton(uiState)
         }

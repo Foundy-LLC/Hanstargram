@@ -54,7 +54,8 @@ class PostPagingSource(
                     content = postDto.content,
                     imageUrl = postDto.imageUrl,
                     likeCount = likes.size,
-                    meLiked = meLiked
+                    meLiked = meLiked,
+                    isMine = postDto.writerUuid == currentUserId
                 )
             }
 

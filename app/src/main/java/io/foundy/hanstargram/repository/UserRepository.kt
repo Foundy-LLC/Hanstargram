@@ -41,7 +41,7 @@ object UserRepository {
         val imageReference = Firebase.storage.reference.child(imageUrl)
         val byteArrayOutputStream = ByteArrayOutputStream()
 
-        profileImage.compress(Bitmap.CompressFormat.JPEG, 10, byteArrayOutputStream)
+        profileImage.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
         val data = byteArrayOutputStream.toByteArray()
 
         try {

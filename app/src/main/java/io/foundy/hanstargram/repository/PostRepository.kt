@@ -77,4 +77,15 @@ object PostRepository {
             Result.failure(e)
         }
     }
+
+    suspend fun deletePost(postUuid: String): Result<Unit> {
+        val db = Firebase.firestore
+
+        return try {
+            db.collection("posts").document(postUuid).delete().await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }
