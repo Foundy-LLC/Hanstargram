@@ -45,7 +45,7 @@ class PostPagingSource(
                     .toObjects(LikeDto::class.java)
                 val writer = userCollection.document(postDto.writerUuid).get().await()
                     .toObject(UserDto::class.java)
-                val meLiked = likes.any { like -> like.likerUuid == currentUserId }
+                val meLiked = likes.any { like -> like.userUuid == currentUserId }
 
                 PostItemUiState(
                     uuid = postDto.uuid,

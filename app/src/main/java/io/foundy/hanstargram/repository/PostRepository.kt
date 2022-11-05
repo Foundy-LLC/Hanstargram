@@ -5,13 +5,16 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.firestore.ktx.toObjects
 import com.google.firebase.ktx.Firebase
 import io.foundy.hanstargram.repository.model.FollowDto
+import io.foundy.hanstargram.repository.model.LikeDto
 import io.foundy.hanstargram.source.PostPagingSource
 import io.foundy.hanstargram.view.home.postlist.PostItemUiState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.tasks.await
+import java.util.UUID
 
 object PostRepository {
 
@@ -42,6 +45,36 @@ object PostRepository {
         } catch (e: Exception) {
             e.printStackTrace()
             throw e
+        }
+    }
+
+    suspend fun toggleLike(postUuid: String): Result<Unit> {
+        val currentUser = Firebase.auth.currentUser
+        require(currentUser != null)
+        val db = Firebase.firestore
+        val likeCollection = db.collection("likes")
+
+        return try {
+            val likes = likeCollection
+                .whereEqualTo("userUuid", currentUser.uid)
+                .whereEqualTo("postUuid", postUuid)
+                .get().await().toObjects<LikeDto>()
+
+            if (likes.isEmpty()) {
+                val likeUuid = UUID.randomUUID().toString()
+                val likeDto = LikeDto(
+                    uuid = likeUuid,
+                    userUuid = currentUser.uid,
+                    postUuid = postUuid
+                )
+                likeCollection.document(likeUuid).set(likeDto).await()
+            } else {
+                likeCollection.document(likes.first().uuid).delete().await()
+            }
+
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
         }
     }
 }

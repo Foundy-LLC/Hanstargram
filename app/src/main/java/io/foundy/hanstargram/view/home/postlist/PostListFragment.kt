@@ -61,10 +61,10 @@ class PostListFragment : ViewBindingFragment<FragmentPostListBinding>() {
     }
 
     private fun onClickLikeButton(uiState: PostItemUiState) {
-
+        viewModel.toggleLike(postUuid = uiState.uuid)
     }
 
     private fun onClickMoreInfoButton(uiState: PostItemUiState) {
-
+        // TODO: 구현
     }
 }

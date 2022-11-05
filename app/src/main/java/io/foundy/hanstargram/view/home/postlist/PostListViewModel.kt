@@ -24,4 +24,10 @@ class PostListViewModel : ViewModel() {
                 }
         }
     }
+
+    fun toggleLike(postUuid: String) {
+        viewModelScope.launch {
+            PostRepository.toggleLike(postUuid)
+        }
+    }
 }

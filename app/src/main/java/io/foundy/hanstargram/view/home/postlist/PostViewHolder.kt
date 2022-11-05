@@ -1,5 +1,6 @@
 package io.foundy.hanstargram.view.home.postlist
 
+import android.widget.ToggleButton
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.google.firebase.ktx.Firebase
@@ -32,8 +33,14 @@ class PostViewHolder(
 
         content.text = uiState.content
 
-        // TODO(민성): 좋아요 누른 경우 빨갛게 채운 모양 보이기
-        likeButton.setOnClickListener {
+        likeToggleButton.isChecked = uiState.meLiked
+        likeToggleButton.setOnClickListener {
+            val isChecked = (it as ToggleButton).isChecked
+            val likeCountText = uiState.likeCount +
+                    (if (uiState.meLiked) -1 else 0) +
+                    (if (isChecked) 1 else 0)
+
+            likeCount.text = root.context.getString(R.string.like_count, likeCountText)
             onClickLikeButton(uiState)
         }
 
