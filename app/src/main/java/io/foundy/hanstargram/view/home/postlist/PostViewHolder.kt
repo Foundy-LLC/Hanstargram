@@ -60,5 +60,7 @@ class PostViewHolder(
             Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
         )
         content.text = spannable
+
+        timeAgo.text = uiState.timeAgo
     }
 }
