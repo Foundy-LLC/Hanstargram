@@ -9,8 +9,12 @@
     <string name="prefs_has_user_info">shownWelcomePage</string>
 
     <!-- Login -->
-    <string name="sign_in_with_google">Google 계정으로 로그인</string>
+    <string name="email">이메일</string>
+    <string name="password">비밀번호</string>
     <string name="failed_to_sign_in">로그인에 실패했습니다.</string>
+    <string name="login">로그인</string>
+    <string name="do_not_have_account">계정이 없으신가요?</string>
+    <string name="sign_up">가입하기</string>
 
     <!-- Welcome -->
     <string name="welcome">환영합니다!</string>

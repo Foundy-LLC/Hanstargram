@@ -89,11 +89,11 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
     }
 
     private fun initSignInButton() {
-        binding.signInButton.apply {
-            val textView = getChildAt(0) as? TextView
-            textView?.let { it.text = context.getString(R.string.sign_in_with_google) }
-            setOnClickListener { signIn() }
-        }
+//        binding.signInButton.apply {
+//            val textView = getChildAt(0) as? TextView
+//            textView?.let { it.text = context.getString(R.string.sign_in_with_google) }
+//            setOnClickListener { signIn() }
+//        }
     }
 
     private fun signIn() {
