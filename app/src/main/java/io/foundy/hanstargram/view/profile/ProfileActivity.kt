@@ -13,15 +13,14 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import io.foundy.hanstargram.base.ViewBindingActivity
 import io.foundy.hanstargram.databinding.ActivityProfileBinding
-import io.foundy.hanstargram.view.profile.profilepostlist.ProfilePostAdapter
-import io.foundy.hanstargram.view.profile.profilepostlist.ProfilePostItem
+import io.foundy.hanstargram.repository.model.PostDto
 import kotlinx.coroutines.launch
 
 class ProfileActivity : ViewBindingActivity<ActivityProfileBinding>() {
-    private val viewModel: ProfileViewModel by viewModels()
-    private var gridView:GridView ?= null
-    private var arrayList:ArrayList<ProfilePostItem> ?= null
-    private var profilePostAdapter:ProfilePostAdapter ?= null
+    private val viewModel : ProfileViewModel by viewModels()
+    private val uid = Firebase.auth.currentUser?.uid.toString()
+
+    private lateinit var gridView : GridView
 
     override val bindingInflater: (LayoutInflater) -> ActivityProfileBinding
         get() = ActivityProfileBinding::inflate
@@ -35,16 +34,16 @@ class ProfileActivity : ViewBindingActivity<ActivityProfileBinding>() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        gridView = binding.profilePostGrid
 
-        val uid = Firebase.auth.currentUser?.uid.toString()
-        viewModel.getProfileData("9xxtqRjGd1OTyBbyGHCpBmsUUCJ2")
+        viewModel.getProfileData("hENexIWmYKZfaWw7nEycuLJUryn2")
 
         lifecycleScope.launch{
             repeatOnLifecycle(Lifecycle.State.STARTED){
                 viewModel.uiState.collect { uiState ->
                     binding.apply {
                         profileHeaderUsernameTextview.text = uiState.profileInfo.name
-                        profileIntroduceTextview.text = uiState.profileInfo.toString()
+                        profileIntroduceTextview.text = uiState.toString()
                         profileInfoFollowernumTextview.text = uiState.profileInfo.follower.toString()
                         profileInfoFollowingnumTextview.text = uiState.profileInfo.followee.toString()
                         profileInfoPostnumTextview.text = uiState.profileInfo.post.toString()
@@ -56,19 +55,9 @@ class ProfileActivity : ViewBindingActivity<ActivityProfileBinding>() {
                         }
                     }
                     viewModel.setImageView(binding.profileImage, uiState.profileInfo.profileImg)
+                    gridView.adapter = ProfilePostAdapter(applicationContext, uiState.profilePost)
                 }
             }
         }
     }
-
-//    private fun setDataList() : ArrayList<ProfilePostItem>{
-//        val arrayList : ArrayList<ProfilePostItem> = ArrayList()
-//        arrayList.add(ProfilePostItem(R.drawable.ic_baseline_star_24))
-//        arrayList.add(ProfilePostItem(R.drawable.ic_baseline_star_24))
-//        arrayList.add(ProfilePostItem(R.drawable.ic_baseline_star_24))
-//        arrayList.add(ProfilePostItem(R.drawable.ic_baseline_star_24))
-//
-//
-//        return arrayList
-//    }
 }

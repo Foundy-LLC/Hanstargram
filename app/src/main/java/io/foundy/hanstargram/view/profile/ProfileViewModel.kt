@@ -19,9 +19,10 @@ class ProfileViewModel : ViewModel() {
     fun getProfileData(uuid : String){
         viewModelScope.launch {
             try{
-                val profileInfo = ProfileRepository.getProfileInfo(uuid)
+                val profileUiState = ProfileRepository.getProfileUiState(uuid)
                 _uiState.update {
-                    it.copy(profileInfo = profileInfo)
+                    it.copy(profileInfo = profileUiState.profileInfo)
+                    it.copy(profilePost = profileUiState.profilePost)
                 }
             }
             catch (e : Exception){
@@ -47,21 +48,4 @@ class ProfileViewModel : ViewModel() {
                  .into(imageView)
         }
     }
-
-    fun getProfilePost(uuid : String){
-        viewModelScope.launch {
-            try{
-                val profilePost = ProfileRepository.getProfilePost(uuid)
-                _uiState.update {
-                    it.copy(profilePost = profilePost)
-                }
-            }
-            catch (e : Exception){
-                _uiState.update {
-                    it.copy(message = e.toString())
-                }
-            }
-        }
-    }
-
 }

@@ -1,113 +1,108 @@
 package io.foundy.hanstargram.repository
 
 import android.util.Log
-import android.widget.ImageView
-import com.bumptech.glide.Glide
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.AggregateSource
-import com.google.firebase.firestore.CollectionReference
-import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.ktx.storage
 import io.foundy.hanstargram.view.profile.ProfileInfoUiState
-import io.foundy.hanstargram.view.profile.ProfilePostUiState
+import io.foundy.hanstargram.repository.model.PostDto
+import io.foundy.hanstargram.view.profile.ProfileUiState
 import kotlinx.coroutines.tasks.await
 
 object ProfileRepository {
-    suspend fun getProfileInfo(uuid : String): ProfileInfoUiState {
+    private const val TAG = "ProfileRepository"
+    private val db = Firebase.firestore
+    private val currentUser = Firebase.auth.currentUser
+    private val userCollection = db.collection("users")
+    private val postCollection = db.collection("posts")
+    private val followCollection = db.collection("followers")
+
+    private suspend fun getPosts(uuid : String) : Long {
+        val query = postCollection.whereEqualTo("writerUuid", uuid)
+        return query.count().get(AggregateSource.SERVER).await().count
+    }
+
+    private suspend fun getFollower(uuid : String) : Long{
+        val query = followCollection.whereEqualTo("followerUuid", uuid)
+        return query.count().get(AggregateSource.SERVER).await().count
+    }
+
+    private suspend fun getFollowee(uuid : String): Long {
+        val query = followCollection.whereEqualTo("followeeUuid", uuid)
+        return query.count().get(AggregateSource.SERVER).await().count
+    }
+
+    private suspend fun getProfilePost(uuid : String): MutableList<PostDto> {
+        val postList : MutableList<PostDto> = mutableListOf()
+
         try {
-            val currentUser = Firebase.auth.currentUser
             require(currentUser != null)
-            val db = Firebase.firestore
 
-            /* 유저 기본 정보 불러오기 */
-            /* data class라서 set이 안된다??? */
-            var name = ""
-            var introduce = ""
-            var profileImg = ""
+            val postQuery = postCollection.whereEqualTo("writerUuid", uuid)
+            val postSnapshot = postQuery.get().await()
 
-            val userCollection = db.collection("users")
-            val userDocument = userCollection.document(uuid)
+            if(postSnapshot.isEmpty){
+                return postList
+            }
 
-            userDocument.get().addOnCompleteListener {
-                if (it.isSuccessful) {
-                    val instance = it.result
+            postSnapshot.documents.map {
+                val postDto = it.toObject(PostDto::class.java)
+                postList.add(postDto!!)
+            }
+
+            return postList
+        } catch (e: Exception) {
+            Log.e(TAG, e.toString())
+            return postList
+        }
+    }
+
+    suspend fun getProfileUiState(uuid : String): ProfileUiState {
+        lateinit var profileUiState : ProfileUiState
+
+        try {
+            require(currentUser != null)
+
+            var name : String = "Null"
+            var introduce : String = "Null"
+            var profileImage : String = "Null"
+
+            userCollection.document(uuid).get()
+                .addOnSuccessListener { instance ->
                     name = instance["name"].toString()
                     introduce = instance["uuid"].toString() // ToDo DB에 자기소개 추가
-                    profileImg = instance["profileImageUrl"].toString()
+                    profileImage = instance["profileImageUrl"].toString()
                 }
-                else {
-                    name = "Failed"
-                    introduce = "Failed"
-                    profileImg = "Failed"
+                .addOnFailureListener { e ->
+                    name = "Failed $e"
+                    introduce = "Failed $e"
+                    profileImage = "Failed $e"
                 }
-            }.await()
+            .await()
 
-            /* 유저 카운트 정보 불러오기 */
-            var post : Long = 0
-            var follower : Long = 0
-            var followee : Long = 0
-            var collection : CollectionReference
-            var query : Query
-
-            collection = Firebase.firestore.collection("posts")
-            query = collection.whereEqualTo("writerUuid", uuid)
-            query.count().get(AggregateSource.SERVER).addOnCompleteListener { task ->
-                if(task.isSuccessful){
-                    post = task.result.count
-                }else{
-                    Log.d("ProfileRepository", "Count failed: ", task.getException())
-                }
-            }.await()
-
-            collection = Firebase.firestore.collection("followers")
-            query = collection.whereEqualTo("followerUuid", uuid)
-            query.count().get(AggregateSource.SERVER).addOnCompleteListener { task ->
-                if(task.isSuccessful){
-                    follower = task.result.count
-                }else{
-                    Log.d("ProfileRepository", "Count failed: ", task.getException())
-                }
-            }.await()
-
-            collection = Firebase.firestore.collection("followers")
-            query = collection.whereEqualTo("followeeUuid", uuid)
-            query.count().get(AggregateSource.SERVER).addOnCompleteListener { task ->
-                if(task.isSuccessful){
-                    followee = task.result.count
-                }else{
-                    Log.d("ProfileRepository", "Count failed: ", task.getException())
-                }
-            }.await()
-
-            return ProfileInfoUiState(
-                name = name,
-                introduce = introduce,
-                profileImg = profileImg,
-                post = post,
-                follower = follower,
-                followee = followee,
-                isMine = (currentUser.uid == uuid)
+            profileUiState = ProfileUiState(
+                ProfileInfoUiState(
+                    name = name,
+                    introduce = introduce,
+                    profileImg = profileImage,
+                    post = getPosts(uuid),
+                    follower = getFollower(uuid),
+                    followee = getFollowee(uuid),
+                    isMine = (currentUser.uid == uuid)
+                ),
+                getProfilePost(uuid),
+                "wht"
             )
+
+            Log.d(TAG, profileUiState.toString())
+            return profileUiState
         } catch (e: Exception) {
-            return ProfileInfoUiState()
+            Log.e(TAG, e.toString() + "프로필 읽어오기 인포 에러")
+            return ProfileUiState()
         }
     }
 
-    fun getProfilePost(uuid : String): MutableList<ProfilePostUiState> {
-        val list : MutableList<ProfilePostUiState> = mutableListOf()
-        return try {
-            val currentUser = Firebase.auth.currentUser
-            require(currentUser != null)
-            val db = Firebase.firestore
-            val userCollection = db.collection("users")
-            val userDocument = userCollection.document(uuid)
-            list
-        } catch (e: Exception) {
-            list
-        }
-    }
+
 
 }

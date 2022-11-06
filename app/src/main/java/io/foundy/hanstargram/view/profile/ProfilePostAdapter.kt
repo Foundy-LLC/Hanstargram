@@ -1,4 +1,4 @@
-package io.foundy.hanstargram.view.profile.profilepostlist
+package io.foundy.hanstargram.view.profile
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -9,15 +9,17 @@ import android.widget.BaseAdapter
 
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import io.foundy.hanstargram.R
+import io.foundy.hanstargram.repository.model.PostDto
 
-class ProfilePostAdapter(var context : Context, var arrayList: ArrayList<ProfilePostItem>) : BaseAdapter() {
+class ProfilePostAdapter(var context : Context, var postList: MutableList<PostDto>) : BaseAdapter() {
     override fun getCount(): Int {
-        return arrayList.size
+        return postList.size
     }
 
     override fun getItem(pos : Int): Any {
-        return arrayList[pos]
+        return postList[pos]
     }
 
     override fun getItemId(pos : Int): Long {
@@ -28,9 +30,12 @@ class ProfilePostAdapter(var context : Context, var arrayList: ArrayList<Profile
     override fun getView(pos: Int, convertView: View?, parent: ViewGroup?): View {
         val view : View = View.inflate(context, R.layout.profile_gird_item, null)
         val icons : ImageView = view.findViewById(R.id.icons)
-        val profilePostItem: ProfilePostItem = arrayList.get(pos)
+        val glide = Glide.with(view)
 
-        icons.setImageResource(profilePostItem.icons!!)
+        glide.load(postList[pos].imageUrl)
+            .fallback(R.drawable.ic_baseline_star_24)
+            .into(icons)
+
         return view
     }
 }
