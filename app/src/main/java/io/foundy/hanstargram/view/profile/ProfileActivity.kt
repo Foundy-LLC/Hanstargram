@@ -3,6 +3,7 @@ package io.foundy.hanstargram.view.profile
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.widget.GridView
 import androidx.activity.viewModels
@@ -36,7 +37,11 @@ class ProfileActivity : ViewBindingActivity<ActivityProfileBinding>() {
         super.onCreate(savedInstanceState)
         gridView = binding.profilePostGrid
 
-        viewModel.getProfileData("hENexIWmYKZfaWw7nEycuLJUryn2")
+        val intent = Companion.getIntent(this)
+        intent.getStringExtra("uuid")?.let {
+            viewModel.getProfileData(it)
+            Log.d(TAG, it + "입니다")
+        }
 
         lifecycleScope.launch{
             repeatOnLifecycle(Lifecycle.State.STARTED){
