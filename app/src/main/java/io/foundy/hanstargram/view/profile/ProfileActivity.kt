@@ -35,6 +35,10 @@ class ProfileActivity : ViewBindingActivity<ActivityProfileBinding>() {
         // uuid를 viewmodel에 등록하여 초기화 실행
         viewModel.init(intent.getStringExtra("uuid") ?: "설마에러")
 
+        binding.profileButton.setOnClickListener {
+            viewModel.actionProfileButton()
+        }
+
         lifecycleScope.launch{
             repeatOnLifecycle(Lifecycle.State.STARTED){
                 viewModel.uiState.collect { uiState ->
@@ -52,18 +56,21 @@ class ProfileActivity : ViewBindingActivity<ActivityProfileBinding>() {
             profileHeaderUsernameTextview.text = userInfo.name
             profileIntroduceTextview.text = "${userInfo.name}의 자기소개 입니다."
             profileInfoPostnumTextview.text = uiState.post.toString()
-            profileInfoFollowernumTextview.text = uiState.followee.toString()
+            profileInfoFollowernumTextview.text = uiState.follower.toString()
             profileInfoFolloweenumTextview.text = uiState.followee.toString()
 
-            if(uiState.isMine){
-                profileModifyButton.text = "프로필 수정"
+            val profileState = uiState.state
+            if(profileState == 0){
+                profileButton.text = "프로필 수정"
             }
-            else{
-                profileModifyButton.text = "팔로우"
+            else if (profileState == 1){
+                profileButton.text = "팔로우 취소"
+            }
+            else if (profileState == 2){
+                profileButton.text = "팔로우"
             }
 
             val storageReference = Firebase.storage.reference
-
             Glide.with(applicationContext)
                 .load(userInfo.profileImageUrl?.let { storageReference.child(it) })
                 .circleCrop()

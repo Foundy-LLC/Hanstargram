@@ -10,6 +10,6 @@ data class ProfileUiState(
     val post : Int = 0,
     val follower : Int = 0,
     val followee: Int = 0,
+    val state : Int = 0,
     val message : String = "몰라",
-    val isMine : Boolean = false
 )

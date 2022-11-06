@@ -1,5 +1,6 @@
 package io.foundy.hanstargram.view.profile
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.ktx.auth
@@ -10,27 +11,71 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+enum class ProfileState {
+    IsMyProfile,
+    Following,
+    UnFollowing
+}
+
 class ProfileViewModel : ViewModel() {
-    private lateinit var uuid : String
-    private lateinit var curuuid : String
+    private lateinit var thisUuid : String
+    private lateinit var curUuid : String
+    private lateinit var profileState : ProfileState
+    private val TAG = "ProfileViewModel"
+
     private val _uiState: MutableStateFlow<ProfileUiState> = MutableStateFlow(ProfileUiState())
     val uiState = _uiState.asStateFlow()
 
     fun init(uuid : String){
-        this.uuid = uuid
-        this.curuuid = Firebase.auth.currentUser?.uid.toString()
+        this.thisUuid = uuid
+        this.curUuid = Firebase.auth.currentUser?.uid.toString()
+
+        checkFollowing()
         getProfileData()
         getPostCount()
         getFollowerCount()
         getFolloweeCount()
     }
 
+    private fun checkFollowing(){
+        var state : Int
+
+        if(thisUuid == curUuid){ // 내 프로필이면 그냥 state만 변경하고 리턴
+            profileState = ProfileState.IsMyProfile
+            state = 0
+            _uiState.update {
+                it.copy(state = state)
+            }
+        }
+        else{
+            viewModelScope.launch { // 일단 다른 유저라면 팔로우 중인치 체크
+                try{
+                    if(ProfileRepository.isFollowThisUser(thisUuid)){ // 팔로우 중이라면 팔로우 취소가 떠야 함
+                        profileState = ProfileState.Following
+                        state = 1
+                    } else{ // 팔로우를 안하고 있다면 팔로우가 떠야 함
+                        profileState = ProfileState.UnFollowing
+                        state = 2
+                    }
+                    _uiState.update { // 아무튼 state를 업데이트
+                        it.copy(state = state)
+                    }
+                }
+                catch (e: Exception){
+                    _uiState.update {
+                        it.copy(message = e.toString())
+                    }
+                }
+            }
+        }
+    }
+
     fun getProfileData(){
         viewModelScope.launch {
             try{
-                val userDto = ProfileRepository.getUserDto(uuid)
+                val userDto = ProfileRepository.getUserDto(thisUuid)
                 _uiState.update {
-                    it.copy(userInfo = userDto, isMine = (userDto.uuid == curuuid))
+                    it.copy(userInfo = userDto)
                 }
             }
             catch (e : Exception){
@@ -44,7 +89,7 @@ class ProfileViewModel : ViewModel() {
     fun getPostCount(){
         viewModelScope.launch {
             try{
-                val postCount = ProfileRepository.getPostCount(uuid).toInt()
+                val postCount = ProfileRepository.getPostCount(thisUuid).toInt()
                 _uiState.update {
                     it.copy(post = postCount)
                 }
@@ -60,7 +105,7 @@ class ProfileViewModel : ViewModel() {
     fun getFollowerCount(){
         viewModelScope.launch {
             try{
-                val followerCount = ProfileRepository.getFollowerCount(uuid).toInt()
+                val followerCount = ProfileRepository.getFollowerCount(thisUuid).toInt()
                 _uiState.update {
                     it.copy(follower = followerCount)
                 }
@@ -76,7 +121,7 @@ class ProfileViewModel : ViewModel() {
     fun getFolloweeCount(){
         viewModelScope.launch {
             try{
-                val followeeCount = ProfileRepository.getFolloweeCount(uuid).toInt()
+                val followeeCount = ProfileRepository.getFolloweeCount(thisUuid).toInt()
                 _uiState.update {
                     it.copy(followee = followeeCount)
                 }
@@ -88,6 +133,50 @@ class ProfileViewModel : ViewModel() {
             }
         }
     }
+
+    fun actionProfileButton(){
+        if(profileState == ProfileState.IsMyProfile){
+            // TODO: 프로필 수정 액티비티로 이동 ㄱㄱ
+        }
+        else if (profileState == ProfileState.Following){ // 팔로우 중일 때 실행, 팔로우 취소 액션
+            profileState = ProfileState.UnFollowing
+            viewModelScope.launch {
+                try{
+                    ProfileRepository.unFollow(thisUuid)
+                    val followerCount = ProfileRepository.getFollowerCount(thisUuid).toInt()
+                    _uiState.update {
+                        it.copy(follower = followerCount, state = 2)
+                    }
+                }
+                catch (e : Exception){
+                    _uiState.update {
+                        it.copy(message = e.toString())
+                    }
+                }
+            }
+        }
+        else if (profileState == ProfileState.UnFollowing){ // 팔로우 중이 아닐 때 실행, 팔로우 하는 액션
+            profileState = ProfileState.Following
+            viewModelScope.launch {
+                try{
+                    ProfileRepository.doFollow(thisUuid)
+                    val followerCount = ProfileRepository.getFollowerCount(thisUuid).toInt()
+                    _uiState.update {
+                        it.copy(follower = followerCount, state = 1)
+                    }
+                }
+                catch (e : Exception){
+                    _uiState.update {
+                        it.copy(message = e.toString())
+                    }
+                }
+            }
+        }
+        else{
+            Log.e(TAG, "프로필 버튼 에러")
+        }
+    }
+
 
 //    fun setImageView(imageView: ImageView, imageSrc : String){
 //        if(imageSrc == "") return
