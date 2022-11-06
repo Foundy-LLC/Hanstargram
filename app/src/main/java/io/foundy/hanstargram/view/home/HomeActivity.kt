@@ -7,8 +7,8 @@ import android.view.LayoutInflater
 import androidx.activity.viewModels
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
+import io.foundy.common.base.ViewBindingActivity
 import io.foundy.hanstargram.R
-import io.foundy.hanstargram.base.ViewBindingActivity
 import io.foundy.hanstargram.databinding.ActivityHomeBinding
 
 class HomeActivity : ViewBindingActivity<ActivityHomeBinding>() {

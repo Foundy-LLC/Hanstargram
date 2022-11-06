@@ -15,7 +15,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.GridLayoutManager
-import io.foundy.hanstargram.base.ViewBindingFragment
+import io.foundy.common.base.ViewBindingFragment
 import io.foundy.hanstargram.databinding.FragmentSearchBinding
 import io.foundy.hanstargram.util.debounce
 import io.foundy.hanstargram.view.common.PagingLoadStateAdapter

@@ -1,7 +1,7 @@
 package io.foundy.hanstargram.view.home.search
 
 import androidx.paging.PagingData
-import io.foundy.hanstargram.repository.model.UserDto
+import io.foundy.data.model.UserDto
 
 data class SearchUiState(
     val pagingData: PagingData<SearchItemUiState> = PagingData.empty()

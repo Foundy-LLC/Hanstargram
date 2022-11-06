@@ -3,7 +3,7 @@ package io.foundy.hanstargram.view.welcome
 import android.graphics.Bitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import io.foundy.hanstargram.repository.UserRepository
+import io.foundy.data.repository.UserRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

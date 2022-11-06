@@ -17,8 +17,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import io.foundy.common.base.ViewBindingActivity
 import io.foundy.hanstargram.R
-import io.foundy.hanstargram.base.ViewBindingActivity
 import io.foundy.hanstargram.databinding.ActivityWelcomeBinding
 import io.foundy.hanstargram.view.home.HomeActivity
 import kotlinx.coroutines.launch
