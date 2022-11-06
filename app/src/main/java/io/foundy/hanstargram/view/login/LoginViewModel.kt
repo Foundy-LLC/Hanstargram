@@ -11,7 +11,7 @@ class LoginViewModel : ViewModel() {
         get() = AuthRepository.isSignedIn()
 
     fun signInWith(idToken: String, onComplete: (result: Result<Any>) -> Unit) {
-        AuthRepository.signInWith(idToken, onComplete)
+      //  AuthRepository.signInWith(idToken, onComplete)
     }
 
     fun checkUserInfoExists(hasUserInfoCallback: (Boolean) -> Unit) {

@@ -4,6 +4,7 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.tasks.await
 
 object AuthRepository {
 
@@ -11,14 +12,12 @@ object AuthRepository {
         return Firebase.auth.currentUser != null
     }
 
-    fun signInWith(idToken: String, onComplete: (result: Result<Any>) -> Unit) {
-        val firebaseCredential = GoogleAuthProvider.getCredential(idToken, null)
-        Firebase.auth.signInWithCredential(firebaseCredential).addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                onComplete(Result.success(true))
-            } else {
-                onComplete(Result.failure(task.exception!!))
-            }
+    suspend fun signUp(email: String, password: String): Result<Unit> {
+        return try {
+            Firebase.auth.createUserWithEmailAndPassword(email, password).await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
         }
     }
 

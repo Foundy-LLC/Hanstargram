@@ -53,4 +53,8 @@
     <string name="clear_query_content_description">검색어 삭제 버튼</string>
     <string name="user_image">회원 사진</string>
     <string name="search_user">회원 검색…</string>
+    <string name="create_account">회원가입</string>
+    <string name="email_is_not_valid">이메일 형식이 아닙니다.</string>
+    <string name="password_is_not_valid">비밀번호는 최소 6자 입니다.</string>
+    <string name="failed_to_sign_up">가입에 실패했습니다.</string>
 </resources>
