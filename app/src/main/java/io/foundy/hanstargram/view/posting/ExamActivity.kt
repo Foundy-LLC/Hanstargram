@@ -7,9 +7,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import io.foundy.hanstargram.base.ViewBindingActivity
+import io.foundy.common.base.ViewBindingActivity
 import io.foundy.hanstargram.databinding.ActivityExamBinding
-import java.util.jar.Manifest
 
 class ExamActivity : ViewBindingActivity<ActivityExamBinding>() {
     override val bindingInflater: (LayoutInflater) -> ActivityExamBinding

@@ -1,6 +1,5 @@
 package io.foundy.hanstargram.view.posting
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.ImageDecoder
@@ -9,21 +8,26 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.LayoutInflater
+import android.widget.Button
+import android.widget.EditText
+import android.widget.ImageView
 import android.widget.Toast
-import android.widget.Toolbar
-import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
+import androidx.annotation.RequiresApi
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.storage.FirebaseStorage
+import io.foundy.common.base.ViewBindingActivity
+import io.foundy.data.model.PostDto
 import io.foundy.hanstargram.R
-import io.foundy.hanstargram.base.ViewBindingActivity
 import io.foundy.hanstargram.databinding.ActivityPostingBinding
-import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.*
-import java.util.jar.Manifest
 
 class PostingActivity : ViewBindingActivity<ActivityPostingBinding>() {
+    private var storage: FirebaseStorage? = null
+    private var photoUri: Uri? = null
+    private var auth: FirebaseAuth? = null
 
     private val fileChooserContract =
         registerForActivityResult(ActivityResultContracts.GetContent()) { imageUri ->
@@ -39,7 +43,9 @@ class PostingActivity : ViewBindingActivity<ActivityPostingBinding>() {
                 } else {
                     MediaStore.Images.Media.getBitmap(contentResolver, imageUri)
                 }
-                binding.addImage.setImageBitmap(bitmap)
+                photoUri = imageUri
+                val imgView = findViewById<ImageView>(R.id.add_image)
+                imgView.setImageBitmap(bitmap)
             }
         }
 
@@ -56,10 +62,15 @@ class PostingActivity : ViewBindingActivity<ActivityPostingBinding>() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_posting)
 
+        storage = FirebaseStorage.getInstance()
+        auth = FirebaseAuth.getInstance()
+
         showImagePicker()
 
-        binding.postButton.setOnClickListener {
-            //contentUpload()
+        val postButton = findViewById<Button>(R.id.post_button)
+
+        postButton.setOnClickListener {
+            contentUpload()
         }
     }
 
@@ -68,14 +79,20 @@ class PostingActivity : ViewBindingActivity<ActivityPostingBinding>() {
     }
 
 
-//    private fun contentUpload() {
-//        var timestamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
-//        var imageFileName = "IMAGE_" + timestamp + "_.png"
-//
-//        var storageRef = storage?.reference?.child("images")?.child(imageFileName)
-//
-//        storageRef?.putFile(photoUri!!)?.addOnSuccessListener {
-//            Toast.makeText(this, "업로드 성공", Toast.LENGTH_LONG).show()
-//        }
-//    }
+    private fun contentUpload() {
+        val imageFileName: String = UUID.randomUUID().toString() + ".png"
+        val contentText = findViewById<EditText>(R.id.content).toString()
+
+        // Create a storage reference from our app
+        val storageRef = storage?.reference
+
+        // Create a reference to "mountains.jpg"
+        val mountainsRef = storageRef?.child(imageFileName)
+
+        mountainsRef?.putFile(photoUri!!)?.addOnSuccessListener {
+            Toast.makeText(this, "업로드 성공", Toast.LENGTH_LONG).show()
+        }?.addOnFailureListener {
+            Toast.makeText(this, "업로드 실패", Toast.LENGTH_LONG).show()
+        }
+    }
 }
