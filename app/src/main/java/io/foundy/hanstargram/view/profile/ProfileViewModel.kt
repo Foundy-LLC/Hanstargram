@@ -1,11 +1,11 @@
 package io.foundy.hanstargram.view.profile
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import io.foundy.data.repository.ProfileRepository
+import io.foundy.hanstargram.R
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -63,7 +63,7 @@ class ProfileViewModel : ViewModel() {
                 }
                 catch (e: Exception){
                     _uiState.update {
-                        it.copy(message = e.toString())
+                        it.copy(userMessage = R.string.profile_error_temp)
                     }
                 }
             }
@@ -80,7 +80,7 @@ class ProfileViewModel : ViewModel() {
             }
             catch (e : Exception){
                 _uiState.update {
-                    it.copy(message = e.toString())
+                    it.copy(userMessage = R.string.profile_error_temp)
                 }
             }
         }
@@ -96,7 +96,7 @@ class ProfileViewModel : ViewModel() {
             }
             catch (e : Exception){
                 _uiState.update {
-                    it.copy(message = e.toString())
+                    it.copy(userMessage = R.string.profile_error_temp)
                 }
             }
         }
@@ -112,7 +112,7 @@ class ProfileViewModel : ViewModel() {
             }
             catch (e : Exception){
                 _uiState.update {
-                    it.copy(message = e.toString())
+                    it.copy(userMessage = R.string.profile_error_temp)
                 }
             }
         }
@@ -128,7 +128,7 @@ class ProfileViewModel : ViewModel() {
             }
             catch (e : Exception){
                 _uiState.update {
-                    it.copy(message = e.toString())
+                    it.copy(userMessage = R.string.profile_error_temp)
                 }
             }
         }
@@ -141,16 +141,15 @@ class ProfileViewModel : ViewModel() {
         else if (profileState == ProfileState.Following){ // 팔로우 중일 때 실행, 팔로우 취소 액션
             profileState = ProfileState.UnFollowing
             viewModelScope.launch {
-                try{
-                    ProfileRepository.unFollow(thisUuid)
+                if(ProfileRepository.unFollow(thisUuid).isSuccess){
                     val followerCount = ProfileRepository.getFollowerCount(thisUuid).toInt()
                     _uiState.update {
-                        it.copy(follower = followerCount, state = 2)
+                        it.copy(follower = followerCount, state = 2, userMessage = R.string.profile_follow_cancle)
                     }
                 }
-                catch (e : Exception){
+                else{
                     _uiState.update {
-                        it.copy(message = e.toString())
+                        it.copy(userMessage = R.string.profile_error_temp)
                     }
                 }
             }
@@ -158,25 +157,29 @@ class ProfileViewModel : ViewModel() {
         else if (profileState == ProfileState.UnFollowing){ // 팔로우 중이 아닐 때 실행, 팔로우 하는 액션
             profileState = ProfileState.Following
             viewModelScope.launch {
-                try{
-                    ProfileRepository.doFollow(thisUuid)
+                if(ProfileRepository.doFollow(thisUuid).isSuccess){
                     val followerCount = ProfileRepository.getFollowerCount(thisUuid).toInt()
                     _uiState.update {
-                        it.copy(follower = followerCount, state = 1)
+                        it.copy(follower = followerCount, state = 1, userMessage = R.string.profile_follow_success)
                     }
                 }
-                catch (e : Exception){
+                else{
                     _uiState.update {
-                        it.copy(message = e.toString())
+                        it.copy(userMessage = R.string.profile_error_temp)
                     }
                 }
             }
         }
         else{
-            Log.e(TAG, "프로필 버튼 에러")
+            _uiState.update {
+                it.copy(userMessage = R.string.profile_error_temp)
+            }
         }
     }
 
+    fun userMessageShown() {
+        _uiState.update { it.copy(userMessage = null) }
+    }
 
 //    fun setImageView(imageView: ImageView, imageSrc : String){
 //        if(imageSrc == "") return

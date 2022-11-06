@@ -18,7 +18,8 @@
         android:weightSum="10"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="RtlHardcoded">
 
         <TextView
             android:id="@+id/profile_header_username_textview"
@@ -28,7 +29,6 @@
             android:ellipsize="end"
             android:gravity="center_vertical"
             android:maxLines="1"
-            android:text="UserNamedddddddddddddddddddddddddddd"
             android:textSize="24sp" />
 
         <Button
@@ -78,7 +78,6 @@
                     android:layout_weight="1"
                     android:ellipsize="end"
                     android:maxLines="1"
-                    android:text="999"
                     android:textAlignment="center"
                     android:textSize="48sp" />
 
@@ -89,7 +88,6 @@
                     android:layout_weight="1"
                     android:ellipsize="end"
                     android:maxLines="1"
-                    android:text="999"
                     android:textAlignment="center"
                     android:textSize="48sp" />
 
@@ -100,7 +98,6 @@
                     android:layout_weight="1"
                     android:ellipsize="end"
                     android:maxLines="1"
-                    android:text="999"
                     android:textAlignment="center"
                     android:textSize="48sp" />
             </TableRow>
@@ -116,7 +113,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="게시글"
+                    android:text="@string/profile_post"
                     android:textAlignment="center" />
 
                 <TextView
@@ -124,7 +121,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="팔로워"
+                    android:text="@string/profile_follower"
                     android:textAlignment="center" />
 
                 <TextView
@@ -132,7 +129,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="팔로잉"
+                    android:text="@string/profile_followee"
                     android:textAlignment="center" />
             </TableRow>
 
@@ -148,7 +145,6 @@
         android:ellipsize="end"
         android:maxLines="6"
         android:minLines="6"
-        android:text="자기소개입니다."
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/info_linearLayout" />
@@ -158,7 +154,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="프로필 수정"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/profile_introduce_textview" />
