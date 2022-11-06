@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="@dimen/box_inset_layout_padding"
-    tools:context=".MainActivity"
+    tools:context=".view.login.LoginActivity"
     tools:deviceIds="wear">
 
     <FrameLayout
@@ -15,10 +15,20 @@
         app:layout_boxedEdges="all">
 
         <TextView
-            android:id="@+id/text"
+            android:id="@+id/app_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/hello_world" />
+            android:layout_gravity="center|top"
+            android:fontFamily="@font/instagram_font"
+            android:text="@string/app_name"
+            android:textSize="18sp" />
+
+        <com.google.android.gms.common.SignInButton
+            android:id="@+id/sign_in_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center|bottom"
+            app:buttonSize="icon_only" />
 
     </FrameLayout>
 </androidx.wear.widget.BoxInsetLayout>
