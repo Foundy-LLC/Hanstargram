@@ -10,11 +10,13 @@ import com.google.firebase.firestore.ktx.toObjects
 import com.google.firebase.ktx.Firebase
 import io.foundy.data.model.FollowDto
 import io.foundy.data.model.LikeDto
+import io.foundy.data.model.PostDto
 import io.foundy.data.source.PostPagingSource
 import io.foundy.domain.model.Post
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.tasks.await
+import java.util.Date
 import java.util.UUID
 
 object PostRepository {
@@ -89,6 +91,31 @@ object PostRepository {
 
         return try {
             db.collection("posts").document(postUuid).delete().await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun uploadPost(
+        content: String,
+        imageUrl: String
+    ): Result<Unit> {
+        val currentUser = Firebase.auth.currentUser
+        require(currentUser != null)
+        val db = Firebase.firestore
+        val postCollection = db.collection("posts")
+
+        return try {
+            val postUuid = UUID.randomUUID().toString()
+            val postDto = PostDto(
+                uuid = UUID.randomUUID().toString(),
+                writerUuid = currentUser.uid,
+                content = content,
+                imageUrl = imageUrl,
+                dateTime = Date()
+            )
+            postCollection.document(postUuid).set(postDto).await()
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)

@@ -13,18 +13,17 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
+import androidx.activity.viewModels
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.storage.FirebaseStorage
 import io.foundy.common.base.ViewBindingActivity
-import io.foundy.data.model.PostDto
 import io.foundy.hanstargram.R
 import io.foundy.hanstargram.databinding.ActivityPostingBinding
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import java.util.*
 
 class PostingActivity : ViewBindingActivity<ActivityPostingBinding>() {
+    private val viewModel: PostingViewModel by viewModels()
+
     private var storage: FirebaseStorage? = null
     private var photoUri: Uri? = null
     private var auth: FirebaseAuth? = null
@@ -81,7 +80,6 @@ class PostingActivity : ViewBindingActivity<ActivityPostingBinding>() {
 
     private fun contentUpload() {
         val imageFileName: String = UUID.randomUUID().toString() + ".png"
-        val contentText = findViewById<EditText>(R.id.content).toString()
 
         // Create a storage reference from our app
         val storageRef = storage?.reference
@@ -90,6 +88,9 @@ class PostingActivity : ViewBindingActivity<ActivityPostingBinding>() {
         val mountainsRef = storageRef?.child(imageFileName)
 
         mountainsRef?.putFile(photoUri!!)?.addOnSuccessListener {
+            val content = findViewById<EditText>(R.id.image_expression).text.toString()
+            val imageUrl = photoUri.toString()
+            viewModel.uploadContent(content, imageUrl)
             Toast.makeText(this, "업로드 성공", Toast.LENGTH_LONG).show()
         }?.addOnFailureListener {
             Toast.makeText(this, "업로드 실패", Toast.LENGTH_LONG).show()
