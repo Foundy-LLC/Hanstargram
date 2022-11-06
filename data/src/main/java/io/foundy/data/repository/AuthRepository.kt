@@ -21,6 +21,15 @@ object AuthRepository {
         }
     }
 
+    suspend fun signIn(email: String, password: String): Result<Unit> {
+        return try {
+            Firebase.auth.signInWithEmailAndPassword(email, password).await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     fun hasUserInfo(uuid: String, hasUserInfoCallback: (Boolean) -> Unit) {
         val db = Firebase.firestore
         db.collection("users").document(uuid).get()
