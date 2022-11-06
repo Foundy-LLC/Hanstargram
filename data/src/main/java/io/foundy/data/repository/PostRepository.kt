@@ -108,8 +108,8 @@ object PostRepository {
         val db = Firebase.firestore
         val storageRef = Firebase.storage.reference
         val postCollection = db.collection("posts")
-        val imageUrl: String = UUID.randomUUID().toString() + ".png"
-        val imageRef = storageRef.child(imageUrl)
+        val imageFileName: String = UUID.randomUUID().toString() + ".png"
+        val imageRef = storageRef.child(imageFileName)
 
         try {
             imageRef.putFile(imageUri).await()
@@ -123,7 +123,7 @@ object PostRepository {
                 uuid = UUID.randomUUID().toString(),
                 writerUuid = currentUser.uid,
                 content = content,
-                imageUrl = imageUrl,
+                imageUrl = imageFileName,
                 dateTime = Date()
             )
             postCollection.document(postUuid).set(postDto).await()
