@@ -94,7 +94,7 @@
                     android:textSize="48sp" />
 
                 <TextView
-                    android:id="@+id/profile_info_followingnum_textview"
+                    android:id="@+id/profile_info_followeenum_textview"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"

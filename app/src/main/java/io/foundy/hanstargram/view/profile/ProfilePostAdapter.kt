@@ -2,16 +2,13 @@ package io.foundy.hanstargram.view.profile
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.media.Image
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
-
 import android.widget.ImageView
-import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import io.foundy.data.model.PostDto
 import io.foundy.hanstargram.R
-import io.foundy.hanstargram.repository.model.PostDto
 
 class ProfilePostAdapter(var context : Context, var postList: MutableList<PostDto>) : BaseAdapter() {
     override fun getCount(): Int {
