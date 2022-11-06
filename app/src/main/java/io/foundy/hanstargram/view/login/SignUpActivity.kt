@@ -14,6 +14,7 @@ import com.google.android.material.snackbar.Snackbar
 import io.foundy.common.base.ViewBindingActivity
 import io.foundy.hanstargram.R
 import io.foundy.hanstargram.databinding.ActivitySignUpBinding
+import io.foundy.hanstargram.view.welcome.WelcomeActivity
 import kotlinx.coroutines.launch
 
 class SignUpActivity : ViewBindingActivity<ActivitySignUpBinding>() {
@@ -85,7 +86,7 @@ class SignUpActivity : ViewBindingActivity<ActivitySignUpBinding>() {
 
         if (uiState.successToSignUp) {
             Toast.makeText(this, "회원가입에 성공했습니다.", Toast.LENGTH_LONG).show()
-            finish()
+            navigateToWelcomeView()
         }
         if (uiState.userMessage != null) {
             showSnackBar(getString(uiState.userMessage))
@@ -99,5 +100,13 @@ class SignUpActivity : ViewBindingActivity<ActivitySignUpBinding>() {
 
     private fun showSnackBar(message: String) {
         Snackbar.make(this, binding.root, message, Snackbar.LENGTH_LONG).show()
+    }
+
+    private fun navigateToWelcomeView() {
+        val intent = WelcomeActivity.getIntent(this).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        startActivity(intent)
+        finish()
     }
 }

@@ -24,10 +24,6 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
     override val bindingInflater: (LayoutInflater) -> ActivityLoginBinding
         get() = ActivityLoginBinding::inflate
 
-    companion object {
-        private const val TAG = "LoginActivity"
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
