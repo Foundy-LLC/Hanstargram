@@ -18,4 +18,3 @@ include ':app-watch'
 include ':data'
 include ':domain'
 include ':common'
-
