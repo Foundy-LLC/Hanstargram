@@ -4,12 +4,14 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import androidx.activity.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.bumptech.glide.Glide
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
 import io.foundy.common.base.ViewBindingActivity
 import io.foundy.hanstargram.databinding.ActivityProfileBinding
 import kotlinx.coroutines.launch
@@ -44,17 +46,14 @@ class ProfileActivity : ViewBindingActivity<ActivityProfileBinding>() {
 
     @SuppressLint("SetTextI18n")
     private fun updateUi(uiState: ProfileUiState) {
-        binding.apply {
-            val userInfo = uiState.userInfo
+        val userInfo = uiState.userInfo
 
+        binding.apply {
             profileHeaderUsernameTextview.text = userInfo.name
             profileIntroduceTextview.text = "${userInfo.name}의 자기소개 입니다."
-
             profileInfoPostnumTextview.text = uiState.post.toString()
             profileInfoFollowernumTextview.text = uiState.followee.toString()
             profileInfoFolloweenumTextview.text = uiState.followee.toString()
-
-            Log.d(TAG, uiState.isMine.toString())
 
             if(uiState.isMine){
                 profileModifyButton.text = "프로필 수정"
@@ -62,7 +61,15 @@ class ProfileActivity : ViewBindingActivity<ActivityProfileBinding>() {
             else{
                 profileModifyButton.text = "팔로우"
             }
+
+            val storageReference = Firebase.storage.reference
+
+            Glide.with(applicationContext)
+                .load(userInfo.profileImageUrl?.let { storageReference.child(it) })
+                .circleCrop()
+                .into(profileImage)
         }
+
         //viewModel.setImageView(binding.profileImage, uiState.profileInfo.profileImg)
         //gridView.adapter = ProfilePostAdapter(applicationContext, uiState.profilePost)
     }
