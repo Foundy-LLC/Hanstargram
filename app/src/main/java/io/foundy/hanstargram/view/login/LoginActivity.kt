@@ -3,36 +3,26 @@ package io.foundy.hanstargram.view.login
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
-import android.widget.TextView
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.common.api.ApiException
+import androidx.core.widget.addTextChangedListener
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.snackbar.Snackbar
 import io.foundy.common.base.ViewBindingActivity
 import io.foundy.hanstargram.R
 import io.foundy.hanstargram.databinding.ActivityLoginBinding
 import io.foundy.hanstargram.view.home.HomeActivity
 import io.foundy.hanstargram.view.welcome.WelcomeActivity
+import kotlinx.coroutines.launch
 
 class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
 
     private val viewModel: LoginViewModel by viewModels()
 
-    private lateinit var googleSignInClient: GoogleSignInClient
-    private lateinit var signInLauncher: ActivityResultLauncher<Intent>
-
     override val bindingInflater: (LayoutInflater) -> ActivityLoginBinding
         get() = ActivityLoginBinding::inflate
-
-    companion object {
-        private const val TAG = "LoginActivity"
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,7 +36,6 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
                 getString(R.string.prefs_has_user_info),
                 false
             )
-
             if (hasUserInfo) {
                 navigateToHomeView()
             } else {
@@ -54,78 +43,86 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
             }
         }
 
-        initSignInLauncher()
-        initGoogleSignInClient()
-        initSignInButton()
+        initEventListeners()
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.uiState.collect(::updateUi)
+            }
+        }
     }
 
-    private fun initSignInLauncher() {
-        val contracts = ActivityResultContracts.StartActivityForResult()
-        signInLauncher = registerForActivityResult(contracts) {
-            if (it.resultCode == RESULT_OK) {
-                val task = GoogleSignIn.getSignedInAccountFromIntent(it.data)
-                try {
-                    val account = task.getResult(ApiException::class.java)
-                    viewModel.signInWith(account.idToken!!, ::onCompleteSignIn)
-                    Log.d(TAG, "Success google sign in: " + account.id)
-                } catch (e: ApiException) {
-                    showSnackBar(getString(R.string.failed_to_sign_in))
-                    Log.e(TAG, "Failed google sign in: " + e.message)
-                }
+    private fun initEventListeners() = with(binding) {
+        emailInput.addTextChangedListener {
+            if (it != null) {
+                viewModel.updateEmail(it.toString())
+            }
+        }
+        passwordInput.addTextChangedListener {
+            if (it != null) {
+                viewModel.updatePassword(it.toString())
+            }
+        }
+        loginButton.setOnClickListener {
+            viewModel.signIn()
+        }
+        signUpButton.setOnClickListener {
+            navigateToSignUpView()
+        }
+    }
+
+    private fun updateUi(uiState: LoginUiState) {
+        binding.emailInputLayout.apply {
+            isErrorEnabled = uiState.showEmailError
+            error = if (uiState.showEmailError) {
+                context.getString(R.string.email_is_not_valid)
+            } else null
+        }
+        binding.passwordInputLayout.apply {
+            isErrorEnabled = uiState.showPasswordError
+            error = if (uiState.showPasswordError) {
+                context.getString(R.string.password_is_not_valid)
+            } else null
+        }
+
+        if (uiState.successToSignIn) {
+            onSuccessToLogin()
+        }
+        if (uiState.userMessage != null) {
+            showSnackBar(uiState.userMessage)
+            viewModel.userMessageShown()
+        }
+        binding.loginButton.apply {
+            isEnabled = uiState.isInputValid && !uiState.isLoading
+            setText(if (uiState.isLoading) R.string.loading else R.string.login)
+        }
+    }
+
+    private fun onSuccessToLogin() {
+        viewModel.checkUserInfoExists { exists ->
+            if (exists) {
+                val sharedPreferences = getSharedPreferences(
+                    getString(R.string.preference_file_key),
+                    Context.MODE_PRIVATE
+                )
+                sharedPreferences.edit()
+                    .putBoolean(getString(R.string.prefs_has_user_info), true)
+                    .apply()
+
+                navigateToHomeView()
             } else {
-                val resultCode = it.resultCode
-                showSnackBar(getString(R.string.failed_to_sign_in))
-                Log.e(TAG, "Failed google sign in code: $resultCode")
+                navigateToWelcomeView()
             }
-        }
-    }
-
-    private fun initGoogleSignInClient() {
-        val googleSignInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.default_web_client_id))
-            .build()
-
-        googleSignInClient = GoogleSignIn.getClient(this, googleSignInOptions)
-    }
-
-    private fun initSignInButton() {
-        binding.signInButton.apply {
-            val textView = getChildAt(0) as? TextView
-            textView?.let { it.text = context.getString(R.string.sign_in_with_google) }
-            setOnClickListener { signIn() }
-        }
-    }
-
-    private fun signIn() {
-        val signInIntent: Intent = googleSignInClient.signInIntent
-        signInLauncher.launch(signInIntent)
-    }
-
-    private fun onCompleteSignIn(result: Result<Any>) {
-        if (result.isSuccess) {
-            viewModel.checkUserInfoExists { exists ->
-                if (exists) {
-                    val sharedPreferences = getSharedPreferences(
-                        getString(R.string.preference_file_key),
-                        Context.MODE_PRIVATE
-                    )
-                    sharedPreferences.edit()
-                        .putBoolean(getString(R.string.prefs_has_user_info), true)
-                        .apply()
-
-                    navigateToHomeView()
-                } else {
-                    navigateToWelcomeView()
-                }
-            }
-        } else {
-            showSnackBar(getString(R.string.failed_to_sign_in))
-            Log.e(TAG, "Failed firebase sign in: " + result.exceptionOrNull())
         }
     }
 
     private fun showSnackBar(message: String) {
-        Snackbar.make(binding.root, message, Snackbar.LENGTH_SHORT).show()
+        Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
+    }
+
+    private fun navigateToSignUpView() {
+        val intent = SignUpActivity.getIntent(this)
+        startActivity(intent)
     }
 
     private fun navigateToHomeView() {
