@@ -43,9 +43,7 @@
         <activity
             android:name=".view.home.HomeActivity"
             android:exported="false" />
-        <activity
-            android:name=".view.posting.ExamActivity"
-            android:exported="false" />
+
         <activity
             android:name=".view.posting.PostingActivity"
             android:exported="false"

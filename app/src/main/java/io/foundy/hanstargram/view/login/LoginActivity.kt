@@ -13,7 +13,7 @@ import com.google.android.material.snackbar.Snackbar
 import io.foundy.common.base.ViewBindingActivity
 import io.foundy.hanstargram.R
 import io.foundy.hanstargram.databinding.ActivityLoginBinding
-import io.foundy.hanstargram.view.posting.ExamActivity
+import io.foundy.hanstargram.view.home.HomeActivity
 import io.foundy.hanstargram.view.welcome.WelcomeActivity
 import kotlinx.coroutines.launch
 
@@ -126,10 +126,7 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
     }
 
     private fun navigateToHomeView() {
-//        val intent = HomeActivity.getIntent(this).apply {
-//            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME
-//        }
-        val intent = ExamActivity.getIntent(this).apply {
+        val intent = HomeActivity.getIntent(this).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME
         }
         startActivity(intent)
