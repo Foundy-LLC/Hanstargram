@@ -2,6 +2,7 @@ package io.foundy.hanstargram.view.home.postlist
 
 import androidx.annotation.StringRes
 import androidx.paging.PagingData
+import io.foundy.domain.model.Post
 
 data class PostListUiState(
     val pagingData: PagingData<PostItemUiState> = PagingData.empty(),
@@ -20,4 +21,16 @@ data class PostItemUiState(
     val meLiked: Boolean,
     val isMine: Boolean,
     val timeAgo: String
+)
+
+fun Post.toUiState() = PostItemUiState(
+    uuid = uuid,
+    writerName = writerName,
+    writerProfileImageUrl = writerProfileImageUrl,
+    content = content,
+    imageUrl = imageUrl,
+    likeCount = likeCount,
+    meLiked = meLiked,
+    isMine = isMine,
+    timeAgo = timeAgo
 )

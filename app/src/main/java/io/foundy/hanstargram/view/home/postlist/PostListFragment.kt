@@ -13,8 +13,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import io.foundy.common.base.ViewBindingFragment
 import io.foundy.hanstargram.R
-import io.foundy.hanstargram.base.ViewBindingFragment
 import io.foundy.hanstargram.databinding.FragmentPostListBinding
 import io.foundy.hanstargram.view.common.PagingLoadStateAdapter
 import io.foundy.hanstargram.view.common.setListeners

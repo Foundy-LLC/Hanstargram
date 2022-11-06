@@ -3,8 +3,9 @@ package io.foundy.hanstargram.view.home.postlist
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
+import androidx.paging.map
 import io.foundy.hanstargram.R
-import io.foundy.hanstargram.repository.PostRepository
+import io.foundy.data.repository.PostRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,7 +22,9 @@ class PostListViewModel : ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             PostRepository.getPostsByFollower().cachedIn(viewModelScope)
                 .collectLatest { pagingData ->
-                    _uiState.update { it.copy(pagingData = pagingData) }
+                    _uiState.update { uiState ->
+                        uiState.copy(pagingData = pagingData.map { it.toUiState() })
+                    }
                 }
         }
     }

@@ -14,8 +14,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.android.material.snackbar.Snackbar
+import io.foundy.common.base.ViewBindingActivity
 import io.foundy.hanstargram.R
-import io.foundy.hanstargram.base.ViewBindingActivity
 import io.foundy.hanstargram.databinding.ActivityLoginBinding
 import io.foundy.hanstargram.view.home.HomeActivity
 import io.foundy.hanstargram.view.welcome.WelcomeActivity

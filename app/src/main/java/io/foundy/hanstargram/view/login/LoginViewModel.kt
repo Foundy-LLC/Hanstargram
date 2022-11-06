@@ -3,7 +3,7 @@ package io.foundy.hanstargram.view.login
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import io.foundy.hanstargram.repository.AuthRepository
+import io.foundy.data.repository.AuthRepository
 
 class LoginViewModel : ViewModel() {
 
