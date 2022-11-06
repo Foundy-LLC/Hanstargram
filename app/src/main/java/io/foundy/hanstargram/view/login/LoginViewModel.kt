@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import io.foundy.data.repository.AuthRepository
-import io.foundy.hanstargram.R
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -38,7 +37,7 @@ class LoginViewModel : ViewModel() {
             } else {
                 _uiState.update {
                     it.copy(
-                        userMessage = R.string.failed_to_login,
+                        userMessage = result.exceptionOrNull()!!.localizedMessage,
                         isLoading = false
                     )
                 }

@@ -89,7 +89,7 @@ class SignUpActivity : ViewBindingActivity<ActivitySignUpBinding>() {
             navigateToWelcomeView()
         }
         if (uiState.userMessage != null) {
-            showSnackBar(getString(uiState.userMessage))
+            showSnackBar(uiState.userMessage)
             viewModel.userMessageShown()
         }
         binding.signUpButton.apply {

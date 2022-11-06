@@ -89,7 +89,7 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
             onSuccessToLogin()
         }
         if (uiState.userMessage != null) {
-            showSnackBar(getString(uiState.userMessage))
+            showSnackBar(uiState.userMessage)
             viewModel.userMessageShown()
         }
         binding.loginButton.apply {
@@ -117,7 +117,7 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
     }
 
     private fun showSnackBar(message: String) {
-        Snackbar.make(binding.root, message, Snackbar.LENGTH_SHORT).show()
+        Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
     }
 
     private fun navigateToSignUpView() {

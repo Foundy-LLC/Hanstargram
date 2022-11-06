@@ -3,7 +3,6 @@ package io.foundy.hanstargram.view.login
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.foundy.data.repository.AuthRepository
-import io.foundy.hanstargram.R
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -33,7 +32,7 @@ class SignUpViewModel : ViewModel() {
             } else {
                 _uiState.update {
                     it.copy(
-                        userMessage = R.string.failed_to_sign_up,
+                        userMessage = result.exceptionOrNull()!!.localizedMessage,
                         isLoading = false
                     )
                 }

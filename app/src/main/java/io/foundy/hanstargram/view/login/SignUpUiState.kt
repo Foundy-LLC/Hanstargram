@@ -1,14 +1,11 @@
 package io.foundy.hanstargram.view.login
 
-import androidx.annotation.StringRes
-
 data class SignUpUiState(
     val email: String = "",
     val password: String = "",
     val isLoading: Boolean = false,
     val successToSignUp: Boolean = false,
-    @StringRes
-    val userMessage: Int? = null
+    val userMessage: String? = null
 ) {
     val isInputValid: Boolean
         get() = isEmailValid && isPasswordValid
