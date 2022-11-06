@@ -60,7 +60,9 @@
     <string name="search_user">회원 검색…</string>
 
     <!-- Posting -->
-    <string name="image_expression">문구 입력...</string>
+    <string name="image_expression">문구 입력…</string>
     <string name="post_button">공유</string>
+    <string name="failed_to_upload">업로드에 실패했습니다.</string>
+    <string name="uploading">게시중…</string>
 
 </resources>

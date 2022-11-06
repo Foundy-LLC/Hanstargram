@@ -2,54 +2,34 @@ package io.foundy.hanstargram.view.posting
 
 import android.content.Context
 import android.content.Intent
-import android.graphics.ImageDecoder
-import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.provider.MediaStore
-import android.view.LayoutInflater
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.storage.FirebaseStorage
-import io.foundy.common.base.ViewBindingActivity
+import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import com.google.android.material.snackbar.Snackbar
 import io.foundy.hanstargram.R
-import io.foundy.hanstargram.databinding.ActivityPostingBinding
-import java.util.*
+import kotlinx.coroutines.launch
 
-class PostingActivity : ViewBindingActivity<ActivityPostingBinding>() {
+class PostingActivity : AppCompatActivity() {
+
     private val viewModel: PostingViewModel by viewModels()
-
-    private var storage: FirebaseStorage? = null
-    private var photoUri: Uri? = null
-    private var auth: FirebaseAuth? = null
 
     private val fileChooserContract =
         registerForActivityResult(ActivityResultContracts.GetContent()) { imageUri ->
             if (imageUri != null) {
-                @Suppress("DEPRECATION")
-                val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                    ImageDecoder.decodeBitmap(
-                        ImageDecoder.createSource(
-                            contentResolver,
-                            imageUri
-                        )
-                    )
-                } else {
-                    MediaStore.Images.Media.getBitmap(contentResolver, imageUri)
-                }
-                photoUri = imageUri
-                val imgView = findViewById<ImageView>(R.id.add_image)
-                imgView.setImageBitmap(bitmap)
+                viewModel.selectImage(imageUri)
+            } else if (viewModel.uiState.value.selectedImage == null) {
+                finish()
             }
         }
-
-    override val bindingInflater: (LayoutInflater) -> ActivityPostingBinding
-        get() = ActivityPostingBinding::inflate
 
     companion object {
         fun getIntent(context: Context): Intent {
@@ -61,39 +41,53 @@ class PostingActivity : ViewBindingActivity<ActivityPostingBinding>() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_posting)
 
-        storage = FirebaseStorage.getInstance()
-        auth = FirebaseAuth.getInstance()
-
         showImagePicker()
 
         val postButton = findViewById<Button>(R.id.post_button)
-
         postButton.setOnClickListener {
-            contentUpload()
+            val content = findViewById<EditText>(R.id.image_expression).text.toString()
+            viewModel.uploadContent(content)
+        }
+
+        val imageView = findViewById<ImageView>(R.id.add_image)
+        imageView.setOnClickListener {
+            showImagePicker()
+        }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.uiState.collect(::updateUi)
+            }
+        }
+    }
+
+    private fun updateUi(uiState: PostingUiState) {
+        if (uiState.selectedImage != null) {
+            findViewById<ImageView>(R.id.add_image).setImageURI(uiState.selectedImage)
+        }
+        if (uiState.userMessage != null) {
+            showSnackBar(getString(uiState.userMessage))
+            viewModel.userMessageShown()
+        }
+        if (uiState.successToUpload) {
+            Toast.makeText(this, "게시글 업로드에 성공했습니다.", Toast.LENGTH_LONG).show()
+            finish()
+        }
+
+        findViewById<Button>(R.id.post_button).apply {
+            isEnabled = !uiState.isLoading
+            setText(if (uiState.isLoading) R.string.uploading else R.string.post_button)
         }
     }
 
     private fun showImagePicker() {
-        fileChooserContract.launch("image/*")
+        if (!viewModel.uiState.value.isLoading) {
+            fileChooserContract.launch("image/*")
+        }
     }
 
-
-    private fun contentUpload() {
-        val imageFileName: String = UUID.randomUUID().toString() + ".png"
-
-        // Create a storage reference from our app
-        val storageRef = storage?.reference
-
-        // Create a reference to "mountains.jpg"
-        val mountainsRef = storageRef?.child(imageFileName)
-
-        mountainsRef?.putFile(photoUri!!)?.addOnSuccessListener {
-            val content = findViewById<EditText>(R.id.image_expression).text.toString()
-            val imageUrl = photoUri.toString()
-            viewModel.uploadContent(content, imageUrl)
-            Toast.makeText(this, "업로드 성공", Toast.LENGTH_LONG).show()
-        }?.addOnFailureListener {
-            Toast.makeText(this, "업로드 실패", Toast.LENGTH_LONG).show()
-        }
+    private fun showSnackBar(message: String) {
+        val root = findViewById<ConstraintLayout>(R.id.posting_root)
+        Snackbar.make(root, message, Snackbar.LENGTH_LONG).show()
     }
 }

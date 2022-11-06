@@ -1,5 +1,6 @@
 package io.foundy.data.repository
 
+import android.net.Uri
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
@@ -8,6 +9,7 @@ import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObjects
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
 import io.foundy.data.model.FollowDto
 import io.foundy.data.model.LikeDto
 import io.foundy.data.model.PostDto
@@ -99,12 +101,21 @@ object PostRepository {
 
     suspend fun uploadPost(
         content: String,
-        imageUrl: String
+        imageUri: Uri
     ): Result<Unit> {
         val currentUser = Firebase.auth.currentUser
         require(currentUser != null)
         val db = Firebase.firestore
+        val storageRef = Firebase.storage.reference
         val postCollection = db.collection("posts")
+        val imageUrl: String = UUID.randomUUID().toString() + ".png"
+        val imageRef = storageRef.child(imageUrl)
+
+        try {
+            imageRef.putFile(imageUri).await()
+        } catch (e: Exception) {
+            return Result.failure(e)
+        }
 
         return try {
             val postUuid = UUID.randomUUID().toString()
