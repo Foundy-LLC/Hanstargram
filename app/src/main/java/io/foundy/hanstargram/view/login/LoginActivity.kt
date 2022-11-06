@@ -126,7 +126,10 @@ class LoginActivity : ViewBindingActivity<ActivityLoginBinding>() {
     }
 
     private fun navigateToHomeView() {
-        val intent = HomeActivity.getIntent(this).apply {
+//        val intent = HomeActivity.getIntent(this).apply {
+//            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME
+//        }
+        val intent = ExamActivity.getIntent(this).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME
         }
         startActivity(intent)

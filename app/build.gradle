@@ -41,6 +41,10 @@ dependencies {
     implementation project(":data")
     implementation project(":domain")
     implementation project(':common')
+    
+    // ImagePicker
+    implementation 'com.github.dhaval2404:imagepicker:2.1'
+
 
     // Glide
     implementation "com.github.bumptech.glide:glide:$glide"
@@ -54,6 +58,7 @@ dependencies {
     implementation platform('com.google.firebase:firebase-bom:31.0.2')
     implementation 'com.google.firebase:firebase-analytics-ktx'
     implementation 'com.google.firebase:firebase-auth-ktx:21.1.0'
+    implementation 'com.google.firebase:firebase-storage:20.1.0'
     implementation 'com.google.android.gms:play-services-base:18.1.0'
     implementation 'com.google.android.gms:play-services-auth:20.3.0'
     implementation 'com.google.firebase:firebase-firestore-ktx:24.4.0'
@@ -63,6 +68,7 @@ dependencies {
     // Coroutine
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$life_cycle_version"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$life_cycle_version"
+    implementation 'androidx.databinding:viewbinding:7.1.2'
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutine_version"
 
     // fragment
