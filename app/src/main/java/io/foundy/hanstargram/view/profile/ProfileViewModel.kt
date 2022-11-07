@@ -2,12 +2,16 @@ package io.foundy.hanstargram.view.profile
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.cachedIn
+import androidx.paging.map
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import io.foundy.data.repository.PostRepository
 import io.foundy.data.repository.ProfileRepository
 import io.foundy.hanstargram.R
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -23,8 +27,18 @@ class ProfileViewModel : ViewModel() {
     private lateinit var profileState : ProfileState
     private val TAG = "ProfileViewModel"
 
-    private val _postUiState: MutableStateFlow<ProfileUiState> = MutableStateFlow(PostUiState())
-    val postUiState = _postUiState.asStateFlow()
+    private val _profilePostUiState = MutableStateFlow(ProfilePostUiState())
+    val profilePostUiState = _profilePostUiState.asStateFlow()
+
+    private fun searchPostByUuid() {
+        viewModelScope.launch {
+            PostRepository.getPostsByUuid(thisUuid).cachedIn(viewModelScope).collectLatest { pagingData ->
+                _profilePostUiState.update { profilePostUiState ->
+                    profilePostUiState.copy(pagingData = pagingData.map { it.toProfilePostItemUiState() })
+                }
+            }
+        }
+    }
 
     private val _uiState: MutableStateFlow<ProfileUiState> = MutableStateFlow(ProfileUiState())
     val uiState = _uiState.asStateFlow()
@@ -33,6 +47,7 @@ class ProfileViewModel : ViewModel() {
         this.thisUuid = uuid
         this.curUuid = Firebase.auth.currentUser?.uid.toString()
 
+        searchPostByUuid()
         checkFollowing()
         getProfileData()
         getPostCount()

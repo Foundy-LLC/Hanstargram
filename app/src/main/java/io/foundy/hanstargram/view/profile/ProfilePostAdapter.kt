@@ -4,20 +4,20 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
-import io.foundy.hanstargram.databinding.ItemSearchBinding
+import io.foundy.hanstargram.databinding.ItemProfilePostBinding
 import io.foundy.hanstargram.view.profile.ProfilePostItemUiState
 import io.foundy.hanstargram.view.profile.ProfilePostViewHolder
 
 class ProfilePostAdapter(
-    private val onClickUser: (ProfilePostItemUiState) -> Unit
+    private val onClickPost: (ProfilePostItemUiState) -> Unit
 ) : PagingDataAdapter<ProfilePostItemUiState, ProfilePostViewHolder>(diffCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProfilePostViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
-        val binding = ItemSearchBinding.inflate(layoutInflater, parent, false)
+        val binding = ItemProfilePostBinding.inflate(layoutInflater, parent, false)
         return ProfilePostViewHolder(
             binding,
-            onClickUser = onClickUser
+            onClickPost = onClickPost
         )
     }
 

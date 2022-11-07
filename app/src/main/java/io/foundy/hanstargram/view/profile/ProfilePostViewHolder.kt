@@ -4,11 +4,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
-import io.foundy.hanstargram.databinding.ItemSearchBinding
+import io.foundy.hanstargram.databinding.ItemProfilePostBinding
 
 class ProfilePostViewHolder(
-    private val binding: ItemSearchBinding,// Todo: 이거 뭔지 확인
-    private val onClickUser: (ProfilePostItemUiState) -> Unit
+    private val binding: ItemProfilePostBinding,
+    private val onClickPost: (ProfilePostItemUiState) -> Unit
 ) : RecyclerView.ViewHolder(binding.root) {
 
     private val storageReference = Firebase.storage.reference
@@ -17,11 +17,13 @@ class ProfilePostViewHolder(
         val glide = Glide.with(root)
 
         uiState.imageUrl?.let { imageUrl ->
-            glide.load(storageReference.child(imageUrl)).into(profileImage)
+            glide.load(storageReference.child(imageUrl))
+                .override(200, 200)
+                .into(profilePostImage)
         }
 
         root.setOnClickListener {
-            onClickUser(uiState)
+            onClickPost(uiState)
         }
     }
 }

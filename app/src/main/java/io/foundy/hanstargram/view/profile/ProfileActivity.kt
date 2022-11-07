@@ -8,6 +8,7 @@ import androidx.activity.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.recyclerview.widget.GridLayoutManager
 import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.ktx.Firebase
@@ -15,6 +16,9 @@ import com.google.firebase.storage.ktx.storage
 import io.foundy.common.base.ViewBindingActivity
 import io.foundy.hanstargram.R
 import io.foundy.hanstargram.databinding.ActivityProfileBinding
+import io.foundy.hanstargram.view.common.PagingLoadStateAdapter
+import io.foundy.hanstargram.view.common.setListeners
+import io.foundy.hanstargram.view.home.search.ProfilePostAdapter
 import kotlinx.coroutines.launch
 
 class ProfileActivity : ViewBindingActivity<ActivityProfileBinding>() {
@@ -47,6 +51,37 @@ class ProfileActivity : ViewBindingActivity<ActivityProfileBinding>() {
                 }
             }
         }
+
+        val adapter = ProfilePostAdapter(onClickPost = ::onClickPost)
+        initRecyclerView(adapter)
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.profilePostUiState.collect {
+                    updateUi(it, adapter)
+                }
+            }
+        }
+    }
+
+    private fun updateUi(uiState: ProfilePostUiState, adapter: ProfilePostAdapter) {
+        adapter.submitData(lifecycle, uiState.pagingData)
+    }
+
+    private fun initRecyclerView(adapter: ProfilePostAdapter) {
+        binding.apply {
+            recyclerView.adapter = adapter.withLoadStateFooter(
+                PagingLoadStateAdapter { adapter.retry() }
+            )
+            recyclerView.layoutManager =
+                GridLayoutManager(applicationContext, 3, GridLayoutManager.VERTICAL, false)
+
+            loadState.setListeners(adapter, swipeRefreshLayout)
+        }
+    }
+
+    private fun onClickPost(uiState: ProfilePostItemUiState) {
+        Snackbar.make(binding.root, uiState.uuid, Snackbar.LENGTH_LONG).show()
     }
 
     private fun showSnackBar(message: Int) {
