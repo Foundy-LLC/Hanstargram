@@ -7,7 +7,7 @@ import androidx.paging.map
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import io.foundy.data.repository.PostRepository
-import io.foundy.data.repository.ProfileRepository
+import io.foundy.data.repository.UserRepository
 import io.foundy.hanstargram.R
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,24 +15,30 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-enum class ProfileState {
-    IsMyProfile,
-    Following,
-    UnFollowing
-}
-
 class ProfileViewModel : ViewModel() {
-    private lateinit var thisUuid : String
-    private lateinit var curUuid : String
-    private lateinit var profileState : ProfileState
+    private lateinit var targetUuid : String
+    private var currentUuid : String
+
     private val TAG = "ProfileViewModel"
 
+    init {
+        this.currentUuid = Firebase.auth.currentUser?.uid.toString()
+    }
+
+    fun bindProfile(targetUuid : String){
+        this.targetUuid = targetUuid
+        searchPostByUuid()
+        getProfileDetail()
+        getIsFollowing()
+    }
+
+    /* Post Ui State 구역 */
     private val _profilePostUiState = MutableStateFlow(ProfilePostUiState())
     val profilePostUiState = _profilePostUiState.asStateFlow()
 
     private fun searchPostByUuid() {
         viewModelScope.launch {
-            PostRepository.getPostsByUuid(thisUuid).cachedIn(viewModelScope).collectLatest { pagingData ->
+            PostRepository.getPostsByUuid(targetUuid).cachedIn(viewModelScope).collectLatest { pagingData ->
                 _profilePostUiState.update { profilePostUiState ->
                     profilePostUiState.copy(pagingData = pagingData.map { it.toProfilePostItemUiState() })
                 }
@@ -40,178 +46,111 @@ class ProfileViewModel : ViewModel() {
         }
     }
 
-    private val _uiState: MutableStateFlow<ProfileUiState> = MutableStateFlow(ProfileUiState())
-    val uiState = _uiState.asStateFlow()
+    /* UserDetail Ui State 구역 */
+    private val _profileDetailUiState: MutableStateFlow<ProfileDetailUiState> = MutableStateFlow(ProfileDetailUiState())
+    val profileDetailUiState = _profileDetailUiState.asStateFlow()
 
-    fun init(uuid : String){
-        this.thisUuid = uuid
-        this.curUuid = Firebase.auth.currentUser?.uid.toString()
-
-        searchPostByUuid()
-        checkFollowing()
-        getProfileData()
-        getPostCount()
-        getFollowerCount()
-        getFolloweeCount()
-    }
-
-    private fun checkFollowing(){
-        var state : Int
-
-        if(thisUuid == curUuid){ // 내 프로필이면 그냥 state만 변경하고 리턴
-            profileState = ProfileState.IsMyProfile
-            state = 0
-            _uiState.update {
-                it.copy(state = state)
-            }
-        }
-        else{
-            viewModelScope.launch { // 일단 다른 유저라면 팔로우 중인치 체크
-                try{
-                    if(ProfileRepository.isFollowThisUser(thisUuid)){ // 팔로우 중이라면 팔로우 취소가 떠야 함
-                        profileState = ProfileState.Following
-                        state = 1
-                    } else{ // 팔로우를 안하고 있다면 팔로우가 떠야 함
-                        profileState = ProfileState.UnFollowing
-                        state = 2
-                    }
-                    _uiState.update { // 아무튼 state를 업데이트
-                        it.copy(state = state)
-                    }
-                }
-                catch (e: Exception){
-                    _uiState.update {
-                        it.copy(userMessage = R.string.profile_error_temp)
-                    }
-                }
-            }
-        }
-    }
-
-    fun getProfileData(){
+    private fun getProfileDetail(){
+        _profileDetailUiState.update { it.copy(isLoading = true) }
         viewModelScope.launch {
-            try{
-                val userDto = ProfileRepository.getUserDto(thisUuid)
-                _uiState.update {
-                    it.copy(userInfo = userDto)
+            UserRepository.getUserDetail(targetUuid)
+                .onSuccess { userDetails ->
+                    _profileDetailUiState.update {
+                        it.copy(userDetails = userDetails, isLoading = false)
+                    }
                 }
-            }
-            catch (e : Exception){
-                _uiState.update {
-                    it.copy(userMessage = R.string.profile_error_temp)
+                .onFailure { e->
+                    _profileDetailUiState.update {
+                        it.copy(userMessage = e.localizedMessage?.toInt(), isLoading = false)
+                    }
                 }
-            }
         }
     }
 
-    fun getPostCount(){
-        viewModelScope.launch {
-            try{
-                val postCount = ProfileRepository.getPostCount(thisUuid).toInt()
-                _uiState.update {
-                    it.copy(post = postCount)
+    private fun getIsFollowing() {
+        _profileDetailUiState.update { it.copy(isLoading = true) }
+        viewModelScope.launch { // 일단 다른 유저라면 팔로우 중인치 체크
+            UserRepository.getIsFollowing(targetUuid)
+                .onSuccess { value ->
+                    _profileDetailUiState.update {
+                        it.copy(isFollowing = value, isLoading = false)
+                    }
                 }
-            }
-            catch (e : Exception){
-                _uiState.update {
-                    it.copy(userMessage = R.string.profile_error_temp)
+                .onFailure { e ->
+                    _profileDetailUiState.update {
+                        it.copy(userMessage = e.localizedMessage?.toInt(), isLoading = false)
+                    }
                 }
-            }
         }
     }
 
-    fun getFollowerCount(){
-        viewModelScope.launch {
-            try{
-                val followerCount = ProfileRepository.getFollowerCount(thisUuid).toInt()
-                _uiState.update {
-                    it.copy(follower = followerCount)
-                }
-            }
-            catch (e : Exception){
-                _uiState.update {
-                    it.copy(userMessage = R.string.profile_error_temp)
-                }
-            }
-        }
-    }
+    fun actionProfileButton() {
+        _profileDetailUiState.update { it.copy(isLoading = true) }
 
-    fun getFolloweeCount(){
-        viewModelScope.launch {
-            try{
-                val followeeCount = ProfileRepository.getFolloweeCount(thisUuid).toInt()
-                _uiState.update {
-                    it.copy(followee = followeeCount)
-                }
-            }
-            catch (e : Exception){
-                _uiState.update {
-                    it.copy(userMessage = R.string.profile_error_temp)
-                }
-            }
+        if(targetUuid == currentUuid){ // 프로필 수정
+            _profileDetailUiState.update { it.copy(isLoading = false) }
+            return
         }
-    }
 
-    fun actionProfileButton(){
-        if(profileState == ProfileState.IsMyProfile){
-            // TODO: 프로필 수정 액티비티로 이동 ㄱㄱ
-        }
-        else if (profileState == ProfileState.Following){ // 팔로우 중일 때 실행, 팔로우 취소 액션
-            profileState = ProfileState.UnFollowing
-            viewModelScope.launch {
-                if(ProfileRepository.unFollow(thisUuid).isSuccess){
-                    val followerCount = ProfileRepository.getFollowerCount(thisUuid).toInt()
-                    _uiState.update {
-                        it.copy(follower = followerCount, state = 2, userMessage = R.string.profile_follow_cancle)
+        viewModelScope.launch { // 일단 다른 유저라면 팔로우 중인치 체크
+            UserRepository.getIsFollowing(targetUuid)
+                .onSuccess { isFollowing ->
+                    if (isFollowing) { // 팔로우 하고 있다면 팔로우를 해제 했음.
+                        UserRepository.unfollow(targetUuid)
+                            .onSuccess {
+                                _profileDetailUiState.update {
+                                    it.copy(
+                                        userMessage = R.string.profile_follow_cancle,
+                                        isFollowing = false,
+                                        isLoading = false
+                                    )
+                                }
+                            }
+                            .onFailure {
+                                _profileDetailUiState.update {
+                                    it.copy(
+                                        userMessage = R.string.profile_error_temp,
+                                        isLoading = false
+                                    )
+                                }
+                            }
+                    } else { // 팔로우 하고 있지 않다면 팔로우를 신청 했음.
+                        UserRepository.follow(targetUuid)
+                            .onSuccess {
+                                _profileDetailUiState.update {
+                                    it.copy(
+                                        userMessage = R.string.profile_follow_success,
+                                        isFollowing = true,
+                                        isLoading = false
+                                    )
+                                }
+                            }
+                            .onFailure {
+                                _profileDetailUiState.update {
+                                    it.copy(
+                                        userMessage = R.string.profile_error_temp,
+                                        isLoading = false
+                                    )
+                                }
+                            }
                     }
                 }
-                else{
-                    _uiState.update {
-                        it.copy(userMessage = R.string.profile_error_temp)
+                .onFailure { e ->
+                    _profileDetailUiState.update {
+                        it.copy(
+                            userMessage = e.localizedMessage?.toInt(),
+                            isLoading = false
+                        )
                     }
                 }
-            }
-        }
-        else if (profileState == ProfileState.UnFollowing){ // 팔로우 중이 아닐 때 실행, 팔로우 하는 액션
-            profileState = ProfileState.Following
-            viewModelScope.launch {
-                if(ProfileRepository.doFollow(thisUuid).isSuccess){
-                    val followerCount = ProfileRepository.getFollowerCount(thisUuid).toInt()
-                    _uiState.update {
-                        it.copy(follower = followerCount, state = 1, userMessage = R.string.profile_follow_success)
-                    }
-                }
-                else{
-                    _uiState.update {
-                        it.copy(userMessage = R.string.profile_error_temp)
-                    }
-                }
-            }
-        }
-        else{
-            _uiState.update {
-                it.copy(userMessage = R.string.profile_error_temp)
-            }
+            // 끝나고 유저 디테일 한번 업데이트
+            getProfileDetail()
         }
     }
 
     fun userMessageShown() {
-        _uiState.update { it.copy(userMessage = null) }
+        _profileDetailUiState.update {
+            it.copy(userMessage = null)
+        }
     }
-
-//    fun setImageView(imageView: ImageView, imageSrc : String){
-//        if(imageSrc == "") return
-//
-//        val storage: FirebaseStorage = FirebaseStorage.getInstance("gs://hanstargram-556db.appspot.com")
-//        val storageReference = storage.reference
-//        val pathReference = storageReference.child(imageSrc)
-//        val glide = Glide.with(imageView.context)
-//
-//        pathReference.downloadUrl.addOnSuccessListener { uri ->
-//            glide.load(uri)
-//                 .diskCacheStrategy(DiskCacheStrategy.NONE)
-//                 .circleCrop()
-//                 .into(imageView)
-//        }
-//    }
 }

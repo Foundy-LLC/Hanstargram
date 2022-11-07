@@ -37,34 +37,38 @@ class ProfileActivity : ViewBindingActivity<ActivityProfileBinding>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // uuid를 viewmodel에 등록하여 초기화 실행
-        viewModel.init(intent.getStringExtra("uuid")!!)
+        // uuid 안들어 왔으면 동작 안함
+        intent.getStringExtra("uuid")?.let {
+            viewModel.bindProfile(it)
 
-        binding.profileButton.setOnClickListener {
-            viewModel.actionProfileButton()
-        }
+            binding.profileButton.setOnClickListener {
+                viewModel.actionProfileButton()
+            }
 
-        lifecycleScope.launch{
-            repeatOnLifecycle(Lifecycle.State.STARTED){
-                viewModel.uiState.collect { uiState ->
-                    updateUi(uiState)
+            /* 유저 디테일 */
+            lifecycleScope.launch {
+                repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    viewModel.profileDetailUiState.collect {
+                        if (!it.isLoading) updateDetailUi(it)
+                    }
                 }
             }
-        }
 
-        val adapter = ProfilePostAdapter(onClickPost = ::onClickPost)
-        initRecyclerView(adapter)
-
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.profilePostUiState.collect {
-                    updateUi(it, adapter)
+            /* 프로필 포스트 */
+            val adapter = ProfilePostAdapter(onClickPost = ::onClickPost)
+            initRecyclerView(adapter)
+            lifecycleScope.launch {
+                repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    viewModel.profilePostUiState.collect {
+                        updatePostUi(it, adapter)
+                    }
                 }
             }
         }
     }
 
-    private fun updateUi(uiState: ProfilePostUiState, adapter: ProfilePostAdapter) {
+    /* 프로필 포스트 */
+    private fun updatePostUi(uiState: ProfilePostUiState, adapter: ProfilePostAdapter) {
         adapter.submitData(lifecycle, uiState.pagingData)
     }
 
@@ -84,44 +88,44 @@ class ProfileActivity : ViewBindingActivity<ActivityProfileBinding>() {
         Snackbar.make(binding.root, uiState.uuid, Snackbar.LENGTH_LONG).show()
     }
 
-    private fun showSnackBar(message: Int) {
-        Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
-    }
-
-    private fun updateUi(uiState: ProfileUiState) {
-        val userInfo = uiState.userInfo
-
-        if (uiState.userMessage != null) {
-            showSnackBar(uiState.userMessage)
+    /* 유저 디테일 정보 수정 */
+    private fun updateDetailUi(uiState: ProfileDetailUiState) {
+        uiState.userMessage?.let {
+            showSnackBar(it)
             viewModel.userMessageShown()
         }
 
-        binding.apply {
-            profileHeaderUsernameTextview.text = userInfo.name
-            profileIntroduceTextview.text = "${userInfo.name}의 자기소개 입니다." // ToDo: 자기소개 추가 시 변경
-            profileInfoPostnumTextview.text = uiState.post.toString()
-            profileInfoFollowernumTextview.text = uiState.follower.toString()
-            profileInfoFolloweenumTextview.text = uiState.followee.toString()
+        uiState.userDetails?.let {
+            binding.apply {
+                profileHeaderUsernameTextview.text = it.name
+                profileIntroduceTextview.text = "${it.name}의 자기소개 입니다." // ToDo: 자기소개 추가 시 변경
+                profileInfoPostnumTextview.text = it.postCount.toString()
+                profileInfoFollowernumTextview.text = it.followersCount.toString()
+                profileInfoFolloweenumTextview.text = it.followingCount.toString()
 
-            val profileState = uiState.state
-            if(profileState == 0){
-                profileButton.setText(R.string.profile_button_modify)
-            }
-            else if (profileState == 1){
-                profileButton.setText(R.string.profile_button_follow_cancle)
-            }
-            else if (profileState == 2){
-                profileButton.setText(R.string.profile_button_follow)
-            }
+                if(it.isMe){
+                    profileButton.setText(R.string.profile_button_modify)
+                }
+                else if (uiState.isFollowing == true){
+                    profileButton.setText(R.string.profile_button_follow_cancle)
+                }
+                else if (uiState.isFollowing == false){
+                    profileButton.setText(R.string.profile_button_follow)
+                }
+                else{
+                    showSnackBar(R.string.profile_error_temp)
+                }
 
-            val storageReference = Firebase.storage.reference
-            Glide.with(applicationContext)
-                .load(userInfo.profileImageUrl?.let { storageReference.child(it) })
-                .circleCrop()
-                .into(profileImage)
+                val storageReference = Firebase.storage.reference
+                Glide.with(applicationContext)
+                    .load(it.profileImageUrl?.let { storageReference.child(it) })
+                    .circleCrop()
+                    .into(profileImage)
+            }
         }
+    }
 
-        //viewModel.setImageView(binding.profileImage, uiState.profileInfo.profileImg)
-        //gridView.adapter = ProfilePostAdapter(applicationContext, uiState.profilePost)
+    private fun showSnackBar(message: Int) {
+        Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
     }
 }
