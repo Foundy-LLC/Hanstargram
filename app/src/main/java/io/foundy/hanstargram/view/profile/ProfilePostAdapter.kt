@@ -1,12 +1,10 @@
-package io.foundy.hanstargram.view.home.search
+package io.foundy.hanstargram.view.profile
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import io.foundy.hanstargram.databinding.ItemProfilePostBinding
-import io.foundy.hanstargram.view.profile.ProfilePostItemUiState
-import io.foundy.hanstargram.view.profile.ProfilePostViewHolder
 
 class ProfilePostAdapter(
     private val onClickPost: (ProfilePostItemUiState) -> Unit

@@ -18,7 +18,6 @@ import io.foundy.hanstargram.R
 import io.foundy.hanstargram.databinding.ActivityProfileBinding
 import io.foundy.hanstargram.view.common.PagingLoadStateAdapter
 import io.foundy.hanstargram.view.common.setListeners
-import io.foundy.hanstargram.view.home.search.ProfilePostAdapter
 import kotlinx.coroutines.launch
 
 class ProfileActivity : ViewBindingActivity<ActivityProfileBinding>() {
@@ -37,7 +36,6 @@ class ProfileActivity : ViewBindingActivity<ActivityProfileBinding>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // uuid 안들어 왔으면 동작 안함
         intent.getStringExtra("uuid")?.let {
             viewModel.bindProfile(it)
 
@@ -48,8 +46,8 @@ class ProfileActivity : ViewBindingActivity<ActivityProfileBinding>() {
             /* 유저 디테일 */
             lifecycleScope.launch {
                 repeatOnLifecycle(Lifecycle.State.STARTED) {
-                    viewModel.profileDetailUiState.collect {
-                        if (!it.isLoading) updateDetailUi(it)
+                    viewModel.profileDetailUiState.collect { profileUiState ->
+                        if (!profileUiState.isLoading) updateDetailUi(profileUiState)
                     }
                 }
             }
@@ -59,8 +57,8 @@ class ProfileActivity : ViewBindingActivity<ActivityProfileBinding>() {
             initRecyclerView(adapter)
             lifecycleScope.launch {
                 repeatOnLifecycle(Lifecycle.State.STARTED) {
-                    viewModel.profilePostUiState.collect {
-                        updatePostUi(it, adapter)
+                    viewModel.profilePostUiState.collect { postUiState ->
+                        updatePostUi(postUiState, adapter)
                     }
                 }
             }
@@ -85,7 +83,9 @@ class ProfileActivity : ViewBindingActivity<ActivityProfileBinding>() {
     }
 
     private fun onClickPost(uiState: ProfilePostItemUiState) {
+        /* Todo: 게시글 자세히 보기
         Snackbar.make(binding.root, uiState.uuid, Snackbar.LENGTH_LONG).show()
+         */
     }
 
     /* 유저 디테일 정보 수정 */
@@ -105,12 +105,15 @@ class ProfileActivity : ViewBindingActivity<ActivityProfileBinding>() {
 
                 if(it.isMe){
                     profileButton.setText(R.string.profile_button_modify)
+                    profileButton.setBackgroundColor(getColor(io.foundy.common.R.color.md_theme_light_inversePrimary))
                 }
                 else if (uiState.isFollowing == true){
                     profileButton.setText(R.string.profile_button_follow_cancle)
+                    profileButton.setBackgroundColor(getColor(io.foundy.common.R.color.md_theme_light_error))
                 }
                 else if (uiState.isFollowing == false){
                     profileButton.setText(R.string.profile_button_follow)
+                    profileButton.setBackgroundColor(getColor(io.foundy.common.R.color.md_theme_light_primary))
                 }
                 else{
                     showSnackBar(R.string.profile_error_temp)
@@ -119,6 +122,7 @@ class ProfileActivity : ViewBindingActivity<ActivityProfileBinding>() {
                 val storageReference = Firebase.storage.reference
                 Glide.with(applicationContext)
                     .load(it.profileImageUrl?.let { storageReference.child(it) })
+                    .fallback(R.drawable.ic_baseline_person_24)
                     .circleCrop()
                     .into(profileImage)
             }

@@ -1,7 +1,6 @@
 package io.foundy.hanstargram.view.home.search
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -21,13 +20,11 @@ import io.foundy.hanstargram.databinding.FragmentSearchBinding
 import io.foundy.hanstargram.util.debounce
 import io.foundy.hanstargram.view.common.PagingLoadStateAdapter
 import io.foundy.hanstargram.view.common.setListeners
-import io.foundy.hanstargram.view.home.HomeActivity
 import io.foundy.hanstargram.view.profile.ProfileActivity
 import kotlinx.coroutines.launch
 
 class SearchFragment : ViewBindingFragment<FragmentSearchBinding>() {
     private val viewModel: SearchViewModel by viewModels()
-    private lateinit var homeACtivity : HomeActivity
 
     override val bindingInflater: (LayoutInflater, ViewGroup?, Boolean) -> FragmentSearchBinding
         get() = FragmentSearchBinding::inflate
@@ -99,16 +96,10 @@ class SearchFragment : ViewBindingFragment<FragmentSearchBinding>() {
         adapter.submitData(viewLifecycleOwner.lifecycle, uiState.pagingData)
     }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        homeACtivity = context as HomeActivity
-    }
-
     private fun onClickUser(uiState: SearchItemUiState) {
-        val intent = ProfileActivity.getIntent(homeACtivity).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME
+        context?.let { ProfileActivity.getIntent(it).apply {
             putExtra("uuid", uiState.uuid)
-        }
-        startActivity(intent)
+            startActivity(this)
+        } }
     }
 }
