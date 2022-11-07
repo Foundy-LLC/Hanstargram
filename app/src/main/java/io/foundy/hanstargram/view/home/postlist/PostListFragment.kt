@@ -1,9 +1,12 @@
 package io.foundy.hanstargram.view.home.postlist
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -18,6 +21,8 @@ import io.foundy.hanstargram.R
 import io.foundy.hanstargram.databinding.FragmentPostListBinding
 import io.foundy.hanstargram.view.common.PagingLoadStateAdapter
 import io.foundy.hanstargram.view.common.setListeners
+import io.foundy.hanstargram.view.home.HomeActivity
+import io.foundy.hanstargram.view.posting.PostingActivity
 import kotlinx.coroutines.launch
 
 class PostListFragment : ViewBindingFragment<FragmentPostListBinding>() {
@@ -46,6 +51,17 @@ class PostListFragment : ViewBindingFragment<FragmentPostListBinding>() {
                 }
             }
         }
+
+        binding.toolbarPostButton.setOnClickListener {
+            navigateToPostingView()
+        }
+    }
+
+    private fun navigateToPostingView() {
+        val intent = activity?.let {
+            PostingActivity.getIntent(it)
+        }
+        startActivity(intent)
     }
 
     private fun initBottomSheetDialog(adapter: PostAdapter) {
