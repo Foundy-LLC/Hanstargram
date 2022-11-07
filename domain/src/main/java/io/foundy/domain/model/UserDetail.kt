@@ -8,5 +8,6 @@ data class UserDetail(
     val postCount: Long,
     val followersCount: Long,
     val followingCount: Long,
-    val isCurrentUserFollowing: Boolean
+    val isCurrentUserFollowing: Boolean,
+    val isMe: Boolean
 )

@@ -121,7 +121,8 @@ object UserRepository {
                     postCount = postCount,
                     followersCount = followersCount,
                     followingCount = followingCount,
-                    isCurrentUserFollowing = isCurrentUserFollowing
+                    isCurrentUserFollowing = isCurrentUserFollowing,
+                    isMe = userUuid == currentUser.uid
                 )
             )
         } catch (e: Exception) {
