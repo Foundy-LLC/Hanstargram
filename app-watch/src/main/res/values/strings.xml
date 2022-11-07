@@ -32,5 +32,9 @@
     <string name="fail_to_connect">연결에 실패했습니다.</string>
     <string name="retry">재시도</string>
     <string name="empty">텅</string>
+    <string name="explore">탐색</string>
     <string name="follow_some_people">다른 사람을 팔로우 하여 게시글을 확인하세요.</string>
+
+    <!-- Explore -->
+    <string name="user_image">회원 사진</string>
 </resources>

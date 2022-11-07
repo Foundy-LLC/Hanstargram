@@ -40,6 +40,10 @@
         <activity
             android:name=".view.home.HomeActivity"
             android:exported="false" />
+
+        <activity
+            android:name=".view.explore.ExploreActivity"
+            android:exported="false" />
     </application>
 
 </manifest>
