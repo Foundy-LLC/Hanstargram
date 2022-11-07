@@ -10,10 +10,12 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import io.foundy.data.model.UserDto
 import io.foundy.data.source.UserPagingSource
+import io.foundy.domain.model.UserDetail
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.tasks.await
 import java.io.ByteArrayOutputStream
 import java.util.UUID
+import com.google.firebase.firestore.AggregateSource
 
 object UserRepository {
 
@@ -86,5 +88,45 @@ object UserRepository {
         return Pager(PagingConfig(pageSize = PAGE_SIZE)) {
             UserPagingSource(queryUsersByName = queryUsersByName)
         }.flow
+    }
+
+    suspend fun getUserDetail(userUuid: String): Result<UserDetail> {
+        val db = Firebase.firestore
+        val currentUser = Firebase.auth.currentUser
+        val userCollection = db.collection("users")
+        val postCollection = db.collection("posts")
+        val followCollection = db.collection("followers")
+        check(currentUser != null)
+
+        try {
+            val userDto = userCollection.document(userUuid)
+                .get().await().toObject(UserDto::class.java)!!
+            val postCount = postCollection.whereEqualTo("writerUuid", userUuid).count()
+                .get(AggregateSource.SERVER).await().count
+            val followersCount = followCollection.whereEqualTo("followeeUuid", userUuid)
+                .count().get(AggregateSource.SERVER).await().count
+            val followingCount = followCollection.whereEqualTo("followerUuid", userUuid)
+                .count().get(AggregateSource.SERVER).await().count
+            val isCurrentUserFollowing = !followCollection
+                .whereEqualTo("followerUuid", currentUser.uid)
+                .whereEqualTo("followeeUuid", userUuid)
+                .get().await().isEmpty
+
+            return Result.success(
+                UserDetail(
+                    uuid = userDto.uuid,
+                    name = userDto.name,
+                    email = userDto.email,
+                    profileImageUrl = userDto.profileImageUrl,
+                    postCount = postCount,
+                    followersCount = followersCount,
+                    followingCount = followingCount,
+                    isCurrentUserFollowing = isCurrentUserFollowing
+                )
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return Result.failure(e)
+        }
     }
 }
