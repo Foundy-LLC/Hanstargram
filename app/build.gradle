@@ -41,10 +41,6 @@ dependencies {
     implementation project(":data")
     implementation project(":domain")
     implementation project(':common')
-    
-    // ImagePicker
-    implementation 'com.github.dhaval2404:imagepicker:2.1'
-
 
     // Glide
     implementation "com.github.bumptech.glide:glide:$glide"
@@ -68,7 +64,6 @@ dependencies {
     // Coroutine
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$life_cycle_version"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$life_cycle_version"
-    implementation 'androidx.databinding:viewbinding:7.3.1'
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutine_version"
 
     // fragment

@@ -59,9 +59,7 @@ class PostListFragment : ViewBindingFragment<FragmentPostListBinding>() {
 
     private fun navigateToPostingView() {
         val intent = activity?.let {
-            PostingActivity.getIntent(it).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME
-            }
+            PostingActivity.getIntent(it)
         }
         startActivity(intent)
     }
