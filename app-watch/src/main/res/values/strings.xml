@@ -37,4 +37,9 @@
 
     <!-- Explore -->
     <string name="user_image">회원 사진</string>
+    <string name="follow">팔로우</string>
+    <string name="unfollow">언팔로우</string>
+    <string name="post">게시글</string>
+    <string name="follower">팔로워</string>
+    <string name="following">팔로잉</string>
 </resources>

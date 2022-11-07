@@ -7,13 +7,18 @@ import androidx.recyclerview.widget.DiffUtil
 import io.foundy.hanstargramwatch.databinding.ItemPostBinding
 
 class PostAdapter(
+    private val onClickUser: (userUuid: String) -> Unit,
     private val onClickLikeButton: (PostItemUiState) -> Unit
 ) : PagingDataAdapter<PostItemUiState, PostViewHolder>(diffCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
         val binding = ItemPostBinding.inflate(layoutInflater, parent, false)
-        return PostViewHolder(binding, onClickLikeButton = onClickLikeButton)
+        return PostViewHolder(
+            binding,
+            onClickUser = onClickUser,
+            onClickLikeButton = onClickLikeButton
+        )
     }
 
     override fun onBindViewHolder(holder: PostViewHolder, position: Int) {

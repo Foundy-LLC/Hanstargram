@@ -17,6 +17,7 @@ import io.foundy.hanstargramwatch.R
 import io.foundy.hanstargramwatch.databinding.ActivityHomeBinding
 import io.foundy.hanstargramwatch.view.common.setListeners
 import io.foundy.hanstargramwatch.view.explore.ExploreActivity
+import io.foundy.hanstargramwatch.view.profile.ProfileActivity
 import kotlinx.coroutines.launch
 
 class HomeActivity : ViewBindingActivity<ActivityHomeBinding>() {
@@ -35,7 +36,10 @@ class HomeActivity : ViewBindingActivity<ActivityHomeBinding>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val adapter = PostAdapter(onClickLikeButton = ::onClickLikeButton)
+        val adapter = PostAdapter(
+            onClickLikeButton = ::onClickLikeButton,
+            onClickUser = ::onClickUser
+        )
         initRecyclerView(adapter)
 
         binding.exploreButton.setOnClickListener {
@@ -81,8 +85,17 @@ class HomeActivity : ViewBindingActivity<ActivityHomeBinding>() {
         viewModel.toggleLike(postUuid = uiState.uuid)
     }
 
+    private fun onClickUser(userUuid: String) {
+        startProfileActivity(userUuid)
+    }
+
     private fun showSnackBar(message: String) {
         Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
+    }
+
+    private fun startProfileActivity(userUuid: String) {
+        val intent = ProfileActivity.getIntent(this, userUuid)
+        startActivity(intent)
     }
 
     private fun startExploreActivity() {
