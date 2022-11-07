@@ -22,10 +22,15 @@
     <string name="set_your_profile">프로필을 설정해주세요.</string>
     <string name="done">완료</string>
     <string name="input_name">이름 입력…</string>
-    <string name="select_user_image">이미지 선택</string>
     <string name="failed_to_save_data">정보 저장을 실패했습니다.</string>
-    <string-array name="image_options">
-        <item>갤러리에서 선택</item>
-        <item>기본 이미지로 변경</item>
-    </string-array>
+    <string name="failed_to_toggle_like_button">좋아요 토글에 실패했습니다.</string>
+
+    <!-- Home -->
+    <string name="post_image">게시글 이미지</string>
+    <string name="like_button">좋아요 버튼</string>
+    <string name="like_count">%d개</string>
+    <string name="fail_to_connect">연결에 실패했습니다.</string>
+    <string name="retry">재시도</string>
+    <string name="empty">텅</string>
+    <string name="follow_some_people">다른 사람을 팔로우 하여 게시글을 확인하세요.</string>
 </resources>
