@@ -82,6 +82,7 @@ class PostingActivity : AppCompatActivity() {
 
         findViewById<ImageButton>(R.id.post_button).apply {
             isEnabled = !uiState.isLoading
+            alpha = if (uiState.isLoading) 0.5F else 1.0F
         }
     }
 
