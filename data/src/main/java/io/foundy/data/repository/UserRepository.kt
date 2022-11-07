@@ -16,6 +16,7 @@ import kotlinx.coroutines.tasks.await
 import java.io.ByteArrayOutputStream
 import java.util.UUID
 import com.google.firebase.firestore.AggregateSource
+import io.foundy.data.model.FollowDto
 
 object UserRepository {
 
@@ -88,6 +89,58 @@ object UserRepository {
         return Pager(PagingConfig(pageSize = PAGE_SIZE)) {
             UserPagingSource(queryUsersByName = queryUsersByName)
         }.flow
+    }
+
+    suspend fun follow(targetUserUuid: String): Result<Unit> {
+        val currentUser = Firebase.auth.currentUser
+        val followCollection = Firebase.firestore.collection("followers")
+        check(currentUser != null)
+
+        try {
+            val alreadyFollowing = !followCollection
+                .whereEqualTo("followerUuid", currentUser.uid)
+                .whereEqualTo("followeeUuid", targetUserUuid)
+                .get().await().isEmpty
+            if (alreadyFollowing) {
+                throw IllegalStateException("이미 팔로우 중인 상대를 팔로우 하였습니다.")
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return Result.failure(e)
+        }
+
+
+        val followDto = FollowDto(
+            uuid = UUID.randomUUID().toString(),
+            followeeUuid = targetUserUuid,
+            followerUuid = currentUser.uid
+        )
+        return try {
+            followCollection.document(followDto.uuid).set(followDto).await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Result.failure(e)
+        }
+    }
+
+    suspend fun unfollow(targetUserUuid: String): Result<Unit> {
+        val currentUser = Firebase.auth.currentUser
+        val followCollection = Firebase.firestore.collection("followers")
+        check(currentUser != null)
+
+        return try {
+            val followDto = followCollection
+                .whereEqualTo("followerUuid", currentUser.uid)
+                .whereEqualTo("followeeUuid", targetUserUuid)
+                .get().await().first().toObject(FollowDto::class.java)
+
+            followCollection.document(followDto.uuid).delete()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Result.failure(e)
+        }
     }
 
     suspend fun getUserDetail(userUuid: String): Result<UserDetail> {

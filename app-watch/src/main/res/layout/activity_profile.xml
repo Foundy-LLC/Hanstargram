@@ -54,12 +54,12 @@
             style="?attr/textAppearanceCaption"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="@string/post"
             android:textAlignment="center"
             android:textSize="11sp"
             app:layout_constraintEnd_toEndOf="@+id/postsCount"
             app:layout_constraintStart_toStartOf="@+id/postsCount"
-            app:layout_constraintTop_toBottomOf="@+id/followersCount"
-            tools:text="게시글" />
+            app:layout_constraintTop_toBottomOf="@+id/followersCount" />
 
         <TextView
             android:id="@+id/followersCount"
@@ -79,12 +79,12 @@
             style="?attr/textAppearanceCaption"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="@string/follower"
             android:textAlignment="center"
             android:textSize="11sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/followersCount"
-            tools:text="팔로워" />
+            app:layout_constraintTop_toBottomOf="@+id/followersCount" />
 
         <TextView
             android:id="@+id/followingCount"
@@ -103,22 +103,24 @@
             style="?attr/textAppearanceCaption"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="@string/following"
             android:textAlignment="center"
             android:textSize="11sp"
             app:layout_constraintEnd_toEndOf="@+id/followingCount"
             app:layout_constraintStart_toStartOf="@+id/followingCount"
-            app:layout_constraintTop_toBottomOf="@+id/followingCount"
-            tools:text="팔로잉" />
+            app:layout_constraintTop_toBottomOf="@+id/followingCount" />
 
         <Button
             android:id="@+id/follow_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
+            android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/followersCaption"
-            tools:text="팔로우" />
+            tools:text="팔로우"
+            tools:visibility="visible" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
