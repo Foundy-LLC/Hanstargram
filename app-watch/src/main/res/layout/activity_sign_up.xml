@@ -26,7 +26,6 @@
             android:layout_marginHorizontal="24dp"
             android:layout_marginTop="8dp"
             android:hint="@string/email"
-            app:layout_constraintTop_toBottomOf="@+id/toolbar"
             app:placeholderText="abc@gmail.com">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -44,8 +43,7 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="24dp"
             android:layout_marginTop="8dp"
-            android:hint="@string/password"
-            app:layout_constraintTop_toBottomOf="@+id/emailInputLayout">
+            android:hint="@string/password">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/password_input"
@@ -62,10 +60,7 @@
             android:layout_height="52dp"
             android:layout_marginHorizontal="24dp"
             android:layout_marginTop="24dp"
-            android:text="@string/sign_up"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/passwordInputLayout" />
+            android:text="@string/sign_up" />
 
     </androidx.appcompat.widget.LinearLayoutCompat>
 
