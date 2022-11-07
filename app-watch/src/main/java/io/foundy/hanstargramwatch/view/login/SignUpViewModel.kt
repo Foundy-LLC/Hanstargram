@@ -2,21 +2,16 @@ package io.foundy.hanstargramwatch.view.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 import io.foundy.data.repository.AuthRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class LoginViewModel : ViewModel() {
+class SignUpViewModel : ViewModel() {
 
-    private val _uiState = MutableStateFlow(LoginUiState())
+    private val _uiState = MutableStateFlow(SignUpUiState())
     val uiState = _uiState.asStateFlow()
-
-    val signedIn: Boolean
-        get() = AuthRepository.isSignedIn()
 
     fun updateEmail(email: String) {
         _uiState.update { it.copy(email = email) }
@@ -26,14 +21,14 @@ class LoginViewModel : ViewModel() {
         _uiState.update { it.copy(password = password) }
     }
 
-    fun signIn() {
+    fun signUp() {
         val email = uiState.value.email
         val password = uiState.value.password
         _uiState.update { it.copy(isLoading = true) }
         viewModelScope.launch {
-            val result = AuthRepository.signIn(email, password)
+            val result = AuthRepository.signUp(email, password)
             if (result.isSuccess) {
-                _uiState.update { it.copy(successToSignIn = true, isLoading = false) }
+                _uiState.update { it.copy(successToSignUp = true, isLoading = false) }
             } else {
                 _uiState.update {
                     it.copy(
@@ -42,17 +37,6 @@ class LoginViewModel : ViewModel() {
                     )
                 }
             }
-        }
-    }
-
-    fun checkUserInfoExists(hasUserInfoCallback: (Boolean) -> Unit) {
-        val uid = Firebase.auth.currentUser?.uid
-        if (uid == null) {
-            hasUserInfoCallback(false)
-            return
-        }
-        AuthRepository.hasUserInfo(uid) {
-            hasUserInfoCallback(it)
         }
     }
 

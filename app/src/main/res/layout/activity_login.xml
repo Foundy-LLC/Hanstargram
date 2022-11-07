@@ -33,7 +33,7 @@
                 android:layout_marginBottom="80dp"
                 android:fontFamily="@font/instagram_font"
                 android:text="@string/app_name"
-                android:textSize="36dp" />
+                android:textSize="36sp" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/emailInputLayout"
