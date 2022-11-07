@@ -1,38 +1,45 @@
-package io.foundy.hanstargram.view.profile
+package io.foundy.hanstargram.view.home.search
 
-import android.annotation.SuppressLint
-import android.content.Context
-import android.view.View
+import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.BaseAdapter
-import android.widget.ImageView
-import com.bumptech.glide.Glide
-import io.foundy.data.model.PostDto
-import io.foundy.hanstargram.R
+import androidx.paging.PagingDataAdapter
+import androidx.recyclerview.widget.DiffUtil
+import io.foundy.hanstargram.databinding.ItemSearchBinding
+import io.foundy.hanstargram.view.profile.ProfilePostItemUiState
+import io.foundy.hanstargram.view.profile.ProfilePostViewHolder
 
-class ProfilePostAdapter(var context : Context, var postList: MutableList<PostDto>) : BaseAdapter() {
-    override fun getCount(): Int {
-        return postList.size
+class ProfilePostAdapter(
+    private val onClickUser: (ProfilePostItemUiState) -> Unit
+) : PagingDataAdapter<ProfilePostItemUiState, ProfilePostViewHolder>(diffCallback) {
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProfilePostViewHolder {
+        val layoutInflater = LayoutInflater.from(parent.context)
+        val binding = ItemSearchBinding.inflate(layoutInflater, parent, false)
+        return ProfilePostViewHolder(
+            binding,
+            onClickUser = onClickUser
+        )
     }
 
-    override fun getItem(pos : Int): Any {
-        return postList[pos]
+    override fun onBindViewHolder(holder: ProfilePostViewHolder, position: Int) {
+        getItem(position)?.let { holder.bind(it) }
     }
 
-    override fun getItemId(pos : Int): Long {
-        return pos.toLong()
-    }
+    companion object {
+        private val diffCallback = object : DiffUtil.ItemCallback<ProfilePostItemUiState>() {
+            override fun areItemsTheSame(
+                oldItem: ProfilePostItemUiState,
+                newItem: ProfilePostItemUiState
+            ): Boolean {
+                return oldItem.uuid == newItem.uuid
+            }
 
-    @SuppressLint("ViewHolder")
-    override fun getView(pos: Int, convertView: View?, parent: ViewGroup?): View {
-        val view : View = View.inflate(context, R.layout.profile_gird_item, null)
-        val icons : ImageView = view.findViewById(R.id.icons)
-        val glide = Glide.with(view)
-
-        glide.load(postList[pos].imageUrl)
-            .fallback(R.drawable.ic_baseline_star_24)
-            .into(icons)
-
-        return view
+            override fun areContentsTheSame(
+                oldItem: ProfilePostItemUiState,
+                newItem: ProfilePostItemUiState
+            ): Boolean {
+                return oldItem == newItem
+            }
+        }
     }
 }

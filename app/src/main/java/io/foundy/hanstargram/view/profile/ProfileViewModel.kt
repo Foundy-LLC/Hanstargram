@@ -23,6 +23,9 @@ class ProfileViewModel : ViewModel() {
     private lateinit var profileState : ProfileState
     private val TAG = "ProfileViewModel"
 
+    private val _postUiState: MutableStateFlow<ProfileUiState> = MutableStateFlow(PostUiState())
+    val postUiState = _postUiState.asStateFlow()
+
     private val _uiState: MutableStateFlow<ProfileUiState> = MutableStateFlow(ProfileUiState())
     val uiState = _uiState.asStateFlow()
 
