@@ -64,5 +64,7 @@
     <string name="post_button">공유</string>
     <string name="failed_to_upload">업로드에 실패했습니다.</string>
     <string name="uploading">게시중…</string>
+    <string name="toolBar_post_add_button">게시글 추가 버튼</string>
+    <string name="posting_title">게시글 작성</string>
 
 </resources>

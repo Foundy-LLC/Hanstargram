@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -16,6 +17,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.snackbar.Snackbar
 import io.foundy.hanstargram.R
+import io.foundy.hanstargram.view.home.HomeActivity
+import io.foundy.hanstargram.view.home.postlist.PostListFragment
 import kotlinx.coroutines.launch
 
 class PostingActivity : AppCompatActivity() {
@@ -43,7 +46,8 @@ class PostingActivity : AppCompatActivity() {
 
         showImagePicker()
 
-        val postButton = findViewById<Button>(R.id.post_button)
+        val postButton = findViewById<ImageButton>(R.id.post_button)
+
         postButton.setOnClickListener {
             val content = findViewById<EditText>(R.id.image_expression).text.toString()
             viewModel.uploadContent(content)
@@ -52,6 +56,11 @@ class PostingActivity : AppCompatActivity() {
         val imageView = findViewById<ImageView>(R.id.add_image)
         imageView.setOnClickListener {
             showImagePicker()
+        }
+
+        val backButton = findViewById<ImageButton>(R.id.post_back_button)
+        backButton.setOnClickListener {
+            finish()
         }
 
         lifecycleScope.launch {
@@ -74,9 +83,9 @@ class PostingActivity : AppCompatActivity() {
             finish()
         }
 
-        findViewById<Button>(R.id.post_button).apply {
+        findViewById<ImageButton>(R.id.post_button).apply {
             isEnabled = !uiState.isLoading
-            setText(if (uiState.isLoading) R.string.uploading else R.string.post_button)
+            //setText(if (uiState.isLoading) R.string.uploading else R.string.post_button)
         }
     }
 
