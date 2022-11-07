@@ -3,7 +3,6 @@ package io.foundy.hanstargram.view.posting
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
@@ -17,8 +16,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.snackbar.Snackbar
 import io.foundy.hanstargram.R
-import io.foundy.hanstargram.view.home.HomeActivity
-import io.foundy.hanstargram.view.home.postlist.PostListFragment
 import kotlinx.coroutines.launch
 
 class PostingActivity : AppCompatActivity() {
@@ -85,7 +82,6 @@ class PostingActivity : AppCompatActivity() {
 
         findViewById<ImageButton>(R.id.post_button).apply {
             isEnabled = !uiState.isLoading
-            //setText(if (uiState.isLoading) R.string.uploading else R.string.post_button)
         }
     }
 
