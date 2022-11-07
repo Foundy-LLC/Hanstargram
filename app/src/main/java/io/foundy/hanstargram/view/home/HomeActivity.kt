@@ -33,4 +33,11 @@ class HomeActivity : ViewBindingActivity<ActivityHomeBinding>() {
 
         binding.bottomNav.setupWithNavController(navController)
     }
+
+    fun navigateToPostingView() {
+        val intent = PostingActivity.getIntent(this).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME
+        }
+        startActivity(intent)
+    }
 }
