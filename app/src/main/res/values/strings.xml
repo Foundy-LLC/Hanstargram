@@ -58,6 +58,9 @@
     <string name="clear_query_content_description">검색어 삭제 버튼</string>
     <string name="user_image">회원 사진</string>
     <string name="search_user">회원 검색…</string>
+
+  
+    <!-- Profile -->
     <string name="profile_follow_success">팔로우 했습니다.</string>
     <string name="profile_follow_cancle">팔로우를 취소 했습니다.</string>
     <string name="profile_error_temp">임시 에러 메시지</string>
@@ -68,4 +71,13 @@
     <string name="profile_button_follow">팔로우</string>
     <string name="profile_button_follow_cancle">팔로우 취소</string>
     <string name="profile_post_description">프로필 포스트</string>
+
+    <!-- Posting -->
+    <string name="image_expression">문구 입력…</string>
+    <string name="post_button">공유</string>
+    <string name="failed_to_upload">업로드에 실패했습니다.</string>
+    <string name="uploading">게시중…</string>
+    <string name="toolBar_post_add_button">게시글 추가 버튼</string>
+    <string name="posting_title">게시글 작성</string>
+
 </resources>

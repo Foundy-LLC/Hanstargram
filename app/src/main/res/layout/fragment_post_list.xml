@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:behavior_draggable="false"
@@ -17,10 +18,21 @@
             android:id="@+id/toolbar_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
             android:fontFamily="@font/instagram_font"
             android:text="@string/app_name"
             android:textSize="26sp" />
+
+        <ImageButton
+            android:id="@+id/toolbar_post_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/toolBar_post_add_button"
+            android:minWidth="48dp"
+            android:minHeight="48dp"
+            android:src="@drawable/ic_outline_add_box_24"
+            app:tint="?attr/colorOnBackground" />
 
     </androidx.appcompat.widget.Toolbar>
 
@@ -29,6 +41,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolBar">
 
         <androidx.recyclerview.widget.RecyclerView
