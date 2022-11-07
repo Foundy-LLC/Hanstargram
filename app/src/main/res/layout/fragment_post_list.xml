@@ -31,7 +31,8 @@
             android:contentDescription="@string/toolBar_post_add_button"
             android:minWidth="48dp"
             android:minHeight="48dp"
-            android:src="@drawable/post_add" />
+            android:src="@drawable/ic_outline_add_box_24"
+            app:tint="?attr/colorOnBackground" />
 
     </androidx.appcompat.widget.Toolbar>
 
