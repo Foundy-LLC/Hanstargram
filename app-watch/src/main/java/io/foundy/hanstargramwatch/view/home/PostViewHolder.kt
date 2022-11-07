@@ -16,6 +16,7 @@ import io.foundy.hanstargramwatch.databinding.ItemPostBinding
 
 class PostViewHolder(
     private val binding: ItemPostBinding,
+    private val onClickUser: (userUuid: String) -> Unit,
     private val onClickLikeButton: (PostItemUiState) -> Unit
 ) : RecyclerView.ViewHolder(binding.root) {
 
@@ -28,6 +29,9 @@ class PostViewHolder(
             .into(profileImage)
 
         userName.text = uiState.writerName
+
+        profileImage.setOnClickListener { onClickUser(uiState.writerUuid) }
+        userName.setOnClickListener { onClickUser(uiState.writerUuid) }
 
         glide.load(storageReference.child(uiState.imageUrl))
             .into(postImage)

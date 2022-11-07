@@ -12,6 +12,7 @@ data class HomeUiState(
 
 data class PostItemUiState(
     val uuid: String,
+    val writerUuid: String,
     val writerName: String,
     val writerProfileImageUrl: String?,
     val content: String,
@@ -24,6 +25,7 @@ data class PostItemUiState(
 
 fun Post.toUiState() = PostItemUiState(
     uuid = uuid,
+    writerUuid = writerUuid,
     writerName = writerName,
     writerProfileImageUrl = writerProfileImageUrl,
     content = content,

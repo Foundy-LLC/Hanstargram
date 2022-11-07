@@ -2,6 +2,7 @@ package io.foundy.domain.model
 
 data class Post(
     val uuid: String,
+    val writerUuid: String,
     val writerName: String,
     val writerProfileImageUrl: String?,
     val content: String,

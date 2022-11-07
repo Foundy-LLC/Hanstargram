@@ -13,6 +13,7 @@ import io.foundy.common.base.ViewBindingActivity
 import io.foundy.hanstargramwatch.databinding.ActivityExploreBinding
 import io.foundy.hanstargramwatch.view.common.PagingLoadStateAdapter
 import io.foundy.hanstargramwatch.view.common.setListeners
+import io.foundy.hanstargramwatch.view.profile.ProfileActivity
 import kotlinx.coroutines.launch
 
 class ExploreActivity : ViewBindingActivity<ActivityExploreBinding>() {
@@ -58,6 +59,11 @@ class ExploreActivity : ViewBindingActivity<ActivityExploreBinding>() {
     }
 
     private fun onClickUser(uiState: UserItemUiState) {
-        // TODO(민성): show user profile
+        startProfileActivity(uiState.uuid)
+    }
+
+    private fun startProfileActivity(userUuid: String) {
+        val intent = ProfileActivity.getIntent(this, userUuid)
+        startActivity(intent)
     }
 }

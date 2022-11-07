@@ -50,7 +50,8 @@ class PostPagingSource(
 
                 Post(
                     uuid = postDto.uuid,
-                    writerName = writer!!.name,
+                    writerUuid = writer!!.uuid,
+                    writerName = writer.name,
                     writerProfileImageUrl = writer.profileImageUrl,
                     content = postDto.content,
                     imageUrl = postDto.imageUrl,

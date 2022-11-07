@@ -44,6 +44,10 @@
         <activity
             android:name=".view.explore.ExploreActivity"
             android:exported="false" />
+
+        <activity
+            android:name=".view.profile.ProfileActivity"
+            android:exported="false" />
     </application>
 
 </manifest>
