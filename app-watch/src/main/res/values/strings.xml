@@ -1,8 +1,36 @@
 <resources>
-    <string name="app_name">Hanstargram Watch</string>
-    <!--
-    This string is used for square devices and overridden by hello_world in
-    values-round/strings.xml for round devices.
-    -->
-    <string name="hello_world">Hello Square World!</string>
+    <string name="app_name">Hanstargram</string>
+
+    <!-- preferences -->
+    <string name="preference_file_key">hanstargram</string>
+    <string name="prefs_has_user_info">shownWelcomePage</string>
+
+    <!-- Login -->
+    <string name="failed_to_sign_in">로그인에 실패했습니다.</string>
+    <string name="email">이메일</string>
+    <string name="password">비밀번호</string>
+    <string name="login">로그인</string>
+    <string name="email_is_not_valid">이메일 주소 형식이 아닙니다.</string>
+    <string name="password_is_not_valid">비밀번호는 최소 6자 이상입니다.</string>
+    <string name="loading">로딩중…</string>
+    <string name="do_not_have_account">계정이 없으신가요?</string>
+    <string name="sign_up">가입하기</string>
+    <string name="create_account">회원가입</string>
+
+    <!-- Welcome -->
+    <string name="welcome">환영합니다!</string>
+    <string name="set_your_profile">프로필을 설정해주세요.</string>
+    <string name="done">완료</string>
+    <string name="input_name">이름 입력…</string>
+    <string name="failed_to_save_data">정보 저장을 실패했습니다.</string>
+    <string name="failed_to_toggle_like_button">좋아요 토글에 실패했습니다.</string>
+
+    <!-- Home -->
+    <string name="post_image">게시글 이미지</string>
+    <string name="like_button">좋아요 버튼</string>
+    <string name="like_count">%d개</string>
+    <string name="fail_to_connect">연결에 실패했습니다.</string>
+    <string name="retry">재시도</string>
+    <string name="empty">텅</string>
+    <string name="follow_some_people">다른 사람을 팔로우 하여 게시글을 확인하세요.</string>
 </resources>

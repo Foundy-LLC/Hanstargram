@@ -1,4 +1,4 @@
-package io.foundy.hanstargram.view.home.postlist
+package io.foundy.hanstargramwatch.view.home
 
 import android.annotation.SuppressLint
 import android.graphics.Typeface
@@ -11,13 +11,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
-import io.foundy.hanstargram.R
-import io.foundy.hanstargram.databinding.ItemPostBinding
+import io.foundy.hanstargramwatch.R
+import io.foundy.hanstargramwatch.databinding.ItemPostBinding
 
 class PostViewHolder(
     private val binding: ItemPostBinding,
-    private val onClickLikeButton: (PostItemUiState) -> Unit,
-    private val onClickMoreButton: (PostItemUiState) -> Unit
+    private val onClickLikeButton: (PostItemUiState) -> Unit
 ) : RecyclerView.ViewHolder(binding.root) {
 
     private val storageReference = Firebase.storage.reference
@@ -29,11 +28,6 @@ class PostViewHolder(
             .into(profileImage)
 
         userName.text = uiState.writerName
-
-        moreInfoButton.isVisible = uiState.isMine
-        moreInfoButton.setOnClickListener {
-            onClickMoreButton(uiState)
-        }
 
         glide.load(storageReference.child(uiState.imageUrl))
             .into(postImage)
