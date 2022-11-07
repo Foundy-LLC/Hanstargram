@@ -5,15 +5,18 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import androidx.activity.viewModels
+import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.paging.LoadState
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import io.foundy.common.base.ViewBindingActivity
 import io.foundy.hanstargramwatch.R
 import io.foundy.hanstargramwatch.databinding.ActivityHomeBinding
 import io.foundy.hanstargramwatch.view.common.setListeners
+import io.foundy.hanstargramwatch.view.explore.ExploreActivity
 import kotlinx.coroutines.launch
 
 class HomeActivity : ViewBindingActivity<ActivityHomeBinding>() {
@@ -35,6 +38,10 @@ class HomeActivity : ViewBindingActivity<ActivityHomeBinding>() {
         val adapter = PostAdapter(onClickLikeButton = ::onClickLikeButton)
         initRecyclerView(adapter)
 
+        binding.exploreButton.setOnClickListener {
+            startExploreActivity()
+        }
+
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect {
@@ -50,10 +57,15 @@ class HomeActivity : ViewBindingActivity<ActivityHomeBinding>() {
             this.layoutManager = LinearLayoutManager(this@HomeActivity)
         }
         binding.loadState.apply {
-            // TODO(민성): 팔로우 한 사람이 없는 경우 존재하는 모든 회원 보이기
             setListeners(adapter, binding.swipeToRefresh)
             emptyText.text = getString(R.string.follow_some_people)
             emptyText.textSize = 14.0f
+
+            adapter.addLoadStateListener { loadStates ->
+                val isEmpty =
+                    loadStates.refresh is LoadState.NotLoading && adapter.itemCount < 1
+                binding.exploreButton.isVisible = isEmpty
+            }
         }
     }
 
@@ -71,5 +83,10 @@ class HomeActivity : ViewBindingActivity<ActivityHomeBinding>() {
 
     private fun showSnackBar(message: String) {
         Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
+    }
+
+    private fun startExploreActivity() {
+        val intent = ExploreActivity.getIntent(this)
+        startActivity(intent)
     }
 }

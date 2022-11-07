@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -18,7 +17,7 @@
             android:paddingTop="@dimen/header_padding"
             android:paddingBottom="@dimen/footer_padding"
             android:scrollbars="vertical"
-            tools:listitem="@layout/item_post" />
+            tools:listitem="@layout/item_user" />
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
@@ -27,16 +26,5 @@
         layout="@layout/content_load_state_watch"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
-
-    <Button
-        android:id="@+id/explore_button"
-        android:layout_width="wrap_content"
-        android:visibility="gone"
-        android:layout_marginBottom="12dp"
-        android:layout_height="wrap_content"
-        android:text="@string/explore"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
