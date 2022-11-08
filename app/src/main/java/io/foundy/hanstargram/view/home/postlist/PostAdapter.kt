@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.DiffUtil
 import io.foundy.hanstargram.databinding.ItemPostBinding
 
 class PostAdapter(
+    private val onClickUser: (PostItemUiState) -> Unit,
     private val onClickLikeButton: (PostItemUiState) -> Unit,
     private val onClickMoreButton: (PostItemUiState) -> Unit
 ) : PagingDataAdapter<PostItemUiState, PostViewHolder>(diffCallback) {
@@ -17,7 +18,8 @@ class PostAdapter(
         return PostViewHolder(
             binding,
             onClickLikeButton = onClickLikeButton,
-            onClickMoreButton = onClickMoreButton
+            onClickMoreButton = onClickMoreButton,
+            onClickUser = onClickUser
         )
     }
 

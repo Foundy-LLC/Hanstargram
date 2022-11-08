@@ -1,12 +1,9 @@
 package io.foundy.hanstargram.view.home.postlist
 
-import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
 import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -21,8 +18,8 @@ import io.foundy.hanstargram.R
 import io.foundy.hanstargram.databinding.FragmentPostListBinding
 import io.foundy.hanstargram.view.common.PagingLoadStateAdapter
 import io.foundy.hanstargram.view.common.setListeners
-import io.foundy.hanstargram.view.home.HomeActivity
 import io.foundy.hanstargram.view.posting.PostingActivity
+import io.foundy.hanstargram.view.profile.ProfileActivity
 import kotlinx.coroutines.launch
 
 class PostListFragment : ViewBindingFragment<FragmentPostListBinding>() {
@@ -39,7 +36,8 @@ class PostListFragment : ViewBindingFragment<FragmentPostListBinding>() {
 
         val adapter = PostAdapter(
             onClickLikeButton = ::onClickLikeButton,
-            onClickMoreButton = ::onClickMoreInfoButton
+            onClickMoreButton = ::onClickMoreInfoButton,
+            onClickUser = ::onClickUser
         )
         initRecyclerView(adapter)
         initBottomSheetDialog(adapter)
@@ -120,7 +118,16 @@ class PostListFragment : ViewBindingFragment<FragmentPostListBinding>() {
         bottomSheetDialog.show()
     }
 
+    private fun onClickUser(uiState: PostItemUiState) {
+        startProfileActivity(uiState.writerUuid)
+    }
+
     private fun showSnackBar(message: String) {
         Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
+    }
+
+    private fun startProfileActivity(userUuid: String) {
+        val intent = ProfileActivity.getIntent(requireContext(), userUuid)
+        startActivity(intent)
     }
 }

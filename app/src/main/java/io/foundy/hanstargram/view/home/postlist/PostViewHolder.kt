@@ -16,6 +16,7 @@ import io.foundy.hanstargram.databinding.ItemPostBinding
 
 class PostViewHolder(
     private val binding: ItemPostBinding,
+    private val onClickUser: (PostItemUiState) -> Unit,
     private val onClickLikeButton: (PostItemUiState) -> Unit,
     private val onClickMoreButton: (PostItemUiState) -> Unit
 ) : RecyclerView.ViewHolder(binding.root) {
@@ -29,6 +30,12 @@ class PostViewHolder(
             .into(profileImage)
 
         userName.text = uiState.writerName
+        userName.setOnClickListener {
+            onClickUser(uiState)
+        }
+        profileImage.setOnClickListener {
+            onClickUser(uiState)
+        }
 
         moreInfoButton.isVisible = uiState.isMine
         moreInfoButton.setOnClickListener {
