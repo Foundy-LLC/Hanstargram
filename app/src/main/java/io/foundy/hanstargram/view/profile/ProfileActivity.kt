@@ -5,17 +5,21 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import androidx.activity.viewModels
+import androidx.core.graphics.ColorUtils
+import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
 import com.bumptech.glide.Glide
+import com.google.android.material.color.MaterialColors
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import io.foundy.common.base.ViewBindingActivity
 import io.foundy.hanstargram.R
 import io.foundy.hanstargram.databinding.ActivityProfileBinding
+import io.foundy.hanstargram.util.themeColor
 import io.foundy.hanstargram.view.common.PagingLoadStateAdapter
 import io.foundy.hanstargram.view.common.setListeners
 import kotlinx.coroutines.launch
@@ -42,7 +46,16 @@ class ProfileActivity : ViewBindingActivity<ActivityProfileBinding>() {
         viewModel.bindProfile(userUuid)
 
         binding.followOrEditButton.setOnClickListener {
-            viewModel.toggleFollow()
+            val isMe = viewModel.profileDetailUiState.value.userDetail!!.isMe
+            if (isMe) {
+                // TODO: 프로필 편집 화면 보이기
+            } else {
+                viewModel.toggleFollow()
+            }
+        }
+
+        binding.backButton.setOnClickListener {
+            finish()
         }
 
         /* 유저 디테일 */
@@ -98,6 +111,17 @@ class ProfileActivity : ViewBindingActivity<ActivityProfileBinding>() {
 
         uiState.userDetail?.let { userDetail ->
             binding.apply {
+                val colorGrey = ColorUtils.setAlphaComponent(
+                    themeColor(com.google.android.material.R.attr.colorOnBackground),
+                    20
+                )
+                val colorOnBackground = themeColor(
+                    com.google.android.material.R.attr.colorOnBackground
+                )
+                val colorPrimary = themeColor(androidx.appcompat.R.attr.colorPrimary)
+                val colorOnPrimary = themeColor(
+                    com.google.android.material.R.attr.colorOnPrimary
+                )
                 profileHeaderUsernameTextview.text = userDetail.name
                 profileIntroduceTextview.text =
                     "${userDetail.name}의 자기소개 입니다." // TODO: 자기소개 추가 시 변경
@@ -105,15 +129,19 @@ class ProfileActivity : ViewBindingActivity<ActivityProfileBinding>() {
                 profileInfoFollowernumTextview.text = userDetail.followersCount.toString()
                 profileInfoFolloweenumTextview.text = userDetail.followingCount.toString()
 
+                followOrEditButton.isVisible = true
                 if (userDetail.isMe) {
                     followOrEditButton.setText(R.string.profile_button_modify)
-                    followOrEditButton.setBackgroundColor(getColor(io.foundy.common.R.color.md_theme_light_inversePrimary))
+                    followOrEditButton.setTextColor(colorOnBackground)
+                    followOrEditButton.setBackgroundColor(colorGrey)
                 } else if (userDetail.isCurrentUserFollowing) {
                     followOrEditButton.setText(R.string.profile_button_follow_cancle)
-                    followOrEditButton.setBackgroundColor(getColor(io.foundy.common.R.color.md_theme_light_error))
+                    followOrEditButton.setTextColor(colorOnBackground)
+                    followOrEditButton.setBackgroundColor(colorGrey)
                 } else {
                     followOrEditButton.setText(R.string.profile_button_follow)
-                    followOrEditButton.setBackgroundColor(getColor(io.foundy.common.R.color.md_theme_light_primary))
+                    followOrEditButton.setTextColor(colorOnPrimary)
+                    followOrEditButton.setBackgroundColor(colorPrimary)
                 }
 
                 val storageReference = Firebase.storage.reference
