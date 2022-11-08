@@ -2,7 +2,10 @@ package io.foundy.hanstargram.view.posting
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.ImageDecoder
+import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
@@ -25,9 +28,18 @@ class PostingActivity : AppCompatActivity() {
     private val fileChooserContract =
         registerForActivityResult(ActivityResultContracts.GetContent()) { imageUri ->
             if (imageUri != null) {
-                viewModel.selectImage(imageUri)
-            } else if (viewModel.uiState.value.selectedImage == null) {
-                finish()
+                @Suppress("DEPRECATION")
+                val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    ImageDecoder.decodeBitmap(
+                        ImageDecoder.createSource(
+                            contentResolver,
+                            imageUri
+                        )
+                    )
+                } else {
+                    MediaStore.Images.Media.getBitmap(contentResolver, imageUri)
+                }
+                viewModel.selectImage(bitmap)
             }
         }
 
@@ -69,7 +81,7 @@ class PostingActivity : AppCompatActivity() {
 
     private fun updateUi(uiState: PostingUiState) {
         if (uiState.selectedImage != null) {
-            findViewById<ImageView>(R.id.add_image).setImageURI(uiState.selectedImage)
+            findViewById<ImageView>(R.id.add_image).setImageBitmap(uiState.selectedImage)
         }
         if (uiState.userMessage != null) {
             showSnackBar(getString(uiState.userMessage))
@@ -89,6 +101,7 @@ class PostingActivity : AppCompatActivity() {
     private fun showImagePicker() {
         if (!viewModel.uiState.value.isLoading) {
             fileChooserContract.launch("image/*")
+
         }
     }
 

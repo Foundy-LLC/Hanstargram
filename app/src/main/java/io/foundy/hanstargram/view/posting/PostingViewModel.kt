@@ -1,5 +1,6 @@
 package io.foundy.hanstargram.view.posting
 
+import android.graphics.Bitmap
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -14,9 +15,9 @@ class PostingViewModel : ViewModel() {
 
     private val _uiState = MutableStateFlow(PostingUiState())
     val uiState = _uiState.asStateFlow()
-
-    fun selectImage(uri: Uri) {
-        _uiState.update { it.copy(selectedImage = uri) }
+    
+    fun selectImage(bitmap: Bitmap) {
+        _uiState.update { it.copy(selectedImage = bitmap) }
     }
 
     fun uploadContent(content: String) {

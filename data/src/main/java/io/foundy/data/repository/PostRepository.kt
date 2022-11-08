@@ -1,5 +1,6 @@
 package io.foundy.data.repository
 
+import android.graphics.Bitmap
 import android.net.Uri
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
@@ -19,6 +20,7 @@ import io.foundy.domain.model.Post
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.tasks.await
+import java.io.ByteArrayOutputStream
 import java.util.Date
 import java.util.UUID
 
@@ -45,10 +47,8 @@ object PostRepository {
                 val followerDto = it.toObject(FollowDto::class.java)
                 followerDto!!.followeeUuid
             }
-            val queryPostsByFollower = postCollection
-                .whereIn("writerUuid", followeeUuids)
-                .orderBy("dateTime", Query.Direction.DESCENDING)
-                .limit(PAGE_SIZE.toLong())
+            val queryPostsByFollower = postCollection.whereIn("writerUuid", followeeUuids)
+                .orderBy("dateTime", Query.Direction.DESCENDING).limit(PAGE_SIZE.toLong())
 
             return Pager(PagingConfig(pageSize = PAGE_SIZE)) {
                 PostPagingSource(queryPostsByFollower = queryPostsByFollower)
@@ -88,17 +88,13 @@ object PostRepository {
         val likeCollection = db.collection("likes")
 
         return try {
-            val likes = likeCollection
-                .whereEqualTo("userUuid", currentUser.uid)
-                .whereEqualTo("postUuid", postUuid)
-                .get().await().toObjects<LikeDto>()
+            val likes = likeCollection.whereEqualTo("userUuid", currentUser.uid)
+                .whereEqualTo("postUuid", postUuid).get().await().toObjects<LikeDto>()
 
             if (likes.isEmpty()) {
                 val likeUuid = UUID.randomUUID().toString()
                 val likeDto = LikeDto(
-                    uuid = likeUuid,
-                    userUuid = currentUser.uid,
-                    postUuid = postUuid
+                    uuid = likeUuid, userUuid = currentUser.uid, postUuid = postUuid
                 )
                 likeCollection.document(likeUuid).set(likeDto).await()
             } else {
@@ -123,8 +119,7 @@ object PostRepository {
     }
 
     suspend fun uploadPost(
-        content: String,
-        imageUri: Uri
+        content: String, bitmap: Bitmap
     ): Result<Unit> {
         val currentUser = Firebase.auth.currentUser
         require(currentUser != null)
@@ -134,8 +129,13 @@ object PostRepository {
         val imageFileName: String = UUID.randomUUID().toString() + ".png"
         val imageRef = storageRef.child(imageFileName)
 
+        val byteArrayOutputStream = ByteArrayOutputStream()
+
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
+        val data = byteArrayOutputStream.toByteArray()
+
         try {
-            imageRef.putFile(imageUri).await()
+            imageRef.putBytes(data).await()
         } catch (e: Exception) {
             return Result.failure(e)
         }
