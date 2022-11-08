@@ -46,8 +46,7 @@
             android:id="@+id/profile_image"
             android:layout_width="90dp"
             android:layout_height="90dp"
-            android:scaleType="centerCrop"
-            android:src="@drawable/ic_baseline_person_24" />
+            android:scaleType="centerCrop" />
 
         <TableLayout
             android:layout_width="0dp"

@@ -12,7 +12,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
 import com.bumptech.glide.Glide
-import com.google.android.material.color.MaterialColors
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
@@ -145,7 +144,7 @@ class ProfileActivity : ViewBindingActivity<ActivityProfileBinding>() {
                 }
 
                 val storageReference = Firebase.storage.reference
-                Glide.with(applicationContext)
+                Glide.with(this@ProfileActivity)
                     .load(userDetail.profileImageUrl?.let { storageReference.child(it) })
                     .fallback(R.drawable.ic_baseline_person_24)
                     .circleCrop()
