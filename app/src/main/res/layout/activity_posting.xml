@@ -82,6 +82,7 @@
                 android:layout_margin="16dp"
                 android:gravity="top"
                 android:hint="@string/image_expression"
+                android:maxLength="500"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
