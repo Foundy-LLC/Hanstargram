@@ -15,7 +15,7 @@ class PostingViewModel : ViewModel() {
 
     private val _uiState = MutableStateFlow(PostingUiState())
     val uiState = _uiState.asStateFlow()
-    
+
     fun selectImage(bitmap: Bitmap) {
         _uiState.update { it.copy(selectedImage = bitmap) }
     }
