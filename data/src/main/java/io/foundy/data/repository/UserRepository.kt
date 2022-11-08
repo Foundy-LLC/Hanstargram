@@ -142,23 +142,6 @@ object UserRepository {
         }
     }
 
-    suspend fun getIsFollowing(targetUserUuid : String): Result<Boolean> {
-        val currentUser = Firebase.auth.currentUser
-        val followCollection = Firebase.firestore.collection("followers")
-        check(currentUser != null)
-
-        return try {
-            val alreadyFollowing = followCollection
-                .whereEqualTo("followerUuid", currentUser.uid)
-                .whereEqualTo("followeeUuid", targetUserUuid)
-                .get().await().isEmpty
-            Result.success(!alreadyFollowing)
-        } catch (e : Exception){
-            e.printStackTrace()
-            Result.failure(e)
-        }
-    }
-
     suspend fun getUserDetail(userUuid: String): Result<UserDetail> {
         val db = Firebase.firestore
         val currentUser = Firebase.auth.currentUser

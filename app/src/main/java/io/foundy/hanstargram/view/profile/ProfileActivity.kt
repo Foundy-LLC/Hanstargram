@@ -21,45 +21,46 @@ import io.foundy.hanstargram.view.common.setListeners
 import kotlinx.coroutines.launch
 
 class ProfileActivity : ViewBindingActivity<ActivityProfileBinding>() {
-    private val viewModel : ProfileViewModel by viewModels()
+
+    private val viewModel: ProfileViewModel by viewModels()
 
     override val bindingInflater: (LayoutInflater) -> ActivityProfileBinding
         get() = ActivityProfileBinding::inflate
 
     companion object {
-        private const val TAG = "ProfileActivity"
-        fun getIntent(context: Context): Intent {
-            return Intent(context, ProfileActivity::class.java)
+        fun getIntent(context: Context, userUuid: String): Intent {
+            return Intent(context, ProfileActivity::class.java).apply {
+                putExtra("userUuid", userUuid)
+            }
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        intent.getStringExtra("uuid")?.let {
-            viewModel.bindProfile(it)
+        val userUuid = intent.getStringExtra("userUuid")!!
+        viewModel.bindProfile(userUuid)
 
-            binding.profileButton.setOnClickListener {
-                viewModel.actionProfileButton()
-            }
+        binding.followOrEditButton.setOnClickListener {
+            viewModel.toggleFollow()
+        }
 
-            /* 유저 디테일 */
-            lifecycleScope.launch {
-                repeatOnLifecycle(Lifecycle.State.STARTED) {
-                    viewModel.profileDetailUiState.collect { profileUiState ->
-                        if (!profileUiState.isLoading) updateDetailUi(profileUiState)
-                    }
+        /* 유저 디테일 */
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.profileDetailUiState.collect { profileUiState ->
+                    if (!profileUiState.isLoading) updateUserDetailUi(profileUiState)
                 }
             }
+        }
 
-            /* 프로필 포스트 */
-            val adapter = ProfilePostAdapter(onClickPost = ::onClickPost)
-            initRecyclerView(adapter)
-            lifecycleScope.launch {
-                repeatOnLifecycle(Lifecycle.State.STARTED) {
-                    viewModel.profilePostUiState.collect { postUiState ->
-                        updatePostUi(postUiState, adapter)
-                    }
+        /* 프로필 포스트 */
+        val adapter = ProfilePostAdapter(onClickPost = ::onClickPost)
+        initRecyclerView(adapter)
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.profilePostUiState.collect { postUiState ->
+                    updatePostUi(postUiState, adapter)
                 }
             }
         }
@@ -89,39 +90,35 @@ class ProfileActivity : ViewBindingActivity<ActivityProfileBinding>() {
     }
 
     /* 유저 디테일 정보 수정 */
-    private fun updateDetailUi(uiState: ProfileDetailUiState) {
+    private fun updateUserDetailUi(uiState: ProfileDetailUiState) {
         uiState.userMessage?.let {
             showSnackBar(it)
             viewModel.userMessageShown()
         }
 
-        uiState.userDetails?.let {
+        uiState.userDetail?.let { userDetail ->
             binding.apply {
-                profileHeaderUsernameTextview.text = it.name
-                profileIntroduceTextview.text = "${it.name}의 자기소개 입니다." // ToDo: 자기소개 추가 시 변경
-                profileInfoPostnumTextview.text = it.postCount.toString()
-                profileInfoFollowernumTextview.text = it.followersCount.toString()
-                profileInfoFolloweenumTextview.text = it.followingCount.toString()
+                profileHeaderUsernameTextview.text = userDetail.name
+                profileIntroduceTextview.text =
+                    "${userDetail.name}의 자기소개 입니다." // TODO: 자기소개 추가 시 변경
+                profileInfoPostnumTextview.text = userDetail.postCount.toString()
+                profileInfoFollowernumTextview.text = userDetail.followersCount.toString()
+                profileInfoFolloweenumTextview.text = userDetail.followingCount.toString()
 
-                if(it.isMe){
-                    profileButton.setText(R.string.profile_button_modify)
-                    profileButton.setBackgroundColor(getColor(io.foundy.common.R.color.md_theme_light_inversePrimary))
-                }
-                else if (uiState.isFollowing == true){
-                    profileButton.setText(R.string.profile_button_follow_cancle)
-                    profileButton.setBackgroundColor(getColor(io.foundy.common.R.color.md_theme_light_error))
-                }
-                else if (uiState.isFollowing == false){
-                    profileButton.setText(R.string.profile_button_follow)
-                    profileButton.setBackgroundColor(getColor(io.foundy.common.R.color.md_theme_light_primary))
-                }
-                else{
-                    showSnackBar(R.string.profile_error_temp)
+                if (userDetail.isMe) {
+                    followOrEditButton.setText(R.string.profile_button_modify)
+                    followOrEditButton.setBackgroundColor(getColor(io.foundy.common.R.color.md_theme_light_inversePrimary))
+                } else if (userDetail.isCurrentUserFollowing) {
+                    followOrEditButton.setText(R.string.profile_button_follow_cancle)
+                    followOrEditButton.setBackgroundColor(getColor(io.foundy.common.R.color.md_theme_light_error))
+                } else {
+                    followOrEditButton.setText(R.string.profile_button_follow)
+                    followOrEditButton.setBackgroundColor(getColor(io.foundy.common.R.color.md_theme_light_primary))
                 }
 
                 val storageReference = Firebase.storage.reference
                 Glide.with(applicationContext)
-                    .load(it.profileImageUrl?.let { storageReference.child(it) })
+                    .load(userDetail.profileImageUrl?.let { storageReference.child(it) })
                     .fallback(R.drawable.ic_baseline_person_24)
                     .circleCrop()
                     .into(profileImage)
@@ -129,7 +126,7 @@ class ProfileActivity : ViewBindingActivity<ActivityProfileBinding>() {
         }
     }
 
-    private fun showSnackBar(message: Int) {
+    private fun showSnackBar(message: String) {
         Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG).show()
     }
 }

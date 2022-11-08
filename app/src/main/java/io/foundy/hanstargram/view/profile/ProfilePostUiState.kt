@@ -19,8 +19,7 @@ fun PostDto.toProfilePostItemUiState() = ProfilePostItemUiState(
 )
 
 data class ProfileDetailUiState(
-    val userDetails: UserDetail? = null,
+    val userDetail: UserDetail? = null,
     val isLoading: Boolean = true,
-    val isFollowing: Boolean? = null,
-    val userMessage: Int? = null
+    val userMessage: String? = null
 )

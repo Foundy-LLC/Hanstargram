@@ -97,9 +97,7 @@ class SearchFragment : ViewBindingFragment<FragmentSearchBinding>() {
     }
 
     private fun onClickUser(uiState: SearchItemUiState) {
-        context?.let { ProfileActivity.getIntent(it).apply {
-            putExtra("uuid", uiState.uuid)
-            startActivity(this)
-        } }
+        val intent = ProfileActivity.getIntent(requireContext(), uiState.uuid)
+        startActivity(intent)
     }
 }
