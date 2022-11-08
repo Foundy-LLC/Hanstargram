@@ -10,4 +10,4 @@ data class UserDetail(
     val followingCount: Long,
     val isCurrentUserFollowing: Boolean,
     val isMe: Boolean
-)
+) : java.io.Serializable

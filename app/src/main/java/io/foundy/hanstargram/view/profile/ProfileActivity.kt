@@ -21,6 +21,7 @@ import io.foundy.hanstargram.databinding.ActivityProfileBinding
 import io.foundy.hanstargram.util.themeColor
 import io.foundy.hanstargram.view.common.PagingLoadStateAdapter
 import io.foundy.hanstargram.view.common.setListeners
+import io.foundy.hanstargram.view.profile.userpostlist.UserPostListActivity
 import kotlinx.coroutines.launch
 
 class ProfileActivity : ViewBindingActivity<ActivityProfileBinding>() {
@@ -96,9 +97,13 @@ class ProfileActivity : ViewBindingActivity<ActivityProfileBinding>() {
     }
 
     private fun onClickPost(uiState: ProfilePostItemUiState) {
-        /* Todo: 게시글 자세히 보기
-        Snackbar.make(binding.root, uiState.uuid, Snackbar.LENGTH_LONG).show()
-         */
+        val userDetail = viewModel.profileDetailUiState.value.userDetail!!
+        val intent = UserPostListActivity.getIntent(
+            this,
+            userDetail = userDetail,
+            postUuid = uiState.uuid
+        )
+        startActivity(intent)
     }
 
     /* 유저 디테일 정보 수정 */

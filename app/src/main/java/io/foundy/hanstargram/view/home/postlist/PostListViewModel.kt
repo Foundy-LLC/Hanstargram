@@ -18,9 +18,18 @@ class PostListViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(PostListUiState())
     val uiState = _uiState.asStateFlow()
 
-    init {
+    private var bounded = false
+
+    fun bind(userUuid: String?) {
+        if (bounded) return
+        bounded = true
         viewModelScope.launch(Dispatchers.IO) {
-            PostRepository.getHomeFeeds().cachedIn(viewModelScope)
+            val pagingDataFlow = if (userUuid != null) {
+                PostRepository.getPostDetailsByUser(userUuid)
+            } else {
+                PostRepository.getHomeFeeds()
+            }
+            pagingDataFlow.cachedIn(viewModelScope)
                 .collectLatest { pagingData ->
                     _uiState.update { uiState ->
                         uiState.copy(pagingData = pagingData.map { it.toUiState() })

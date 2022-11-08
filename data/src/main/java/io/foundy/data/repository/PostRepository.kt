@@ -65,7 +65,28 @@ object PostRepository {
         }
     }
 
-    fun getPostsByUuid(uuid : String): Flow<PagingData<PostDto>> {
+    fun getPostDetailsByUser(uuid: String): Flow<PagingData<Post>> {
+        try {
+            val currentUser = Firebase.auth.currentUser
+            require(currentUser != null)
+            val db = Firebase.firestore
+            val postCollection = db.collection("posts")
+
+            val queryPostsByFollower = postCollection
+                .whereEqualTo("writerUuid", uuid)
+                .orderBy("dateTime", Query.Direction.DESCENDING)
+                .limit(PAGE_SIZE.toLong())
+
+            return Pager(PagingConfig(pageSize = PAGE_SIZE)) {
+                PostPagingSource(queryPostsByFollower = queryPostsByFollower)
+            }.flow
+        } catch (e: Exception) {
+            e.printStackTrace()
+            throw e
+        }
+    }
+
+    fun getPostsByUser(uuid: String): Flow<PagingData<PostDto>> {
         try {
             val currentUser = Firebase.auth.currentUser
             require(currentUser != null)

@@ -30,10 +30,10 @@ class ProfilePostPagingSource(
             }
             val lastVisiblePost = currentPage.documents[currentPage.size() - 1]
             val nextPage = queryPostByUuid.startAfter(lastVisiblePost).get().await()
-            val PostDto = currentPage.toObjects<PostDto>()
+            val postDto = currentPage.toObjects<PostDto>()
 
             LoadResult.Page(
-                data = PostDto,
+                data = postDto,
                 prevKey = null,
                 nextKey = nextPage
             )

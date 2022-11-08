@@ -26,7 +26,7 @@ class ProfileViewModel : ViewModel() {
 
     private fun loadPostByUuid(targetUuid: String) {
         viewModelScope.launch {
-            PostRepository.getPostsByUuid(targetUuid).cachedIn(viewModelScope)
+            PostRepository.getPostsByUser(targetUuid).cachedIn(viewModelScope)
                 .collectLatest { pagingData ->
                     _profilePostUiState.update { profilePostUiState ->
                         profilePostUiState.copy(pagingData = pagingData.map { it.toProfilePostItemUiState() })
