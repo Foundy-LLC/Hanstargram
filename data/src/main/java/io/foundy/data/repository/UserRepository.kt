@@ -5,18 +5,18 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.AggregateSource
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
+import io.foundy.data.model.FollowDto
 import io.foundy.data.model.UserDto
 import io.foundy.data.source.UserPagingSource
 import io.foundy.domain.model.UserDetail
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.tasks.await
 import java.io.ByteArrayOutputStream
-import java.util.UUID
-import com.google.firebase.firestore.AggregateSource
-import io.foundy.data.model.FollowDto
+import java.util.*
 
 object UserRepository {
 
@@ -108,7 +108,6 @@ object UserRepository {
             e.printStackTrace()
             return Result.failure(e)
         }
-
 
         val followDto = FollowDto(
             uuid = UUID.randomUUID().toString(),

@@ -20,10 +20,10 @@ import io.foundy.hanstargram.databinding.FragmentSearchBinding
 import io.foundy.hanstargram.util.debounce
 import io.foundy.hanstargram.view.common.PagingLoadStateAdapter
 import io.foundy.hanstargram.view.common.setListeners
+import io.foundy.hanstargram.view.profile.ProfileActivity
 import kotlinx.coroutines.launch
 
 class SearchFragment : ViewBindingFragment<FragmentSearchBinding>() {
-
     private val viewModel: SearchViewModel by viewModels()
 
     override val bindingInflater: (LayoutInflater, ViewGroup?, Boolean) -> FragmentSearchBinding
@@ -97,6 +97,7 @@ class SearchFragment : ViewBindingFragment<FragmentSearchBinding>() {
     }
 
     private fun onClickUser(uiState: SearchItemUiState) {
-        // TODO: 회원 프로필 화면으로 전환하기
+        val intent = ProfileActivity.getIntent(requireContext(), uiState.uuid)
+        startActivity(intent)
     }
 }
