@@ -26,7 +26,10 @@ object PostRepository {
 
     private const val PAGE_SIZE = 20
 
-    suspend fun getPostsByFollower(): Flow<PagingData<Post>> {
+    /**
+     * 내가 팔로우한 유저와 나의 게시물 목록을 불러온다.
+     */
+    suspend fun getHomeFeeds(): Flow<PagingData<Post>> {
         try {
             val currentUser = Firebase.auth.currentUser
             require(currentUser != null)
@@ -41,12 +44,15 @@ object PostRepository {
                 return emptyFlow()
             }
 
-            val followeeUuids = followerSnapshot.documents.map {
+            var writerUuids = followerSnapshot.documents.map {
                 val followerDto = it.toObject(FollowDto::class.java)
                 followerDto!!.followeeUuid
             }
+            writerUuids = writerUuids.toMutableList().apply {
+                add(currentUser.uid)
+            }
             val queryPostsByFollower = postCollection
-                .whereIn("writerUuid", followeeUuids)
+                .whereIn("writerUuid", writerUuids)
                 .orderBy("dateTime", Query.Direction.DESCENDING)
                 .limit(PAGE_SIZE.toLong())
 

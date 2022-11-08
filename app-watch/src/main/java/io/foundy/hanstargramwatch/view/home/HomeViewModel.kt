@@ -6,7 +6,6 @@ import androidx.paging.cachedIn
 import androidx.paging.map
 import io.foundy.data.repository.PostRepository
 import io.foundy.hanstargramwatch.R
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -20,7 +19,7 @@ class HomeViewModel : ViewModel() {
 
     init {
         viewModelScope.launch {
-            PostRepository.getPostsByFollower().cachedIn(viewModelScope)
+            PostRepository.getHomeFeeds().cachedIn(viewModelScope)
                 .collectLatest { pagingData ->
                     _uiState.update { uiState ->
                         uiState.copy(pagingData = pagingData.map { it.toUiState() })

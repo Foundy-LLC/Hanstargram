@@ -20,7 +20,7 @@ class PostListViewModel : ViewModel() {
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            PostRepository.getPostsByFollower().cachedIn(viewModelScope)
+            PostRepository.getHomeFeeds().cachedIn(viewModelScope)
                 .collectLatest { pagingData ->
                     _uiState.update { uiState ->
                         uiState.copy(pagingData = pagingData.map { it.toUiState() })
