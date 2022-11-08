@@ -43,10 +43,6 @@
             android:exported="false" />
 
         <activity
-            android:name=".view.profile.userpostlist.UserPostListActivity"
-            android:exported="false" />
-
-        <activity
             android:name=".view.posting.PostingActivity"
             android:exported="false"
             android:windowSoftInputMode="stateHidden|adjustResize" />

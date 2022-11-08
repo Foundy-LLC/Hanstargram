@@ -14,7 +14,6 @@ import io.foundy.data.model.FollowDto
 import io.foundy.data.model.LikeDto
 import io.foundy.data.model.PostDto
 import io.foundy.data.source.PostPagingSource
-import io.foundy.data.source.ProfilePostPagingSource
 import io.foundy.domain.model.Post
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
@@ -79,28 +78,6 @@ object PostRepository {
 
             return Pager(PagingConfig(pageSize = PAGE_SIZE)) {
                 PostPagingSource(queryPostsByFollower = queryPostsByFollower)
-            }.flow
-        } catch (e: Exception) {
-            e.printStackTrace()
-            throw e
-        }
-    }
-
-    fun getPostsByUser(uuid: String): Flow<PagingData<PostDto>> {
-        try {
-            val currentUser = Firebase.auth.currentUser
-            require(currentUser != null)
-            val db = Firebase.firestore
-
-            val postCollection = db.collection("posts")
-
-            val queryPostsByUuid = postCollection
-                .whereEqualTo("writerUuid", uuid)
-                .orderBy("dateTime", Query.Direction.DESCENDING)
-                .limit(PAGE_SIZE.toLong())
-
-            return Pager(PagingConfig(pageSize = PAGE_SIZE)) {
-                ProfilePostPagingSource(queryPostByUuid = queryPostsByUuid)
             }.flow
         } catch (e: Exception) {
             e.printStackTrace()

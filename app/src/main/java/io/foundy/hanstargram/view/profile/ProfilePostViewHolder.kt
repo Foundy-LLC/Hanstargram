@@ -5,22 +5,21 @@ import com.bumptech.glide.Glide
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import io.foundy.hanstargram.databinding.ItemProfilePostBinding
+import io.foundy.hanstargram.view.home.postlist.PostItemUiState
 
 class ProfilePostViewHolder(
     private val binding: ItemProfilePostBinding,
-    private val onClickPost: (ProfilePostItemUiState) -> Unit
+    private val onClickPost: (PostItemUiState) -> Unit
 ) : RecyclerView.ViewHolder(binding.root) {
 
     private val storageReference = Firebase.storage.reference
 
-    fun bind(uiState: ProfilePostItemUiState) = with(binding) {
+    fun bind(uiState: PostItemUiState) = with(binding) {
         val glide = Glide.with(root)
 
-        uiState.imageUrl?.let { imageUrl ->
-            glide.load(storageReference.child(imageUrl))
-                .override(200, 200)
-                .into(profilePostImage)
-        }
+        glide.load(storageReference.child(uiState.imageUrl))
+            .override(200, 200)
+            .into(profilePostImage)
 
         root.setOnClickListener {
             onClickPost(uiState)

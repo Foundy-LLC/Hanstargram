@@ -5,10 +5,11 @@ import android.view.ViewGroup
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import io.foundy.hanstargram.databinding.ItemProfilePostBinding
+import io.foundy.hanstargram.view.home.postlist.PostItemUiState
 
 class ProfilePostAdapter(
-    private val onClickPost: (ProfilePostItemUiState) -> Unit
-) : PagingDataAdapter<ProfilePostItemUiState, ProfilePostViewHolder>(diffCallback) {
+    private val onClickPost: (PostItemUiState) -> Unit
+) : PagingDataAdapter<PostItemUiState, ProfilePostViewHolder>(diffCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProfilePostViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
@@ -24,17 +25,17 @@ class ProfilePostAdapter(
     }
 
     companion object {
-        private val diffCallback = object : DiffUtil.ItemCallback<ProfilePostItemUiState>() {
+        private val diffCallback = object : DiffUtil.ItemCallback<PostItemUiState>() {
             override fun areItemsTheSame(
-                oldItem: ProfilePostItemUiState,
-                newItem: ProfilePostItemUiState
+                oldItem: PostItemUiState,
+                newItem: PostItemUiState
             ): Boolean {
                 return oldItem.uuid == newItem.uuid
             }
 
             override fun areContentsTheSame(
-                oldItem: ProfilePostItemUiState,
-                newItem: ProfilePostItemUiState
+                oldItem: PostItemUiState,
+                newItem: PostItemUiState
             ): Boolean {
                 return oldItem == newItem
             }

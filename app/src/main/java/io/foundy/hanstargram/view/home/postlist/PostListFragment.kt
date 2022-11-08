@@ -15,6 +15,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.paging.PagingData
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -31,10 +32,7 @@ import kotlinx.coroutines.launch
 
 class PostListFragment(
     private val toolbarTitle: String? = null,
-    /**
-     * 이 값이 전달되는 경우 [userUuid] 회원의 게시물만 보인다.
-     */
-    private val userUuid: String? = null,
+    private val postPagingData: PagingData<PostItemUiState>? = null
 ) : ViewBindingFragment<FragmentPostListBinding>() {
 
     private val viewModel: PostListViewModel by viewModels()
@@ -49,7 +47,7 @@ class PostListFragment(
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.bind(userUuid)
+        viewModel.bind(postPagingData)
 
         val adapter = PostAdapter(
             onClickLikeButton = ::onClickLikeButton,

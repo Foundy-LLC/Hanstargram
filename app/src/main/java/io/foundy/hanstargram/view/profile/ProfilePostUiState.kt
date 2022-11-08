@@ -1,21 +1,14 @@
 package io.foundy.hanstargram.view.profile
 
 import androidx.paging.PagingData
-import io.foundy.data.model.PostDto
+import io.foundy.domain.model.Post
 import io.foundy.domain.model.UserDetail
+import io.foundy.hanstargram.view.home.postlist.PostItemUiState
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 
 data class ProfilePostUiState(
-    val pagingData: PagingData<ProfilePostItemUiState> = PagingData.empty()
-)
-
-data class ProfilePostItemUiState(
-    val uuid: String,
-    val imageUrl: String?
-)
-
-fun PostDto.toProfilePostItemUiState() = ProfilePostItemUiState(
-    uuid = uuid,
-    imageUrl = imageUrl
+    val pagingData: PagingData<PostItemUiState> = PagingData.empty()
 )
 
 data class ProfileDetailUiState(

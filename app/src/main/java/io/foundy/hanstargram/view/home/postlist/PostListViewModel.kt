@@ -2,6 +2,7 @@ package io.foundy.hanstargram.view.home.postlist
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
 import io.foundy.hanstargram.R
@@ -20,16 +21,14 @@ class PostListViewModel : ViewModel() {
 
     private var bounded = false
 
-    fun bind(userUuid: String?) {
+    fun bind(postPagingData: PagingData<PostItemUiState>?) {
         if (bounded) return
         bounded = true
+        if (postPagingData != null) {
+            _uiState.update { it.copy(pagingData = postPagingData) }
+        }
         viewModelScope.launch(Dispatchers.IO) {
-            val pagingDataFlow = if (userUuid != null) {
-                PostRepository.getPostDetailsByUser(userUuid)
-            } else {
-                PostRepository.getHomeFeeds()
-            }
-            pagingDataFlow.cachedIn(viewModelScope)
+            PostRepository.getHomeFeeds().cachedIn(viewModelScope)
                 .collectLatest { pagingData ->
                     _uiState.update { uiState ->
                         uiState.copy(pagingData = pagingData.map { it.toUiState() })
