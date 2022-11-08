@@ -62,6 +62,7 @@ class ProfileActivity : ViewBindingActivity<ActivityProfileBinding>() {
     private fun replaceToUserPostListFragment() {
         val postPagingData = viewModel.profilePostUiState.value.pagingData
         val fragmentManager = supportFragmentManager
+        // TODO: 클릭한 게시글의 인덱스로 스크롤 포지션 변경하기
         val postListFragment = PostListFragment(
             toolbarTitle = "",
             postPagingData = postPagingData
