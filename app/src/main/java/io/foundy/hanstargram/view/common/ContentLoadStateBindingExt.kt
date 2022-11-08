@@ -3,6 +3,7 @@ package io.foundy.hanstargram.view.common
 import androidx.core.view.isVisible
 import androidx.paging.LoadState
 import androidx.paging.PagingDataAdapter
+import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import io.foundy.hanstargram.R
 import io.foundy.hanstargram.databinding.ContentLoadStateBinding
@@ -38,4 +39,29 @@ fun <PA : PagingDataAdapter<T, VH>, T, VH> ContentLoadStateBinding.setListeners(
             }
         }
     }
+}
+
+/**
+ * 아이템이 첫 번째 인덱스에 추가되면 리스트 최상단으로 스크롤하는 옵저버를 등록한다.
+ *
+ * 추가적으로 아이템 순서가 변한 경우에 최상단으로 스크롤 하려면 [whenItemRangeMoved]를 `true`로 전달하면 된다.
+ */
+fun <T : Any, VH : RecyclerView.ViewHolder> PagingDataAdapter<T, VH>.registerObserverForScrollToTop(
+    recyclerView: RecyclerView,
+    whenItemInsertedFirst: Boolean = true,
+    whenItemRangeMoved: Boolean = false
+) {
+    this.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
+        override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+            if (whenItemInsertedFirst && positionStart == 0) {
+                recyclerView.scrollToPosition(0)
+            }
+        }
+
+        override fun onItemRangeMoved(fromPosition: Int, toPosition: Int, itemCount: Int) {
+            if (whenItemRangeMoved) {
+                recyclerView.scrollToPosition(0)
+            }
+        }
+    })
 }

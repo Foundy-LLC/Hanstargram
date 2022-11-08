@@ -77,6 +77,7 @@ class PostingActivity : AppCompatActivity() {
         }
         if (uiState.successToUpload) {
             Toast.makeText(this, "게시글 업로드에 성공했습니다.", Toast.LENGTH_LONG).show()
+            setResult(RESULT_OK)
             finish()
         }
 

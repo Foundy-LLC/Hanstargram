@@ -1,9 +1,13 @@
 package io.foundy.hanstargram.view.home.postlist
 
+import android.app.Activity.RESULT_OK
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -17,6 +21,7 @@ import io.foundy.common.base.ViewBindingFragment
 import io.foundy.hanstargram.R
 import io.foundy.hanstargram.databinding.FragmentPostListBinding
 import io.foundy.hanstargram.view.common.PagingLoadStateAdapter
+import io.foundy.hanstargram.view.common.registerObserverForScrollToTop
 import io.foundy.hanstargram.view.common.setListeners
 import io.foundy.hanstargram.view.posting.PostingActivity
 import io.foundy.hanstargram.view.profile.ProfileActivity
@@ -27,6 +32,8 @@ class PostListFragment : ViewBindingFragment<FragmentPostListBinding>() {
     private val viewModel: PostListViewModel by viewModels()
 
     private lateinit var bottomSheetDialog: BottomSheetDialog
+
+    private lateinit var launcher: ActivityResultLauncher<Intent>
 
     override val bindingInflater: (LayoutInflater, ViewGroup?, Boolean) -> FragmentPostListBinding
         get() = FragmentPostListBinding::inflate
@@ -42,6 +49,16 @@ class PostListFragment : ViewBindingFragment<FragmentPostListBinding>() {
         initRecyclerView(adapter)
         initBottomSheetDialog(adapter)
 
+        binding.toolbarPostButton.setOnClickListener {
+            startPostingActivity()
+        }
+
+        launcher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            if (it.resultCode == RESULT_OK) {
+                adapter.refresh()
+            }
+        }
+
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect {
@@ -49,17 +66,6 @@ class PostListFragment : ViewBindingFragment<FragmentPostListBinding>() {
                 }
             }
         }
-
-        binding.toolbarPostButton.setOnClickListener {
-            navigateToPostingView()
-        }
-    }
-
-    private fun navigateToPostingView() {
-        val intent = activity?.let {
-            PostingActivity.getIntent(it)
-        }
-        startActivity(intent)
     }
 
     private fun initBottomSheetDialog(adapter: PostAdapter) {
@@ -98,6 +104,8 @@ class PostListFragment : ViewBindingFragment<FragmentPostListBinding>() {
             loadState.setListeners(adapter, swipeRefreshLayout)
             loadState.emptyText.text = getString(R.string.follow_some_people)
             loadState.emptyText.textSize = 20.0f
+
+            adapter.registerObserverForScrollToTop(recyclerView)
         }
     }
 
@@ -129,5 +137,10 @@ class PostListFragment : ViewBindingFragment<FragmentPostListBinding>() {
     private fun startProfileActivity(userUuid: String) {
         val intent = ProfileActivity.getIntent(requireContext(), userUuid)
         startActivity(intent)
+    }
+
+    private fun startPostingActivity() {
+        val intent = PostingActivity.getIntent(requireContext())
+        launcher.launch(intent)
     }
 }
