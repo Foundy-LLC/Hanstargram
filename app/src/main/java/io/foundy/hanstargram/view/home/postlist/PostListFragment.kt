@@ -8,11 +8,14 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.LinearLayoutCompat
+import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.paging.PagingData
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -27,7 +30,11 @@ import io.foundy.hanstargram.view.posting.PostingActivity
 import io.foundy.hanstargram.view.profile.ProfileActivity
 import kotlinx.coroutines.launch
 
-class PostListFragment : ViewBindingFragment<FragmentPostListBinding>() {
+class PostListFragment(
+    private val toolbarTitle: String? = null,
+    private val postPagingData: PagingData<PostItemUiState>? = null,
+    private val onBackButtonClick: (() -> Unit)? = null
+) : ViewBindingFragment<FragmentPostListBinding>() {
 
     private val viewModel: PostListViewModel by viewModels()
 
@@ -41,11 +48,14 @@ class PostListFragment : ViewBindingFragment<FragmentPostListBinding>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        viewModel.bind(postPagingData)
+
         val adapter = PostAdapter(
             onClickLikeButton = ::onClickLikeButton,
             onClickMoreButton = ::onClickMoreInfoButton,
             onClickUser = ::onClickUser
         )
+        initToolbar()
         initRecyclerView(adapter)
         initBottomSheetDialog(adapter)
 
@@ -64,6 +74,22 @@ class PostListFragment : ViewBindingFragment<FragmentPostListBinding>() {
                 viewModel.uiState.collect {
                     updateUi(it, adapter)
                 }
+            }
+        }
+    }
+
+    private fun initToolbar() {
+        if (toolbarTitle != null) {
+            val activity = requireActivity() as AppCompatActivity
+            activity.setSupportActionBar(binding.toolBar)
+            activity.supportActionBar?.apply {
+                setDisplayHomeAsUpEnabled(true)
+                setDisplayShowHomeEnabled(true)
+                title = this@PostListFragment.toolbarTitle
+            }
+            binding.toolbarTitle.isVisible = false
+            binding.toolBar.setNavigationOnClickListener {
+                onBackButtonClick?.invoke()
             }
         }
     }

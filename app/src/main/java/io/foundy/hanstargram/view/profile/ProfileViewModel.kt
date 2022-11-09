@@ -7,6 +7,7 @@ import androidx.paging.map
 import io.foundy.data.repository.PostRepository
 import io.foundy.data.repository.UserRepository
 import io.foundy.domain.model.UserDetail
+import io.foundy.hanstargram.view.home.postlist.toUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -16,7 +17,7 @@ import kotlinx.coroutines.launch
 class ProfileViewModel : ViewModel() {
 
     fun bindProfile(targetUuid: String) {
-        loadPostByUuid(targetUuid)
+        loadPostByUser(targetUuid)
         getProfileDetail(targetUuid)
     }
 
@@ -24,12 +25,12 @@ class ProfileViewModel : ViewModel() {
     private val _profilePostUiState = MutableStateFlow(ProfilePostUiState())
     val profilePostUiState = _profilePostUiState.asStateFlow()
 
-    private fun loadPostByUuid(targetUuid: String) {
+    private fun loadPostByUser(targetUuid: String) {
         viewModelScope.launch {
-            PostRepository.getPostsByUuid(targetUuid).cachedIn(viewModelScope)
+            PostRepository.getPostDetailsByUser(targetUuid).cachedIn(viewModelScope)
                 .collectLatest { pagingData ->
                     _profilePostUiState.update { profilePostUiState ->
-                        profilePostUiState.copy(pagingData = pagingData.map { it.toProfilePostItemUiState() })
+                        profilePostUiState.copy(pagingData = pagingData.map { it.toUiState() })
                     }
                 }
         }
