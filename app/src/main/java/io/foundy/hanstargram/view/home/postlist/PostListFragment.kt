@@ -32,7 +32,8 @@ import kotlinx.coroutines.launch
 
 class PostListFragment(
     private val toolbarTitle: String? = null,
-    private val postPagingData: PagingData<PostItemUiState>? = null
+    private val postPagingData: PagingData<PostItemUiState>? = null,
+    private val onBackButtonClick: (() -> Unit)? = null
 ) : ViewBindingFragment<FragmentPostListBinding>() {
 
     private val viewModel: PostListViewModel by viewModels()
@@ -87,6 +88,9 @@ class PostListFragment(
                 title = this@PostListFragment.toolbarTitle
             }
             binding.toolbarTitle.isVisible = false
+            binding.toolBar.setNavigationOnClickListener {
+                onBackButtonClick?.invoke()
+            }
         }
     }
 
