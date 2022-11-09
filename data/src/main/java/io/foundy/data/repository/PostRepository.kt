@@ -137,6 +137,7 @@ object PostRepository {
         val postCollection = db.collection("posts")
         val imageFileName: String = UUID.randomUUID().toString() + ".png"
         val imageRef = storageRef.child(imageFileName)
+        val postUuid = UUID.randomUUID().toString()
 
         try {
             imageRef.putFile(imageUri).await()
@@ -145,9 +146,8 @@ object PostRepository {
         }
 
         return try {
-            val postUuid = UUID.randomUUID().toString()
             val postDto = PostDto(
-                uuid = UUID.randomUUID().toString(),
+                uuid = postUuid,
                 writerUuid = currentUser.uid,
                 content = content,
                 imageUrl = imageFileName,
