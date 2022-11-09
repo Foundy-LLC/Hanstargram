@@ -34,7 +34,7 @@ class ProfileActivity : ViewBindingActivity<ActivityProfileBinding>() {
 
         viewModel.bindProfile(getUserUuid())
 
-        changeToProfileFragment()
+        replaceToProfileFragment()
     }
 
     override fun onSupportNavigateUp(): Boolean {
@@ -46,7 +46,7 @@ class ProfileActivity : ViewBindingActivity<ActivityProfileBinding>() {
         return super.onSupportNavigateUp()
     }
 
-    private fun changeToProfileFragment() {
+    private fun replaceToProfileFragment() {
         val fragmentManager = supportFragmentManager
         val profileFragment = ProfileFragment(
             onClickPost = {
