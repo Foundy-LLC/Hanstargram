@@ -14,7 +14,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageButton
-            android:id="@+id/profileEditBack"
+            android:id="@+id/post_back_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
@@ -28,18 +28,18 @@
             app:tint="?attr/colorOnBackground" />
 
         <TextView
-            android:id="@+id/profileEditTitle"
+            android:id="@+id/toolbar_title"
             style="?attr/textAppearanceHeadlineSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/posting_title"
             android:textColor="?attr/colorOnBackground"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/profileEditBack"
+            app:layout_constraintStart_toEndOf="@+id/post_back_button"
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageButton
-            android:id="@+id/profileEditButton"
+            android:id="@+id/post_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
