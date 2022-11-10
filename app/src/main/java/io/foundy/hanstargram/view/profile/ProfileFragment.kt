@@ -23,6 +23,7 @@ import io.foundy.hanstargram.util.themeColor
 import io.foundy.hanstargram.view.common.PagingLoadStateAdapter
 import io.foundy.hanstargram.view.common.setListeners
 import io.foundy.hanstargram.view.home.postlist.PostItemUiState
+import io.foundy.hanstargram.view.profile.edit.ProfileEditFragment
 import kotlinx.coroutines.launch
 
 class ProfileFragment(
@@ -39,7 +40,7 @@ class ProfileFragment(
         binding.followOrEditButton.setOnClickListener {
             val isMe = viewModel.profileDetailUiState.value.userDetail!!.isMe
             if (isMe) {
-                // TODO: 프로필 편집 화면 보이기
+                changeToProfileEditFragment()
             } else {
                 viewModel.toggleFollow()
             }
@@ -74,6 +75,16 @@ class ProfileFragment(
             setDisplayShowHomeEnabled(true)
             title = ""
         }
+    }
+
+    /* 게시글 수정 프래그먼트*/
+    private fun changeToProfileEditFragment() {
+        val fragmentManager = parentFragmentManager
+        val profileEditFragment = ProfileEditFragment(viewModel.profileDetailUiState.value.userDetail)
+        fragmentManager.beginTransaction().apply {
+            replace(R.id.fragment_container_view, profileEditFragment)
+            addToBackStack(null)
+        }.commit()
     }
 
     /* 프로필 포스트 */
