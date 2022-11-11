@@ -9,7 +9,11 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.bumptech.glide.Glide
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
@@ -19,7 +23,9 @@ import io.foundy.common.base.ViewBindingFragment
 import io.foundy.domain.model.UserDetail
 import io.foundy.hanstargram.R
 import io.foundy.hanstargram.databinding.FragmentProfileEditBinding
+import io.foundy.hanstargram.view.welcome.ImageState
 import io.foundy.hanstargram.view.welcome.ProfileEditViewModel
+import kotlinx.coroutines.launch
 
 class ProfileEditFragment(
     private val userDetail: UserDetail
@@ -44,6 +50,7 @@ class ProfileEditFragment(
             } else {
                 MediaStore.Images.Media.getBitmap(contentResolver, imageUri)
             }
+            viewModel.imageState = ImageState.Changed
             viewModel.selectedImage = bitmap
             binding.profileEditImage.setImageBitmap(bitmap)
         }
@@ -53,6 +60,31 @@ class ProfileEditFragment(
         super.onViewCreated(view, savedInstanceState)
         initFragment()
         initToolbar()
+        initViewModel()
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.uiState.collect(::updateUi)
+            }
+        }
+    }
+
+    private fun updateUi(uiState: ProfileEditUiState) {
+        when (uiState) {
+            ProfileEditUiState.SuccessToSave -> {
+                showSnackBar(getString(R.string.success_to_change_profile))
+                //parentFragmentManager.beginTransaction().remove(this).commit()
+            }
+            is ProfileEditUiState.FailedToSave -> {
+                showSnackBar(getString(R.string.failed_to_save_data))
+            }
+            else -> {}
+        }
+    }
+
+    private fun initViewModel(){
+        viewModel.name = userDetail.name
+        viewModel.introduce = userDetail.introduce
     }
 
     private fun initToolbar(){
@@ -61,12 +93,17 @@ class ProfileEditFragment(
 
         activity.supportActionBar?.apply {
             setDisplayHomeAsUpEnabled(true)
-            setDisplayShowHomeEnabled(true)
+            setDisplayShowHomeEnabled(false)
             title = getString(R.string.profile_edit_title)
         }
 
         binding.toolbarApply.setOnClickListener {
-            showSnackBar("Touched Apply")
+            if(binding.profileEditName.text.toString().isEmpty()){
+                showSnackBar(getString(R.string.cant_name_is_empty))
+            }
+            else{
+                viewModel.sendChangedInfo()
+            }
         }
     }
 
@@ -78,6 +115,21 @@ class ProfileEditFragment(
                 onClickImage()
             }
 
+            profileEditName.addTextChangedListener {
+                viewModel.isChanged = true
+                if (it != null) {
+                    viewModel.name = it.toString()
+                    updateDoneButton()
+                }
+            }
+
+            profileEditIntroduce.addTextChangedListener {
+                viewModel.isChanged = true
+                if (it != null) {
+                    viewModel.introduce = it.toString()
+                }
+            }
+
             val storageReference = Firebase.storage.reference
             Glide.with(this@ProfileEditFragment)
                 .load(userDetail.profileImageUrl?.let { storageReference.child(it) })
@@ -87,7 +139,17 @@ class ProfileEditFragment(
         }
     }
 
+    private fun updateDoneButton() {
+        val isLoading = viewModel.uiState.value is ProfileEditUiState.Loading
+        val hasName = binding.profileEditName.text.toString().isNotEmpty()
+
+        binding.toolbarApply.apply {
+            isEnabled = hasName && !isLoading
+        }
+    }
+
     private fun onClickImage() {
+        viewModel.isChanged = true
         if (viewModel.selectedImage != null) {
             MaterialAlertDialogBuilder(requireActivity())
                 .setItems(R.array.image_options) { _, which ->
@@ -96,6 +158,7 @@ class ProfileEditFragment(
                             showImagePicker()
                         }
                         1 -> {
+                            viewModel.imageState = ImageState.Default
                             viewModel.selectedImage = null
                             binding.profileEditImage.setImageDrawable(
                                 AppCompatResources.getDrawable(

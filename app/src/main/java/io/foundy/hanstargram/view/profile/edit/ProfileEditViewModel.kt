@@ -2,28 +2,46 @@ package io.foundy.hanstargram.view.welcome
 
 import android.graphics.Bitmap
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import io.foundy.data.repository.UserRepository
 import io.foundy.hanstargram.view.profile.edit.ProfileEditUiState
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+
+enum class ImageState{
+    None,
+    Default,
+    Changed
+}
 
 class ProfileEditViewModel : ViewModel() {
-    private val _uiState: MutableStateFlow<ProfileEditUiState> =
-        MutableStateFlow(ProfileEditUiState.None)
+    private val _uiState: MutableStateFlow<ProfileEditUiState> = MutableStateFlow(ProfileEditUiState.None)
     val uiState = _uiState.asStateFlow()
 
+    var isChanged: Boolean = false
     var name: String = ""
     var introduce: String = ""
     var selectedImage: Bitmap? = null
+    var imageState: ImageState = ImageState.None
 
-//    fun sendInfo() {
-//        _uiState.update { WelcomeUiState.Loading }
-//        viewModelScope.launch(Dispatchers.IO) {
-//            val result = UserRepository.saveInitUserInfo(name, selectedImage)
-//            if (result.isSuccess) {
-//                _uiState.update { WelcomeUiState.SuccessToSave }
-//            } else {
-//                _uiState.update { WelcomeUiState.FailedToSave(result.exceptionOrNull()!!) }
-//            }
-//        }
-//    }
+    fun sendChangedInfo() {
+        if(!isChanged) { // 바뀐게 없다면 굳이 변경시킬 필요 없음
+            _uiState.update { ProfileEditUiState.SuccessToSave }
+            return
+        }
+        _uiState.update { ProfileEditUiState.Loading }
+        viewModelScope.launch(Dispatchers.IO) {
+            val result : Result<Unit> = UserRepository.saveChangedInfo(name, introduce, selectedImage, imageState.ordinal)
+            if (result.isSuccess) {
+                _uiState.update {
+                    ProfileEditUiState.SuccessToSave
+                }
+            } else {
+                _uiState.update { ProfileEditUiState.FailedToSave(result.exceptionOrNull()!!) }
+            }
+        }
+    }
 }

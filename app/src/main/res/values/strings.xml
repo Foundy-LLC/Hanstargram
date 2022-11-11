@@ -86,5 +86,7 @@
     <string name="profile_edit_nick">사용자 이름</string>
     <string name="profile_edit_introduce">소개</string>
     <string name="profile_edit_title">프로필 편집</string>
+    <string name="success_to_change_profile">프로필을 변경 하였습니다.</string>
+    <string name="cant_name_is_empty">이름을 공백으로 설정할 수 없습니다.</string>
 
 </resources>
