@@ -14,19 +14,24 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
 import io.foundy.hanstargram.R
 import kotlinx.coroutines.launch
 
 class PostingActivity : AppCompatActivity() {
 
     private val viewModel: PostingViewModel by viewModels()
+    private val storageReference = Firebase.storage.reference
+
 
     private val fileChooserContract =
         registerForActivityResult(ActivityResultContracts.GetContent()) { imageUri ->
             if (imageUri != null) {
                 viewModel.selectImage(imageUri)
-            } else if (viewModel.uiState.value.selectedImage == null) {
+            } else if (viewModel.uiState.value.selectedImage == null && viewModel.uiState.value.isCreating) {
                 finish()
             }
         }
@@ -35,27 +40,57 @@ class PostingActivity : AppCompatActivity() {
         fun getIntent(context: Context): Intent {
             return Intent(context, PostingActivity::class.java)
         }
+
+        fun getIntent(
+            context: Context,
+            postContent: String,
+            postImage: String,
+            postUuid: String
+        ): Intent {
+            return Intent(context, PostingActivity::class.java)
+                .putExtra("content", postContent)
+                .putExtra("image", postImage)
+                .putExtra("uuid", postUuid)
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_posting)
 
-        showImagePicker()
-
+        val glide = Glide.with(this)
+        val contentEditText = findViewById<EditText>(R.id.image_expression)
+        val imageView = findViewById<ImageView>(R.id.add_image)
+        val backButton = findViewById<ImageButton>(R.id.post_back_button)
         val postButton = findViewById<ImageButton>(R.id.post_button)
 
-        postButton.setOnClickListener {
-            val content = findViewById<EditText>(R.id.image_expression).text.toString()
-            viewModel.uploadContent(content)
+        val postContent = intent.getStringExtra("content")
+        val postImage = intent.getStringExtra("image")
+        val postUuid = intent.getStringExtra("uuid")
+
+        if (postContent != null && postImage != null && postUuid != null) {
+            viewModel.changeToEditMode()
+            glide.load(storageReference.child(postImage))
+                .into(imageView)
+
+            contentEditText.setText(postContent)
+        } else {
+            showImagePicker()
         }
 
-        val imageView = findViewById<ImageView>(R.id.add_image)
+        postButton.setOnClickListener {
+            if (!viewModel.uiState.value.isCreating) {
+                viewModel.editContent(postUuid.toString(), contentEditText.text.toString())
+            } else {
+                viewModel.uploadContent(contentEditText.text.toString())
+            }
+        }
+
+
         imageView.setOnClickListener {
             showImagePicker()
         }
 
-        val backButton = findViewById<ImageButton>(R.id.post_back_button)
         backButton.setOnClickListener {
             finish()
         }

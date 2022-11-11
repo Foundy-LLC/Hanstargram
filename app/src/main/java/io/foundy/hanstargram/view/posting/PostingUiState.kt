@@ -7,6 +7,7 @@ data class PostingUiState(
     val selectedImage: Uri? = null,
     @StringRes
     val userMessage: Int? = null,
+    val isCreating: Boolean = true,
     val isLoading: Boolean = false,
     val successToUpload: Boolean = false
 )
