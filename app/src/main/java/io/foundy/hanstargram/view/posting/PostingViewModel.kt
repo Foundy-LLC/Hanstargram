@@ -19,10 +19,35 @@ class PostingViewModel : ViewModel() {
         _uiState.update { it.copy(selectedImage = uri) }
     }
 
+    fun editMode() {
+        _uiState.update { it.copy(isCreating = false) }
+    }
+
     fun uploadContent(content: String) {
         _uiState.update { it.copy(isLoading = true) }
         viewModelScope.launch {
             val result = PostRepository.uploadPost(content, uiState.value.selectedImage!!)
+            if (result.isSuccess) {
+                _uiState.update { it.copy(successToUpload = true, isLoading = false) }
+            } else {
+                _uiState.update {
+                    it.copy(
+                        userMessage = R.string.failed_to_upload,
+                        isLoading = false
+                    )
+                }
+            }
+        }
+    }
+
+    fun editContent(uuid: String, content: String) {
+        _uiState.update { it.copy(isLoading = true) }
+        viewModelScope.launch {
+            val result: Result<Unit> = if (_uiState.value.selectedImage != null) {
+                PostRepository.editPost(uuid, content, uiState.value.selectedImage!!)
+            } else {
+                PostRepository.editPostOnlyContent(uuid, content)
+            }
             if (result.isSuccess) {
                 _uiState.update { it.copy(successToUpload = true, isLoading = false) }
             } else {

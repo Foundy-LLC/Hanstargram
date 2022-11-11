@@ -103,7 +103,18 @@ class PostListFragment(
         val editButton = bottomSheetDialog.findViewById<LinearLayoutCompat>(R.id.editBar)
         editButton?.setOnClickListener {
             bottomSheetDialog.hide()
-            // TODO: 게시글 수정하는 화면으로 전환하기
+
+            val post = viewModel.uiState.value.selectedPostItem
+            val postContent = post?.content
+            val postImage = post?.imageUrl
+            val postUuid = post?.uuid
+
+            val intent = PostingActivity.getIntent(
+                requireContext(),
+                postContent.toString(), postImage.toString(), postUuid.toString()
+            )
+
+            launcher.launch(intent)
         }
 
         val removeButton = bottomSheetDialog.findViewById<LinearLayoutCompat>(R.id.removeBar)

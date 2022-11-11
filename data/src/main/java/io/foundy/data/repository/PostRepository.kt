@@ -126,6 +126,57 @@ object PostRepository {
         }
     }
 
+    suspend fun editPost(
+        uuid: String,
+        content: String,
+        imageUri: Uri
+    ): Result<Unit> {
+        val currentUser = Firebase.auth.currentUser
+        require(currentUser != null)
+        val db = Firebase.firestore
+        val storageRef = Firebase.storage.reference
+        val postCollection = db.collection("posts")
+        val imageFileName: String = UUID.randomUUID().toString() + ".png"
+        val imageRef = storageRef.child(imageFileName)
+        val map = mutableMapOf<String, Any>()
+
+        map["content"] = content
+        map["imageUrl"] = imageFileName
+
+        try {
+            imageRef.putFile(imageUri).await()
+        } catch (e: Exception) {
+            return Result.failure(e)
+        }
+
+        return try {
+            postCollection.document(uuid).update(map).await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun editPostOnlyContent(
+        uuid: String,
+        content: String,
+    ): Result<Unit> {
+        val currentUser = Firebase.auth.currentUser
+        require(currentUser != null)
+        val db = Firebase.firestore
+        val postCollection = db.collection("posts")
+        val map = mutableMapOf<String, Any>()
+
+        map["content"] = content
+
+        return try {
+            postCollection.document(uuid).update(map).await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     suspend fun uploadPost(
         content: String,
         imageUri: Uri
