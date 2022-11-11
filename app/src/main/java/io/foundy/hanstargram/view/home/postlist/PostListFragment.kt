@@ -32,7 +32,8 @@ import kotlinx.coroutines.launch
 
 class PostListFragment(
     private val toolbarTitle: String? = null,
-    private val postPagingData: PagingData<PostItemUiState>? = null,
+    private val targetUserUuid: String? = null,
+    private val initPostPagingData: PagingData<PostItemUiState>? = null,
     private val onBackButtonClick: (() -> Unit)? = null
 ) : ViewBindingFragment<FragmentPostListBinding>() {
 
@@ -48,7 +49,7 @@ class PostListFragment(
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.bind(postPagingData)
+        viewModel.bind(targetUserUuid, initPostPagingData)
 
         val adapter = PostAdapter(
             onClickLikeButton = ::onClickLikeButton,
