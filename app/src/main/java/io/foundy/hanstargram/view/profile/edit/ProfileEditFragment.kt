@@ -26,7 +26,6 @@ import io.foundy.common.base.ViewBindingFragment
 import io.foundy.domain.model.UserDetail
 import io.foundy.hanstargram.R
 import io.foundy.hanstargram.databinding.FragmentProfileEditBinding
-import io.foundy.hanstargram.view.welcome.ImageState
 import io.foundy.hanstargram.view.welcome.ProfileEditViewModel
 import kotlinx.coroutines.launch
 
@@ -53,7 +52,7 @@ class ProfileEditFragment(
             } else {
                 MediaStore.Images.Media.getBitmap(contentResolver, imageUri)
             }
-            viewModel.imageState = ImageState.Changed
+            viewModel.changedImage = true
             viewModel.selectedImage = bitmap
             binding.profileEditImage.setImageBitmap(bitmap)
         }
@@ -104,10 +103,7 @@ class ProfileEditFragment(
         }
 
         binding.toolbarApply.setOnClickListener {
-            if(binding.profileEditName.text.toString().isEmpty()){
-                showSnackBar(getString(R.string.cant_name_is_empty))
-            }
-            else{
+            if(!viewModel.isNamedValid){
                 viewModel.sendChangedInfo()
             }
         }
@@ -146,11 +142,9 @@ class ProfileEditFragment(
     }
 
     private fun updateDoneButton() {
-        val isLoading = viewModel.uiState.value is ProfileEditUiState.Loading
-        val hasName = binding.profileEditName.text.toString().isNotEmpty()
-
         binding.toolbarApply.apply {
-            isEnabled = hasName && !isLoading
+            isEnabled = (!viewModel.isNamedValid) && (viewModel.uiState.value is ProfileEditUiState.Loading)
+            alpha = if (viewModel.isNamedValid) 0.25F else 1.0F
         }
     }
 
@@ -164,7 +158,7 @@ class ProfileEditFragment(
                             showImagePicker()
                         }
                         1 -> {
-                            viewModel.imageState = ImageState.Default
+                            viewModel.changedImage = true
                             viewModel.selectedImage = null
                             binding.profileEditImage.setImageDrawable(
                                 AppCompatResources.getDrawable(

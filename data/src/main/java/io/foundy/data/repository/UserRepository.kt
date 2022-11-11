@@ -73,18 +73,12 @@ object UserRepository {
         return Result.success(Unit)
     }
 
-    suspend fun saveChangedInfo(
+    suspend fun updateInfo(
         name: String,
         introduce : String,
         profileImage: Bitmap?,
-        imageState: Int
+        changedImage: Boolean
     ): Result<Unit> {
-
-        /*
-            None, = 0
-            Default, = 1
-            Changed = 2
-         */
 
         val user = Firebase.auth.currentUser
         require(user != null)
@@ -96,33 +90,32 @@ object UserRepository {
 
         val userReference = Firebase.firestore.collection("users").document(user.uid)
 
-        when(imageState){
-            1-> {
-                val deleteImageUrl = hashMapOf<String, Any>(
-                    "profileImageUrl" to FieldValue.delete()
-                )
-                try{
-                    userReference.update(deleteImageUrl).await()
-                } catch (e: Exception) {
-                    return Result.failure(e)
-                }
+
+        if(changedImage && profileImage != null){
+            val uuid = UUID.randomUUID().toString()
+            val imageUrl = "${uuid}.png"
+            val imageReference = Firebase.storage.reference.child(imageUrl)
+            val byteArrayOutputStream = ByteArrayOutputStream()
+
+            profileImage!!.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
+            val data = byteArrayOutputStream.toByteArray()
+
+            try {
+                imageReference.putBytes(data).await()
+            } catch (e: Exception) {
+                return Result.failure(e)
             }
-            2-> {
-                val uuid = UUID.randomUUID().toString()
-                val imageUrl = "${uuid}.png"
-                val imageReference = Firebase.storage.reference.child(imageUrl)
-                val byteArrayOutputStream = ByteArrayOutputStream()
 
-                profileImage!!.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
-                val data = byteArrayOutputStream.toByteArray()
-
-                try {
-                    imageReference.putBytes(data).await()
-                } catch (e: Exception) {
-                    return Result.failure(e)
-                }
-
-                userMap["profileImageUrl"] = imageUrl
+            userMap["profileImageUrl"] = imageUrl
+        }
+        else if (changedImage){
+            val deleteImageUrl = hashMapOf<String, Any>(
+                "profileImageUrl" to FieldValue.delete()
+            )
+            try{
+                userReference.update(deleteImageUrl).await()
+            } catch (e: Exception) {
+                return Result.failure(e)
             }
         }
 

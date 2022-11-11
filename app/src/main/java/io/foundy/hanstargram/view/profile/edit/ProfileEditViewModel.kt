@@ -11,12 +11,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-enum class ImageState{
-    None,
-    Default,
-    Changed
-}
-
 class ProfileEditViewModel : ViewModel() {
     private val _uiState: MutableStateFlow<ProfileEditUiState> = MutableStateFlow(ProfileEditUiState.None)
     val uiState = _uiState.asStateFlow()
@@ -26,7 +20,10 @@ class ProfileEditViewModel : ViewModel() {
     var name: String = ""
     var introduce: String = ""
     var selectedImage: Bitmap? = null
-    var imageState: ImageState = ImageState.None
+    var changedImage: Boolean = false
+
+    val isNamedValid: Boolean
+        get() = name.isEmpty()
 
     fun sendChangedInfo() {
         if(!isChanged) { // 바뀐게 없다면 굳이 변경시킬 필요 없음
@@ -35,7 +32,7 @@ class ProfileEditViewModel : ViewModel() {
         }
         _uiState.update { ProfileEditUiState.Loading }
         viewModelScope.launch(Dispatchers.IO) {
-            val result : Result<Unit> = UserRepository.saveChangedInfo(name, introduce, selectedImage, imageState.ordinal)
+            val result : Result<Unit> = UserRepository.updateInfo(name, introduce, selectedImage, changedImage)
             if (result.isSuccess) {
                 _uiState.update {
                     ProfileEditUiState.SuccessToSave
