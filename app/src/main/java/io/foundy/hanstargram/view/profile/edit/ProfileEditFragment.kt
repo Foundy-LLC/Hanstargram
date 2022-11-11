@@ -5,11 +5,13 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.*
+import android.widget.ImageView
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.os.bundleOf
+import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.commit
 import androidx.fragment.app.setFragmentResult
@@ -30,40 +32,43 @@ import io.foundy.hanstargram.view.welcome.ProfileEditViewModel
 import kotlinx.coroutines.launch
 
 class ProfileEditFragment(
-    private val userDetail: UserDetail
-) : ViewBindingFragment<FragmentProfileEditBinding>(){
+    private val userDetail: UserDetail,
+) : ViewBindingFragment<FragmentProfileEditBinding>() {
 
     private val viewModel: ProfileEditViewModel by viewModels()
+    private lateinit var fragmentView : View
 
     override val bindingInflater: (LayoutInflater, ViewGroup?, Boolean) -> FragmentProfileEditBinding
         get() = FragmentProfileEditBinding::inflate
 
-    private val pickMedia = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { imageUri ->
-        val contentResolver = requireActivity().contentResolver;
-        if (imageUri != null) {
-            @Suppress("DEPRECATION")
-            val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                ImageDecoder.decodeBitmap(
-                    ImageDecoder.createSource(
-                        contentResolver,
-                        imageUri
+    private val pickMedia =
+        registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { imageUri ->
+            val contentResolver = requireActivity().contentResolver;
+            if (imageUri != null) {
+                @Suppress("DEPRECATION")
+                val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    ImageDecoder.decodeBitmap(
+                        ImageDecoder.createSource(
+                            contentResolver,
+                            imageUri
+                        )
                     )
-                )
-            } else {
-                MediaStore.Images.Media.getBitmap(contentResolver, imageUri)
+                } else {
+                    MediaStore.Images.Media.getBitmap(contentResolver, imageUri)
+                }
+                viewModel.isChanged = true
+                viewModel.isChangedImage = true
+                viewModel.selectedImage = bitmap
+                fragmentView.findViewById<ImageView>(R.id.profile_edit_image).setImageBitmap(bitmap)
             }
-            viewModel.changedImage = true
-            viewModel.selectedImage = bitmap
-            binding.profileEditImage.setImageBitmap(bitmap)
         }
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        fragmentView = view
         initFragment()
         initToolbar()
         initViewModel()
-
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect(::updateUi)
@@ -73,27 +78,33 @@ class ProfileEditFragment(
 
     private fun updateUi(uiState: ProfileEditUiState) {
         when (uiState) {
-            ProfileEditUiState.SuccessToSave -> {
+            is ProfileEditUiState.None -> {
+                binding.profileEidtProgressBar.isVisible = false
+            }
+            is ProfileEditUiState.SuccessToSave -> {
                 showSnackBar(getString(R.string.success_to_change_profile))
-                setFragmentResult("ProfileEdit", bundleOf("isChanged" to viewModel.isChanged, "uuid" to viewModel.uuid))
-                parentFragmentManager.commit {
-                    parentFragmentManager.popBackStack()
-                }
+                setFragmentResult("ProfileEdit",
+                    bundleOf("isChanged" to viewModel.isChanged, "uuid" to viewModel.uuid))
+                closeFragment()
             }
             is ProfileEditUiState.FailedToSave -> {
                 showSnackBar(getString(R.string.failed_to_save_data))
+                binding.profileEidtProgressBar.isVisible = false
             }
-            else -> {}
+            is ProfileEditUiState.Loading -> {
+                binding.toolbarApply.isEnabled = false
+                binding.profileEidtProgressBar.isVisible = true
+            }
         }
     }
 
-    private fun initViewModel(){
+    private fun initViewModel() {
         viewModel.uuid = userDetail.uuid
         viewModel.name = userDetail.name
         viewModel.introduce = userDetail.introduce
     }
 
-    private fun initToolbar(){
+    private fun initToolbar() {
         val activity = requireActivity() as AppCompatActivity
         activity.setSupportActionBar(binding.toolBar)
 
@@ -103,13 +114,15 @@ class ProfileEditFragment(
         }
 
         binding.toolbarApply.setOnClickListener {
-            if(!viewModel.isNamedValid){
+            if (viewModel.isChanged)
                 viewModel.sendChangedInfo()
+            else {
+                closeFragment()
             }
         }
     }
 
-    private fun initFragment(){
+    private fun initFragment() {
         binding.apply {
             profileEditName.setText(userDetail.name)
             profileEditIntroduce.setText(userDetail.introduce)
@@ -142,37 +155,41 @@ class ProfileEditFragment(
     }
 
     private fun updateDoneButton() {
+        val canUse = !(viewModel.isValidName || viewModel.uiState.value is ProfileEditUiState.Loading)
         binding.toolbarApply.apply {
-            isEnabled = (!viewModel.isNamedValid) && (viewModel.uiState.value is ProfileEditUiState.Loading)
-            alpha = if (viewModel.isNamedValid) 0.25F else 1.0F
+            isEnabled = canUse
+            alpha = if (canUse) 1.0F else 0.25F
         }
     }
 
     private fun onClickImage() {
-        viewModel.isChanged = true
-        if (viewModel.selectedImage != null) {
-            MaterialAlertDialogBuilder(requireActivity())
-                .setItems(R.array.image_options) { _, which ->
-                    when (which) {
-                        0 -> {
-                            showImagePicker()
-                        }
-                        1 -> {
-                            viewModel.changedImage = true
-                            viewModel.selectedImage = null
-                            binding.profileEditImage.setImageDrawable(
+        MaterialAlertDialogBuilder(requireActivity())
+            .setItems(R.array.image_options) { _, which ->
+                when (which) {
+                    0 -> {
+                        showImagePicker()
+                    }
+                    1 -> {
+                        viewModel.isChanged = true
+                        viewModel.isChangedImage = true
+                        viewModel.selectedImage = null
+                        fragmentView.findViewById<ImageView>(R.id.profile_edit_image)
+                            ?.setImageDrawable(
                                 AppCompatResources.getDrawable(
                                     requireActivity(),
                                     R.drawable.ic_baseline_person_24
                                 )
                             )
-                        }
-                        else -> throw IllegalArgumentException()
                     }
-                }.create()
-                .show()
-        } else {
-            showImagePicker()
+                    else -> throw IllegalArgumentException()
+                }
+            }.create()
+            .show()
+    }
+
+    private fun closeFragment() {
+        parentFragmentManager.commit {
+            parentFragmentManager.popBackStack()
         }
     }
 

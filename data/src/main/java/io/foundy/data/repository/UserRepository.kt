@@ -25,7 +25,7 @@ object UserRepository {
 
     suspend fun saveInitUserInfo(
         name: String,
-        profileImage: Bitmap?
+        profileImage: Bitmap?,
     ): Result<Unit> {
         val user = Firebase.auth.currentUser
         require(user != null)
@@ -33,7 +33,7 @@ object UserRepository {
             uuid = user.uid,
             name = name,
             email = user.email,
-            introduce = "${name}님의 자소소개 입니다."
+            introduce = "${name}님의 자기소개 입니다."
         )
 
         val userReference = Firebase.firestore.collection("users").document(user.uid)
@@ -75,29 +75,30 @@ object UserRepository {
 
     suspend fun updateInfo(
         name: String,
-        introduce : String,
+        introduce: String,
         profileImage: Bitmap?,
-        changedImage: Boolean
+        isChangedImage: Boolean,
     ): Result<Unit> {
 
         val user = Firebase.auth.currentUser
         require(user != null)
 
-        val userMap = mutableMapOf(
+        val userMap = mutableMapOf<String, Any>(
             "name" to name,
             "introduce" to introduce,
         )
 
         val userReference = Firebase.firestore.collection("users").document(user.uid)
 
-
-        if(changedImage && profileImage != null){
+        if (isChangedImage && profileImage == null) {
+            userMap["profileImageUrl"] = FieldValue.delete()
+        } else if (isChangedImage && profileImage != null) {
             val uuid = UUID.randomUUID().toString()
             val imageUrl = "${uuid}.png"
             val imageReference = Firebase.storage.reference.child(imageUrl)
             val byteArrayOutputStream = ByteArrayOutputStream()
 
-            profileImage!!.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
+            profileImage.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
             val data = byteArrayOutputStream.toByteArray()
 
             try {
@@ -107,16 +108,6 @@ object UserRepository {
             }
 
             userMap["profileImageUrl"] = imageUrl
-        }
-        else if (changedImage){
-            val deleteImageUrl = hashMapOf<String, Any>(
-                "profileImageUrl" to FieldValue.delete()
-            )
-            try{
-                userReference.update(deleteImageUrl).await()
-            } catch (e: Exception) {
-                return Result.failure(e)
-            }
         }
 
         try {
