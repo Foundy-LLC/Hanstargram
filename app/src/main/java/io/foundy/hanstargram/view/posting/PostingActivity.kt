@@ -59,7 +59,7 @@ class PostingActivity : AppCompatActivity() {
         setContentView(R.layout.activity_posting)
 
         val glide = Glide.with(this)
-        val content = findViewById<EditText>(R.id.image_expression)
+        val contentEditText = findViewById<EditText>(R.id.image_expression)
         val imageView = findViewById<ImageView>(R.id.add_image)
         val backButton = findViewById<ImageButton>(R.id.post_back_button)
         val postButton = findViewById<ImageButton>(R.id.post_button)
