@@ -69,20 +69,20 @@ class PostingActivity : AppCompatActivity() {
         val postUuid = intent.getStringExtra("uuid")
 
         if (postContent != null && postImage != null && postUuid != null) {
-            viewModel.editMode()
+            viewModel.changeToEditMode()
             glide.load(storageReference.child(postImage))
                 .into(imageView)
 
-            content.setText(postContent)
+            contentEditText.setText(postContent)
         } else {
             showImagePicker()
         }
 
         postButton.setOnClickListener {
             if (!viewModel.uiState.value.isCreating) {
-                viewModel.editContent(postUuid.toString(), content.text.toString())
+                viewModel.editContent(postUuid.toString(), contentEditText.text.toString())
             } else {
-                viewModel.uploadContent(content.text.toString())
+                viewModel.uploadContent(contentEditText.text.toString())
             }
         }
 

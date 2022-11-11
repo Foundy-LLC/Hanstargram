@@ -104,14 +104,16 @@ class PostListFragment(
         editButton?.setOnClickListener {
             bottomSheetDialog.hide()
 
-            val post = viewModel.uiState.value.selectedPostItem
-            val postContent = post?.content
-            val postImage = post?.imageUrl
-            val postUuid = post?.uuid
+            val post = requireNotNull(viewModel.uiState.value.selectedPostItem)
+            val postContent = post.content
+            val postImage = post.imageUrl
+            val postUuid = post.uuid
 
             val intent = PostingActivity.getIntent(
                 requireContext(),
-                postContent.toString(), postImage.toString(), postUuid.toString()
+                postContent = postContent,
+                postImage = postImage,
+                postUuid = postUuid
             )
 
             launcher.launch(intent)
