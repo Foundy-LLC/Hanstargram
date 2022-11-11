@@ -15,7 +15,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class ProfileViewModel : ViewModel() {
-
     fun bindProfile(targetUuid: String) {
         loadPostByUser(targetUuid)
         getProfileDetail(targetUuid)
@@ -41,7 +40,7 @@ class ProfileViewModel : ViewModel() {
         MutableStateFlow(ProfileDetailUiState())
     val profileDetailUiState = _profileDetailUiState.asStateFlow()
 
-    private fun getProfileDetail(targetUuid: String) {
+    fun getProfileDetail(targetUuid: String) {
         _profileDetailUiState.update { it.copy(isLoading = true) }
         viewModelScope.launch {
             UserRepository.getUserDetail(targetUuid)

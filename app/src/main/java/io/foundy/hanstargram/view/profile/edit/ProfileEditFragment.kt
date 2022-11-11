@@ -9,7 +9,10 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.os.bundleOf
 import androidx.core.widget.addTextChangedListener
+import androidx.fragment.app.commit
+import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -73,7 +76,10 @@ class ProfileEditFragment(
         when (uiState) {
             ProfileEditUiState.SuccessToSave -> {
                 showSnackBar(getString(R.string.success_to_change_profile))
-                //parentFragmentManager.beginTransaction().remove(this).commit()
+                setFragmentResult("ProfileEdit", bundleOf("isChanged" to viewModel.isChanged, "uuid" to viewModel.uuid))
+                parentFragmentManager.commit {
+                    parentFragmentManager.popBackStack()
+                }
             }
             is ProfileEditUiState.FailedToSave -> {
                 showSnackBar(getString(R.string.failed_to_save_data))
@@ -83,6 +89,7 @@ class ProfileEditFragment(
     }
 
     private fun initViewModel(){
+        viewModel.uuid = userDetail.uuid
         viewModel.name = userDetail.name
         viewModel.introduce = userDetail.introduce
     }
@@ -93,7 +100,6 @@ class ProfileEditFragment(
 
         activity.supportActionBar?.apply {
             setDisplayHomeAsUpEnabled(true)
-            setDisplayShowHomeEnabled(false)
             title = getString(R.string.profile_edit_title)
         }
 

@@ -38,10 +38,9 @@ class ProfileActivity : ViewBindingActivity<ActivityProfileBinding>() {
     }
 
     override fun onSupportNavigateUp(): Boolean {
-        if (supportFragmentManager.backStackEntryCount > 1) {
-            supportFragmentManager.popBackStack()
-        } else {
-            finish()
+        when(supportFragmentManager.backStackEntryCount){
+            0-> finish()
+            1-> supportFragmentManager.popBackStack()
         }
         return super.onSupportNavigateUp()
     }

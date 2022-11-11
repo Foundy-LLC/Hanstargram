@@ -22,6 +22,7 @@ class ProfileEditViewModel : ViewModel() {
     val uiState = _uiState.asStateFlow()
 
     var isChanged: Boolean = false
+    var uuid: String = ""
     var name: String = ""
     var introduce: String = ""
     var selectedImage: Bitmap? = null
