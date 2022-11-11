@@ -32,6 +32,7 @@ object UserRepository {
             uuid = user.uid,
             name = name,
             email = user.email,
+            introduce = "${name}님의 자소소개 입니다."
         )
 
         val userReference = Firebase.firestore.collection("users").document(user.uid)
@@ -169,6 +170,7 @@ object UserRepository {
                     uuid = userDto.uuid,
                     name = userDto.name,
                     email = userDto.email,
+                    introduce = userDto.introduce,
                     profileImageUrl = userDto.profileImageUrl,
                     postCount = postCount,
                     followersCount = followersCount,

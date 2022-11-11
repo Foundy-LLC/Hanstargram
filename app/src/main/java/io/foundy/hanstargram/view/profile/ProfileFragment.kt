@@ -77,10 +77,10 @@ class ProfileFragment(
         }
     }
 
-    /* 게시글 수정 프래그먼트*/
+    /* 프로필 수정 프래그먼트*/
     private fun changeToProfileEditFragment() {
         val fragmentManager = parentFragmentManager
-        val profileEditFragment = ProfileEditFragment(viewModel.profileDetailUiState.value.userDetail)
+        val profileEditFragment = ProfileEditFragment(viewModel.profileDetailUiState.value.userDetail!!)
         fragmentManager.beginTransaction().apply {
             replace(R.id.fragment_container_view, profileEditFragment)
             addToBackStack(null)
@@ -125,8 +125,7 @@ class ProfileFragment(
                     com.google.android.material.R.attr.colorOnPrimary
                 )
                 profileHeaderUsernameTextview.text = userDetail.name
-                profileIntroduceTextview.text =
-                    "${userDetail.name}의 자기소개 입니다." // TODO: 자기소개 추가 시 변경
+                profileIntroduceTextview.text = userDetail.introduce
                 profileInfoPostnumTextview.text = userDetail.postCount.toString()
                 profileInfoFollowernumTextview.text = userDetail.followersCount.toString()
                 profileInfoFolloweenumTextview.text = userDetail.followingCount.toString()

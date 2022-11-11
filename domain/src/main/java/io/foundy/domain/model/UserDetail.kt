@@ -3,6 +3,7 @@ package io.foundy.domain.model
 data class UserDetail(
     val uuid: String,
     val name: String,
+    val introduce: String,
     val email: String?,
     val profileImageUrl: String?,
     val postCount: Long,
