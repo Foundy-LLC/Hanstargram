@@ -19,7 +19,7 @@ class PostingViewModel : ViewModel() {
         _uiState.update { it.copy(selectedImage = uri) }
     }
 
-    fun editMode() {
+    fun changeToEditMode() {
         _uiState.update { it.copy(isCreating = false) }
     }
 
