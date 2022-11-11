@@ -10,7 +10,6 @@ import io.foundy.data.repository.PostRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -21,15 +20,20 @@ class PostListViewModel : ViewModel() {
 
     private var bounded = false
 
-    fun bind(postPagingData: PagingData<PostItemUiState>?) {
+    fun bind(targetUserUuid: String?, initPostPagingData: PagingData<PostItemUiState>?) {
         if (bounded) return
         bounded = true
-        if (postPagingData != null) {
-            _uiState.update { it.copy(pagingData = postPagingData) }
+        if (initPostPagingData != null) {
+            _uiState.update { it.copy(pagingData = initPostPagingData) }
         }
         viewModelScope.launch(Dispatchers.IO) {
-            PostRepository.getHomeFeeds().cachedIn(viewModelScope)
-                .collectLatest { pagingData ->
+            val pagingFlow = if (targetUserUuid != null) {
+                PostRepository.getPostDetailsByUser(targetUserUuid)
+            } else {
+                PostRepository.getHomeFeeds()
+            }
+            pagingFlow.cachedIn(viewModelScope)
+                .collect { pagingData ->
                     _uiState.update { uiState ->
                         uiState.copy(pagingData = pagingData.map { it.toUiState() })
                     }
