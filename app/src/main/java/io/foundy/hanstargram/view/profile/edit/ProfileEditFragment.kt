@@ -1,11 +1,8 @@
 package io.foundy.hanstargram.view.profile.edit
 
-import android.graphics.ImageDecoder
-import android.os.Build
+import android.graphics.Bitmap
 import android.os.Bundle
-import android.provider.MediaStore
 import android.view.*
-import android.widget.ImageView
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -28,6 +25,7 @@ import io.foundy.common.base.ViewBindingFragment
 import io.foundy.domain.model.UserDetail
 import io.foundy.hanstargram.R
 import io.foundy.hanstargram.databinding.FragmentProfileEditBinding
+import io.foundy.hanstargram.util.toBitmap
 import io.foundy.hanstargram.view.welcome.ProfileEditViewModel
 import kotlinx.coroutines.launch
 
@@ -36,39 +34,28 @@ class ProfileEditFragment(
 ) : ViewBindingFragment<FragmentProfileEditBinding>() {
 
     private val viewModel: ProfileEditViewModel by viewModels()
-    private lateinit var fragmentView : View
 
     override val bindingInflater: (LayoutInflater, ViewGroup?, Boolean) -> FragmentProfileEditBinding
         get() = FragmentProfileEditBinding::inflate
 
     private val pickMedia =
         registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { imageUri ->
-            val contentResolver = requireActivity().contentResolver;
             if (imageUri != null) {
-                @Suppress("DEPRECATION")
-                val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                    ImageDecoder.decodeBitmap(
-                        ImageDecoder.createSource(
-                            contentResolver,
-                            imageUri
-                        )
-                    )
-                } else {
-                    MediaStore.Images.Media.getBitmap(contentResolver, imageUri)
-                }
+                val bitmap = imageUri.toBitmap(requireContext())
                 viewModel.isChanged = true
                 viewModel.isChangedImage = true
                 viewModel.selectedImage = bitmap
-                fragmentView.findViewById<ImageView>(R.id.profile_edit_image).setImageBitmap(bitmap)
+                setUserImage(bitmap)
             }
         }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        fragmentView = view
+
         initFragment()
         initToolbar()
         initViewModel()
+
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect(::updateUi)
@@ -83,8 +70,10 @@ class ProfileEditFragment(
             }
             is ProfileEditUiState.SuccessToSave -> {
                 showSnackBar(getString(R.string.success_to_change_profile))
-                setFragmentResult("ProfileEdit",
-                    bundleOf("isChanged" to viewModel.isChanged, "uuid" to viewModel.uuid))
+                setFragmentResult(
+                    "ProfileEdit",
+                    bundleOf("isChanged" to viewModel.isChanged, "uuid" to viewModel.uuid)
+                )
                 closeFragment()
             }
             is ProfileEditUiState.FailedToSave -> {
@@ -144,18 +133,30 @@ class ProfileEditFragment(
                     viewModel.introduce = it.toString()
                 }
             }
-
-            val storageReference = Firebase.storage.reference
-            Glide.with(this@ProfileEditFragment)
-                .load(userDetail.profileImageUrl?.let { storageReference.child(it) })
-                .fallback(R.drawable.ic_baseline_person_24)
-                .circleCrop()
-                .into(profileEditImage)
+            userDetail.profileImageUrl?.let { setUserImage(it) }
         }
     }
 
+    private fun setUserImage(bitmap: Bitmap) {
+        Glide.with(this@ProfileEditFragment)
+            .load(bitmap)
+            .fallback(R.drawable.ic_baseline_person_24)
+            .circleCrop()
+            .into(binding.profileEditImage)
+    }
+
+    private fun setUserImage(url: String) {
+        val storageReference = Firebase.storage.reference
+        Glide.with(this@ProfileEditFragment)
+            .load(storageReference.child(url))
+            .fallback(R.drawable.ic_baseline_person_24)
+            .circleCrop()
+            .into(binding.profileEditImage)
+    }
+
     private fun updateDoneButton() {
-        val canUse = !(viewModel.isValidName || viewModel.uiState.value is ProfileEditUiState.Loading)
+        val canUse =
+            !(viewModel.isValidName || viewModel.uiState.value is ProfileEditUiState.Loading)
         binding.toolbarApply.apply {
             isEnabled = canUse
             alpha = if (canUse) 1.0F else 0.25F
@@ -173,13 +174,12 @@ class ProfileEditFragment(
                         viewModel.isChanged = true
                         viewModel.isChangedImage = true
                         viewModel.selectedImage = null
-                        fragmentView.findViewById<ImageView>(R.id.profile_edit_image)
-                            ?.setImageDrawable(
-                                AppCompatResources.getDrawable(
-                                    requireActivity(),
-                                    R.drawable.ic_baseline_person_24
-                                )
+                        binding.profileEditImage.setImageDrawable(
+                            AppCompatResources.getDrawable(
+                                requireActivity(),
+                                R.drawable.ic_baseline_person_24
                             )
+                        )
                     }
                     else -> throw IllegalArgumentException()
                 }
