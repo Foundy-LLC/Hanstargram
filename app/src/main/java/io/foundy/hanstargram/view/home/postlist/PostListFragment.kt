@@ -11,6 +11,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.core.view.isVisible
+import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -28,7 +29,10 @@ import io.foundy.hanstargram.view.common.registerObserverForScrollToTop
 import io.foundy.hanstargram.view.common.setListeners
 import io.foundy.hanstargram.view.posting.PostingActivity
 import io.foundy.hanstargram.view.profile.ProfileActivity
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class PostListFragment(
     private val toolbarTitle: String? = null,
@@ -67,6 +71,14 @@ class PostListFragment(
         launcher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == RESULT_OK) {
                 adapter.refresh()
+            }
+        }
+        setFragmentResultListener("refreshPosts") { _, _ ->
+            viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Default) {
+                delay(300)
+                withContext(Dispatchers.Main) {
+                    adapter.refresh()
+                }
             }
         }
 
@@ -176,7 +188,7 @@ class PostListFragment(
 
     private fun startProfileActivity(userUuid: String) {
         val intent = ProfileActivity.getIntent(requireContext(), userUuid)
-        startActivity(intent)
+        launcher.launch(intent)
     }
 
     private fun startPostingActivity() {

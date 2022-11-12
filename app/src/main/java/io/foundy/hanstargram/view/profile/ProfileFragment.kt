@@ -1,5 +1,6 @@
 package io.foundy.hanstargram.view.profile
 
+import android.app.Activity.RESULT_OK
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -53,6 +54,7 @@ class ProfileFragment(
                 changeToProfileEditFragment()
             } else {
                 viewModel.toggleFollow()
+                requireActivity().setResult(RESULT_OK)
             }
         }
 
