@@ -27,6 +27,7 @@ class PostViewHolder(
         val glide = Glide.with(root)
 
         glide.load(uiState.writerProfileImageUrl?.let { storageReference.child(it) })
+            .fallback(R.drawable.ic_baseline_person_24)
             .into(profileImage)
 
         userName.text = uiState.writerName
