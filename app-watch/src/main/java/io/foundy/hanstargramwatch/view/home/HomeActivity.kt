@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
@@ -23,6 +25,8 @@ import kotlinx.coroutines.launch
 class HomeActivity : ViewBindingActivity<ActivityHomeBinding>() {
 
     private val viewModel: HomeViewModel by viewModels()
+
+    private lateinit var launcher: ActivityResultLauncher<Intent>
 
     override val bindingInflater: (LayoutInflater) -> ActivityHomeBinding
         get() = ActivityHomeBinding::inflate
@@ -44,6 +48,12 @@ class HomeActivity : ViewBindingActivity<ActivityHomeBinding>() {
 
         binding.exploreButton.setOnClickListener {
             startExploreActivity()
+        }
+
+        launcher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            if (it.resultCode == RESULT_OK) {
+                adapter.refresh()
+            }
         }
 
         lifecycleScope.launch {
@@ -95,11 +105,11 @@ class HomeActivity : ViewBindingActivity<ActivityHomeBinding>() {
 
     private fun startProfileActivity(userUuid: String) {
         val intent = ProfileActivity.getIntent(this, userUuid)
-        startActivity(intent)
+        launcher.launch(intent)
     }
 
     private fun startExploreActivity() {
         val intent = ExploreActivity.getIntent(this)
-        startActivity(intent)
+        launcher.launch(intent)
     }
 }

@@ -43,6 +43,7 @@ class ProfileActivity : ViewBindingActivity<ActivityProfileBinding>() {
 
         binding.followButton.setOnClickListener {
             viewModel.toggleFollow()
+            setResult(RESULT_OK)
         }
 
         lifecycleScope.launch {

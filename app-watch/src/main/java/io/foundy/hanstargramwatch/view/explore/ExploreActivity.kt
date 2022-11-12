@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -20,6 +22,8 @@ class ExploreActivity : ViewBindingActivity<ActivityExploreBinding>() {
 
     private val viewModel: ExploreViewModel by viewModels()
 
+    private lateinit var launcher: ActivityResultLauncher<Intent>
+
     override val bindingInflater: (LayoutInflater) -> ActivityExploreBinding
         get() = ActivityExploreBinding::inflate
 
@@ -34,6 +38,12 @@ class ExploreActivity : ViewBindingActivity<ActivityExploreBinding>() {
 
         val adapter = UserAdapter(onClickUser = ::onClickUser)
         initRecyclerView(adapter)
+
+        launcher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            if (it.resultCode == RESULT_OK) {
+                setResult(RESULT_OK)
+            }
+        }
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -64,6 +74,6 @@ class ExploreActivity : ViewBindingActivity<ActivityExploreBinding>() {
 
     private fun startProfileActivity(userUuid: String) {
         val intent = ProfileActivity.getIntent(this, userUuid)
-        startActivity(intent)
+        launcher.launch(intent)
     }
 }
