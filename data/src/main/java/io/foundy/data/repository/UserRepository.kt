@@ -23,6 +23,36 @@ object UserRepository {
 
     private const val PAGE_SIZE = 30
 
+    private var followingList: MutableList<FollowDto>? = null
+
+    /**
+     * 현재 유저가 팔로우하고 있는 회원 목록을 반환한다.
+     */
+    suspend fun getFollowingList(): Result<List<FollowDto>> {
+        if (followingList != null) {
+            return Result.success(requireNotNull(followingList))
+        }
+        val currentUser = Firebase.auth.currentUser
+        require(currentUser != null)
+        val db = Firebase.firestore
+        val followerCollection = db.collection("followers")
+        val followerQuery = followerCollection.whereEqualTo("followerUuid", currentUser.uid)
+
+        try {
+            val followerSnapshot = followerQuery.get().await()
+            if (followerSnapshot.isEmpty) {
+                followingList = mutableListOf()
+                return Result.success(requireNotNull(followingList))
+            }
+            followingList = followerSnapshot.documents.map {
+                requireNotNull(it.toObject(FollowDto::class.java))
+            }.toMutableList()
+            return Result.success(requireNotNull(followingList))
+        } catch (e: Exception) {
+            return Result.failure(e)
+        }
+    }
+
     suspend fun saveInitUserInfo(
         name: String,
         profileImage: Bitmap?,
@@ -164,6 +194,7 @@ object UserRepository {
         )
         return try {
             followCollection.document(followDto.uuid).set(followDto).await()
+            followingList?.add(followDto)
             Result.success(Unit)
         } catch (e: Exception) {
             e.printStackTrace()
@@ -183,6 +214,7 @@ object UserRepository {
                 .get().await().first().toObject(FollowDto::class.java)
 
             followCollection.document(followDto.uuid).delete()
+            followingList?.remove(followDto)
             Result.success(Unit)
         } catch (e: Exception) {
             e.printStackTrace()

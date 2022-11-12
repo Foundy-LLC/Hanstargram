@@ -10,12 +10,13 @@ import com.google.firebase.ktx.Firebase
 import io.foundy.data.model.LikeDto
 import io.foundy.data.model.PostDto
 import io.foundy.data.model.UserDto
+import io.foundy.data.repository.PostRepository
 import io.foundy.data.util.timeAgoString
 import io.foundy.domain.model.Post
 import kotlinx.coroutines.tasks.await
 
 class PostPagingSource(
-    private val queryPostsByFollower: Query
+    private val getWriterUuids: suspend () -> List<String>
 ) : PagingSource<QuerySnapshot, Post>() {
 
     private val currentUserId = Firebase.auth.currentUser!!.uid
@@ -29,6 +30,13 @@ class PostPagingSource(
     override suspend fun load(
         params: LoadParams<QuerySnapshot>
     ): LoadResult<QuerySnapshot, Post> {
+        val db = Firebase.firestore
+        val postCollection = db.collection("posts")
+        val queryPostsByFollower = postCollection
+            .whereIn("writerUuid", getWriterUuids())
+            .orderBy("dateTime", Query.Direction.DESCENDING)
+            .limit(PostRepository.PAGE_SIZE.toLong())
+
         return try {
             val currentPage = params.key ?: queryPostsByFollower.get().await()
             if (currentPage.isEmpty) {

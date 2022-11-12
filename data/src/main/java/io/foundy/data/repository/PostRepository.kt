@@ -5,25 +5,22 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.ktx.toObjects
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
-import io.foundy.data.model.FollowDto
 import io.foundy.data.model.LikeDto
 import io.foundy.data.model.PostDto
 import io.foundy.data.source.PostPagingSource
 import io.foundy.domain.model.Post
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.tasks.await
 import java.util.Date
 import java.util.UUID
 
 object PostRepository {
 
-    private const val PAGE_SIZE = 20
+    const val PAGE_SIZE = 20
 
     /**
      * 내가 팔로우한 유저와 나의 게시물 목록을 불러온다.
@@ -32,31 +29,18 @@ object PostRepository {
         try {
             val currentUser = Firebase.auth.currentUser
             require(currentUser != null)
-            val db = Firebase.firestore
-
-            val followerCollection = db.collection("followers")
-            val postCollection = db.collection("posts")
-
-            val followerQuery = followerCollection.whereEqualTo("followerUuid", currentUser.uid)
-            val followerSnapshot = followerQuery.get().await()
-            if (followerSnapshot.isEmpty) {
-                return emptyFlow()
-            }
-
-            var writerUuids = followerSnapshot.documents.map {
-                val followerDto = it.toObject(FollowDto::class.java)
-                followerDto!!.followeeUuid
-            }
-            writerUuids = writerUuids.toMutableList().apply {
-                add(currentUser.uid)
-            }
-            val queryPostsByFollower = postCollection
-                .whereIn("writerUuid", writerUuids)
-                .orderBy("dateTime", Query.Direction.DESCENDING)
-                .limit(PAGE_SIZE.toLong())
 
             return Pager(PagingConfig(pageSize = PAGE_SIZE)) {
-                PostPagingSource(queryPostsByFollower = queryPostsByFollower)
+                PostPagingSource(getWriterUuids = {
+                    val result = UserRepository.getFollowingList()
+                    if (result.isSuccess) {
+                        result.getOrNull()!!.map { it.followeeUuid }.toMutableList().apply {
+                            add(currentUser.uid)
+                        }
+                    } else {
+                        throw IllegalStateException("회원 정보 얻기 실패")
+                    }
+                })
             }.flow
         } catch (e: Exception) {
             e.printStackTrace()
@@ -68,16 +52,9 @@ object PostRepository {
         try {
             val currentUser = Firebase.auth.currentUser
             require(currentUser != null)
-            val db = Firebase.firestore
-            val postCollection = db.collection("posts")
-
-            val queryPostsByFollower = postCollection
-                .whereEqualTo("writerUuid", uuid)
-                .orderBy("dateTime", Query.Direction.DESCENDING)
-                .limit(PAGE_SIZE.toLong())
 
             return Pager(PagingConfig(pageSize = PAGE_SIZE)) {
-                PostPagingSource(queryPostsByFollower = queryPostsByFollower)
+                PostPagingSource(getWriterUuids = { listOf(uuid) })
             }.flow
         } catch (e: Exception) {
             e.printStackTrace()
