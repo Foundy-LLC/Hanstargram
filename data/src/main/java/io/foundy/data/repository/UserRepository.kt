@@ -6,6 +6,7 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.AggregateSource
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
@@ -24,7 +25,7 @@ object UserRepository {
 
     suspend fun saveInitUserInfo(
         name: String,
-        profileImage: Bitmap?
+        profileImage: Bitmap?,
     ): Result<Unit> {
         val user = Firebase.auth.currentUser
         require(user != null)
@@ -32,6 +33,7 @@ object UserRepository {
             uuid = user.uid,
             name = name,
             email = user.email,
+            introduce = "${name}님의 자기소개 입니다."
         )
 
         val userReference = Firebase.firestore.collection("users").document(user.uid)
@@ -64,6 +66,52 @@ object UserRepository {
 
         try {
             userReference.set(newUserDto).await()
+        } catch (e: Exception) {
+            return Result.failure(e)
+        }
+
+        return Result.success(Unit)
+    }
+
+    suspend fun updateInfo(
+        name: String,
+        introduce: String,
+        profileImage: Bitmap?,
+        isChangedImage: Boolean,
+    ): Result<Unit> {
+
+        val user = Firebase.auth.currentUser
+        require(user != null)
+
+        val userMap = mutableMapOf<String, Any>(
+            "name" to name,
+            "introduce" to introduce,
+        )
+
+        val userReference = Firebase.firestore.collection("users").document(user.uid)
+
+        if (isChangedImage && profileImage == null) {
+            userMap["profileImageUrl"] = FieldValue.delete()
+        } else if (isChangedImage && profileImage != null) {
+            val uuid = UUID.randomUUID().toString()
+            val imageUrl = "${uuid}.png"
+            val imageReference = Firebase.storage.reference.child(imageUrl)
+            val byteArrayOutputStream = ByteArrayOutputStream()
+
+            profileImage.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream)
+            val data = byteArrayOutputStream.toByteArray()
+
+            try {
+                imageReference.putBytes(data).await()
+            } catch (e: Exception) {
+                return Result.failure(e)
+            }
+
+            userMap["profileImageUrl"] = imageUrl
+        }
+
+        try {
+            userReference.update(userMap.toMap()).await()
         } catch (e: Exception) {
             return Result.failure(e)
         }
@@ -169,6 +217,7 @@ object UserRepository {
                     uuid = userDto.uuid,
                     name = userDto.name,
                     email = userDto.email,
+                    introduce = userDto.introduce,
                     profileImageUrl = userDto.profileImageUrl,
                     postCount = postCount,
                     followersCount = followersCount,

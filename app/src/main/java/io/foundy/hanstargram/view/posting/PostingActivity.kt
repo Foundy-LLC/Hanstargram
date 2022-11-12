@@ -63,7 +63,6 @@ class PostingActivity : AppCompatActivity() {
         val imageView = findViewById<ImageView>(R.id.add_image)
         val backButton = findViewById<ImageButton>(R.id.post_back_button)
         val postButton = findViewById<ImageButton>(R.id.post_button)
-
         val postContent = intent.getStringExtra("content")
         val postImage = intent.getStringExtra("image")
         val postUuid = intent.getStringExtra("uuid")
@@ -85,7 +84,6 @@ class PostingActivity : AppCompatActivity() {
                 viewModel.uploadContent(contentEditText.text.toString())
             }
         }
-
 
         imageView.setOnClickListener {
             showImagePicker()

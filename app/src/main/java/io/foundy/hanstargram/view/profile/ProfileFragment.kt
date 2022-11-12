@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.graphics.ColorUtils
 import androidx.core.view.isVisible
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -23,6 +24,7 @@ import io.foundy.hanstargram.util.themeColor
 import io.foundy.hanstargram.view.common.PagingLoadStateAdapter
 import io.foundy.hanstargram.view.common.setListeners
 import io.foundy.hanstargram.view.home.postlist.PostItemUiState
+import io.foundy.hanstargram.view.profile.edit.ProfileEditFragment
 import kotlinx.coroutines.launch
 
 class ProfileFragment(
@@ -34,12 +36,21 @@ class ProfileFragment(
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        setFragmentResultListener("ProfileEdit") { _, bundle ->
+            if(bundle.getBoolean("isChanged")){
+                val uuid = bundle.getString("uuid")
+                if (uuid != null) {
+                    viewModel.getProfileDetail(uuid)
+                }
+            }
+        }
+
         initToolbar()
 
         binding.followOrEditButton.setOnClickListener {
             val isMe = viewModel.profileDetailUiState.value.userDetail!!.isMe
             if (isMe) {
-                // TODO: 프로필 편집 화면 보이기
+                changeToProfileEditFragment()
             } else {
                 viewModel.toggleFollow()
             }
@@ -74,6 +85,16 @@ class ProfileFragment(
             setDisplayShowHomeEnabled(true)
             title = ""
         }
+    }
+
+    /* 프로필 수정 프래그먼트*/
+    private fun changeToProfileEditFragment() {
+        val fragmentManager = parentFragmentManager
+        val profileEditFragment = ProfileEditFragment(viewModel.profileDetailUiState.value.userDetail!!)
+        fragmentManager.beginTransaction().apply {
+            replace(R.id.fragment_container_view, profileEditFragment, "ProfileEdit")
+            addToBackStack(null)
+        }.commit()
     }
 
     /* 프로필 포스트 */
@@ -114,8 +135,7 @@ class ProfileFragment(
                     com.google.android.material.R.attr.colorOnPrimary
                 )
                 profileHeaderUsernameTextview.text = userDetail.name
-                profileIntroduceTextview.text =
-                    "${userDetail.name}의 자기소개 입니다." // TODO: 자기소개 추가 시 변경
+                profileIntroduceTextview.text = userDetail.introduce
                 profileInfoPostnumTextview.text = userDetail.postCount.toString()
                 profileInfoFollowernumTextview.text = userDetail.followersCount.toString()
                 profileInfoFolloweenumTextview.text = userDetail.followingCount.toString()
