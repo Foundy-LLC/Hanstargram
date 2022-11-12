@@ -6,7 +6,6 @@ import android.view.*
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.core.widget.addTextChangedListener
@@ -26,7 +25,6 @@ import io.foundy.domain.model.UserDetail
 import io.foundy.hanstargram.R
 import io.foundy.hanstargram.databinding.FragmentProfileEditBinding
 import io.foundy.hanstargram.util.toBitmap
-import io.foundy.hanstargram.view.welcome.ProfileEditViewModel
 import kotlinx.coroutines.launch
 
 class ProfileEditFragment(
@@ -42,55 +40,23 @@ class ProfileEditFragment(
         registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { imageUri ->
             if (imageUri != null) {
                 val bitmap = imageUri.toBitmap(requireContext())
-                viewModel.isChanged = true
-                viewModel.isChangedImage = true
-                viewModel.selectedImage = bitmap
-                setUserImage(bitmap)
+                viewModel.updateImageBitmap(bitmap)
             }
         }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        initFragment()
+        viewModel.bind(userDetail.name, userDetail.introduce)
+
+        initProfile()
         initToolbar()
-        initViewModel()
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect(::updateUi)
             }
         }
-    }
-
-    private fun updateUi(uiState: ProfileEditUiState) {
-        when (uiState) {
-            is ProfileEditUiState.None -> {
-                binding.profileEidtProgressBar.isVisible = false
-            }
-            is ProfileEditUiState.SuccessToSave -> {
-                showSnackBar(getString(R.string.success_to_change_profile))
-                setFragmentResult(
-                    "ProfileEdit",
-                    bundleOf("isChanged" to viewModel.isChanged, "uuid" to viewModel.uuid)
-                )
-                closeFragment()
-            }
-            is ProfileEditUiState.FailedToSave -> {
-                showSnackBar(getString(R.string.failed_to_save_data))
-                binding.profileEidtProgressBar.isVisible = false
-            }
-            is ProfileEditUiState.Loading -> {
-                binding.toolbarApply.isEnabled = false
-                binding.profileEidtProgressBar.isVisible = true
-            }
-        }
-    }
-
-    private fun initViewModel() {
-        viewModel.uuid = userDetail.uuid
-        viewModel.name = userDetail.name
-        viewModel.introduce = userDetail.introduce
     }
 
     private fun initToolbar() {
@@ -103,41 +69,65 @@ class ProfileEditFragment(
         }
 
         binding.toolbarApply.setOnClickListener {
-            if (viewModel.isChanged)
-                viewModel.sendChangedInfo()
-            else {
-                closeFragment()
-            }
+            viewModel.sendChangedInfo()
         }
     }
 
-    private fun initFragment() {
+    private fun initProfile() {
         binding.apply {
             profileEditName.setText(userDetail.name)
             profileEditIntroduce.setText(userDetail.introduce)
             profileEditImage.setOnClickListener {
                 onClickImage()
             }
-
             profileEditName.addTextChangedListener {
-                viewModel.isChanged = true
                 if (it != null) {
-                    viewModel.name = it.toString()
-                    updateDoneButton()
+                    viewModel.updateName(it.toString())
                 }
             }
-
             profileEditIntroduce.addTextChangedListener {
-                viewModel.isChanged = true
                 if (it != null) {
-                    viewModel.introduce = it.toString()
+                    viewModel.updateIntroduce(it.toString())
                 }
             }
-            userDetail.profileImageUrl?.let { setUserImage(it) }
+            userDetail.profileImageUrl?.let { url ->
+                val storageReference = Firebase.storage.reference
+                Glide.with(this@ProfileEditFragment)
+                    .load(storageReference.child(url))
+                    .fallback(R.drawable.ic_baseline_person_24)
+                    .circleCrop()
+                    .into(binding.profileEditImage)
+            }
         }
     }
 
-    private fun setUserImage(bitmap: Bitmap) {
+    private fun updateUi(uiState: ProfileEditUiState) {
+        binding.profileEidtProgressBar.isVisible = uiState.isLoading
+        binding.toolbarApply.apply {
+            val canSave = viewModel.canSave
+            isEnabled = canSave
+            alpha = if (canSave) 1.0F else 0.25F
+        }
+
+        if (uiState.isImageChanged) {
+            updateUserImage(uiState.selectedImageBitmap)
+        }
+
+        if (uiState.successToSave) {
+            showSnackBar(getString(R.string.success_to_change_profile))
+            setFragmentResult(
+                "ProfileEdit",
+                bundleOf("isChanged" to viewModel.isChanged, "uuid" to userDetail.uuid)
+            )
+            closeFragment()
+        }
+        if (uiState.userMessage != null) {
+            showSnackBar(uiState.userMessage)
+            viewModel.userMessageShown()
+        }
+    }
+
+    private fun updateUserImage(bitmap: Bitmap?) {
         Glide.with(this@ProfileEditFragment)
             .load(bitmap)
             .fallback(R.drawable.ic_baseline_person_24)
@@ -145,46 +135,28 @@ class ProfileEditFragment(
             .into(binding.profileEditImage)
     }
 
-    private fun setUserImage(url: String) {
-        val storageReference = Firebase.storage.reference
-        Glide.with(this@ProfileEditFragment)
-            .load(storageReference.child(url))
-            .fallback(R.drawable.ic_baseline_person_24)
-            .circleCrop()
-            .into(binding.profileEditImage)
-    }
-
-    private fun updateDoneButton() {
-        val canUse =
-            !(viewModel.isValidName || viewModel.uiState.value is ProfileEditUiState.Loading)
-        binding.toolbarApply.apply {
-            isEnabled = canUse
-            alpha = if (canUse) 1.0F else 0.25F
-        }
-    }
-
     private fun onClickImage() {
-        MaterialAlertDialogBuilder(requireActivity())
-            .setItems(R.array.image_options) { _, which ->
-                when (which) {
-                    0 -> {
-                        showImagePicker()
+        val selectedImage = viewModel.uiState.value.selectedImageBitmap
+        val oldProfileImageUrl = userDetail.profileImageUrl
+        val isImageChanged = viewModel.uiState.value.isImageChanged
+
+        if (selectedImage == null && (oldProfileImageUrl == null || isImageChanged)) {
+            showImagePicker()
+        } else {
+            MaterialAlertDialogBuilder(requireActivity())
+                .setItems(R.array.image_options) { _, which ->
+                    when (which) {
+                        0 -> {
+                            showImagePicker()
+                        }
+                        1 -> {
+                            viewModel.updateImageBitmap(null)
+                        }
+                        else -> throw IllegalArgumentException()
                     }
-                    1 -> {
-                        viewModel.isChanged = true
-                        viewModel.isChangedImage = true
-                        viewModel.selectedImage = null
-                        binding.profileEditImage.setImageDrawable(
-                            AppCompatResources.getDrawable(
-                                requireActivity(),
-                                R.drawable.ic_baseline_person_24
-                            )
-                        )
-                    }
-                    else -> throw IllegalArgumentException()
-                }
-            }.create()
-            .show()
+                }.create()
+                .show()
+        }
     }
 
     private fun closeFragment() {
