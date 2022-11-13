@@ -15,35 +15,20 @@ class UserListViewModel : ViewModel() {
 
     private var didBind = false
 
-    fun bindAsFollowing(followerUuid: String) {
-        checkDidNotBind()
-        didBind = true
-        viewModelScope.launch {
-            UserRepository.getFollowingUsersPaging(followerUuid)
-                .cachedIn(viewModelScope)
-                .collectLatest { pagingData ->
-                    _uiState.update { uiState ->
-                        uiState.copy(pagingData = pagingData.map { it.toUiState() })
-                    }
-                }
-        }
-    }
-
-    fun bindAsFollower(followeeUuid: String) {
-        checkDidNotBind()
-        didBind = true
-        viewModelScope.launch {
-            UserRepository.getFollowersPaging(followeeUuid)
-                .cachedIn(viewModelScope)
-                .collectLatest { pagingData ->
-                    _uiState.update { uiState ->
-                        uiState.copy(pagingData = pagingData.map { it.toUiState() })
-                    }
-                }
-        }
-    }
-
-    private fun checkDidNotBind() {
+    fun bind(userUuid: String, type: UserListPageType) {
         check(!didBind)
+        didBind = true
+        viewModelScope.launch {
+            val pagingFlow = when(type) {
+                UserListPageType.FOLLOWING -> UserRepository.getFollowingUsersPaging(userUuid)
+                UserListPageType.FOLLOWER ->  UserRepository.getFollowersPaging(userUuid)
+            }
+            pagingFlow.cachedIn(viewModelScope)
+                .collectLatest { pagingData ->
+                    _uiState.update { uiState ->
+                        uiState.copy(pagingData = pagingData.map { it.toUiState() })
+                    }
+                }
+        }
     }
 }

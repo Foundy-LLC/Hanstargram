@@ -38,10 +38,7 @@ class UserListActivity : ViewBindingActivity<ActivityUserListBinding>() {
 
         val userUuid = requireNotNull(intent.getStringExtra("userUuid"))
         val type = intent.getSerializableExtra("type") as UserListPageType
-        when (type) {
-            UserListPageType.FOLLOWING -> viewModel.bindAsFollowing(userUuid)
-            UserListPageType.FOLLOWER -> viewModel.bindAsFollower(userUuid)
-        }
+        viewModel.bind(userUuid, type)
 
         val adapter = UserAdapter(onClickUser = this::onClickUser)
         initRecyclerView(adapter)
