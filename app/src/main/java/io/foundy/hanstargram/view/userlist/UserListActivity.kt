@@ -40,7 +40,7 @@ class UserListActivity : ViewBindingActivity<ActivityUserListBinding>() {
         val type = intent.getSerializableExtra("type") as UserListPageType
         when (type) {
             UserListPageType.FOLLOWING -> viewModel.bindAsFollowing(userUuid)
-            UserListPageType.FOLLOWER -> viewModel.bindAsFollower()
+            UserListPageType.FOLLOWER -> viewModel.bindAsFollower(userUuid)
         }
 
         val adapter = UserAdapter(onClickUser = this::onClickUser)

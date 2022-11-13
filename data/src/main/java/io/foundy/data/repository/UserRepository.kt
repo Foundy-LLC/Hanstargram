@@ -8,7 +8,6 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.AggregateSource
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import io.foundy.data.model.FollowDto
@@ -54,7 +53,7 @@ object UserRepository {
         }
     }
 
-    suspend fun getFollowingUserPaging(followerUuid: String): Flow<PagingData<UserDto>> {
+    suspend fun getFollowingUsersPaging(followerUuid: String): Flow<PagingData<UserDto>> {
         val db = Firebase.firestore
         val userCollection = db.collection("users")
         val followCollection = db.collection("followers")
@@ -73,7 +72,27 @@ object UserRepository {
         } catch (e: Exception) {
             throw e
         }
+    }
 
+    suspend fun getFollowersPaging(followeeUuid: String): Flow<PagingData<UserDto>> {
+        val db = Firebase.firestore
+        val userCollection = db.collection("users")
+        val followCollection = db.collection("followers")
+
+        try {
+            val followerUuids = followCollection.whereEqualTo("followeeUuid", followeeUuid)
+                .get().await()
+                .documents.map {
+                    requireNotNull(it.toObject(FollowDto::class.java)).followerUuid
+                }
+            val followersQuery = userCollection.whereIn("uuid", followerUuids)
+
+            return Pager(PagingConfig(pageSize = PAGE_SIZE)) {
+                UserPagingSource(userQuery = followersQuery)
+            }.flow
+        } catch (e: Exception) {
+            throw e
+        }
     }
 
     suspend fun saveInitUserInfo(
