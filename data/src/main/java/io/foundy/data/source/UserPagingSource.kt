@@ -9,7 +9,7 @@ import io.foundy.data.model.UserDto
 import kotlinx.coroutines.tasks.await
 
 class UserPagingSource(
-    private val queryUsersByName: Query
+    private val userQuery: Query
 ) : PagingSource<QuerySnapshot, UserDto>() {
 
     override fun getRefreshKey(state: PagingState<QuerySnapshot, UserDto>): QuerySnapshot? {
@@ -20,7 +20,7 @@ class UserPagingSource(
         params: LoadParams<QuerySnapshot>
     ): LoadResult<QuerySnapshot, UserDto> {
         return try {
-            val currentPage = params.key ?: queryUsersByName.get().await()
+            val currentPage = params.key ?: userQuery.get().await()
             if (currentPage.isEmpty) {
                 return LoadResult.Page(
                     data = emptyList(),
@@ -29,9 +29,9 @@ class UserPagingSource(
                 )
             }
             val lastVisiblePost = currentPage.documents[currentPage.size() - 1]
-            val nextPage = queryUsersByName.startAfter(lastVisiblePost).get().await()
+            val nextPage = userQuery.startAfter(lastVisiblePost).get().await()
             val userDto = currentPage.toObjects<UserDto>()
-            println(userDto)
+
             LoadResult.Page(
                 data = userDto,
                 prevKey = null,

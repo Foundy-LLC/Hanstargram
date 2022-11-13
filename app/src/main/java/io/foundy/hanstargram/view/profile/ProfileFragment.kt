@@ -26,6 +26,8 @@ import io.foundy.hanstargram.view.common.PagingLoadStateAdapter
 import io.foundy.hanstargram.view.common.setListeners
 import io.foundy.hanstargram.view.home.postlist.PostItemUiState
 import io.foundy.hanstargram.view.profile.edit.ProfileEditFragment
+import io.foundy.hanstargram.view.userlist.UserListActivity
+import io.foundy.hanstargram.view.userlist.UserListPageType
 import kotlinx.coroutines.launch
 
 class ProfileFragment(
@@ -38,7 +40,7 @@ class ProfileFragment(
         super.onViewCreated(view, savedInstanceState)
 
         setFragmentResultListener("ProfileEdit") { _, bundle ->
-            if(bundle.getBoolean("isChanged")){
+            if (bundle.getBoolean("isChanged")) {
                 val uuid = bundle.getString("uuid")
                 if (uuid != null) {
                     viewModel.getProfileDetail(uuid)
@@ -47,6 +49,7 @@ class ProfileFragment(
         }
 
         initToolbar()
+        initClickEventListeners()
 
         binding.followOrEditButton.setOnClickListener {
             val isMe = viewModel.profileDetailUiState.value.userDetail!!.isMe
@@ -79,6 +82,23 @@ class ProfileFragment(
         }
     }
 
+    private fun initClickEventListeners() {
+        binding.apply {
+            profileInfoFolloweenumTextview.setOnClickListener {
+                startUserListActivity(UserListPageType.FOLLOWING)
+            }
+            profileInfoFollowingtextTextview.setOnClickListener {
+                startUserListActivity(UserListPageType.FOLLOWING)
+            }
+            profileInfoFollowernumTextview.setOnClickListener {
+                startUserListActivity(UserListPageType.FOLLOWER)
+            }
+            profileInfoFollowertextTextview.setOnClickListener {
+                startUserListActivity(UserListPageType.FOLLOWER)
+            }
+        }
+    }
+
     private fun initToolbar() {
         val activity = requireActivity() as AppCompatActivity
         activity.setSupportActionBar(binding.toolBar)
@@ -92,7 +112,8 @@ class ProfileFragment(
     /* 프로필 수정 프래그먼트*/
     private fun changeToProfileEditFragment() {
         val fragmentManager = parentFragmentManager
-        val profileEditFragment = ProfileEditFragment(viewModel.profileDetailUiState.value.userDetail!!)
+        val profileEditFragment =
+            ProfileEditFragment(viewModel.profileDetailUiState.value.userDetail!!)
         fragmentManager.beginTransaction().apply {
             replace(R.id.fragment_container_view, profileEditFragment, "ProfileEdit")
             addToBackStack(null)
@@ -173,4 +194,10 @@ class ProfileFragment(
 
     override val bindingInflater: (LayoutInflater, ViewGroup?, Boolean) -> FragmentProfileBinding
         get() = FragmentProfileBinding::inflate
+
+    private fun startUserListActivity(type: UserListPageType) {
+        val user = requireNotNull(viewModel.profileDetailUiState.value.userDetail)
+        val intent = UserListActivity.getIntent(requireContext(), type, user.uuid)
+        startActivity(intent)
+    }
 }
