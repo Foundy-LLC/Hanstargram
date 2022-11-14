@@ -21,8 +21,7 @@
             android:minWidth="48dp"
             android:minHeight="48dp"
             app:srcCompat="@drawable/ic_baseline_edit_24"
-            tools:layout_editor_absoluteX="401dp"
-            tools:layout_editor_absoluteY="20dp" />
+            app:tint="?attr/colorOnBackground" />
     </androidx.appcompat.widget.Toolbar>
 
     <com.google.android.material.imageview.ShapeableImageView

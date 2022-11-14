@@ -182,7 +182,6 @@ class ProfileFragment(
                 Glide.with(this@ProfileFragment)
                     .load(userDetail.profileImageUrl?.let { storageReference.child(it) })
                     .fallback(R.drawable.ic_baseline_person_24)
-                    .circleCrop()
                     .into(profileImage)
             }
         }
