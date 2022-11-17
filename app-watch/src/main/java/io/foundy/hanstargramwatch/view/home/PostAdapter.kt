@@ -4,39 +4,84 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.RecyclerView
+import io.foundy.hanstargramwatch.databinding.ItemHomeFooterBinding
 import io.foundy.hanstargramwatch.databinding.ItemPostBinding
 
 class PostAdapter(
     private val onClickUser: (userUuid: String) -> Unit,
-    private val onClickLikeButton: (PostItemUiState) -> Unit
-) : PagingDataAdapter<PostItemUiState, PostViewHolder>(diffCallback) {
+    private val onClickLikeButton: (PostModel.ItemUiState) -> Unit,
+    private val onExploreClick: () -> Unit
+) : PagingDataAdapter<PostModel, RecyclerView.ViewHolder>(diffCallback) {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
-        val layoutInflater = LayoutInflater.from(parent.context)
-        val binding = ItemPostBinding.inflate(layoutInflater, parent, false)
-        return PostViewHolder(
-            binding,
-            onClickUser = onClickUser,
-            onClickLikeButton = onClickLikeButton
-        )
+    override fun getItemViewType(position: Int): Int = when (getItem(position)) {
+        is PostModel.ItemUiState -> {
+            LIST_TYPE
+        }
+        PostModel.Footer -> {
+            FOOTER_TYPE
+        }
+        else -> {
+            throw IllegalArgumentException()
+        }
     }
 
-    override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
-        getItem(position)?.let { holder.bind(it) }
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        val layoutInflater = LayoutInflater.from(parent.context)
+        return when (viewType) {
+            LIST_TYPE -> {
+                val binding = ItemPostBinding.inflate(layoutInflater, parent, false)
+                PostViewHolder(
+                    binding,
+                    onClickUser = onClickUser,
+                    onClickLikeButton = onClickLikeButton
+                )
+            }
+            FOOTER_TYPE -> {
+                val binding = ItemHomeFooterBinding.inflate(layoutInflater, parent, false)
+                PostFooterViewHolder(
+                    binding,
+                    onExploreClick = onExploreClick
+                )
+            }
+            else -> {
+                throw IllegalArgumentException()
+            }
+        }
+    }
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        getItem(position)?.let {
+            when (it) {
+                is PostModel.ItemUiState -> {
+                    (holder as PostViewHolder).bind(it)
+                }
+                PostModel.Footer -> {
+                    (holder as PostFooterViewHolder).bind()
+                }
+            }
+        }
     }
 
     companion object {
-        private val diffCallback = object : DiffUtil.ItemCallback<PostItemUiState>() {
+
+        private const val LIST_TYPE = 0
+        private const val FOOTER_TYPE = 1
+
+        private val diffCallback = object : DiffUtil.ItemCallback<PostModel>() {
             override fun areItemsTheSame(
-                oldItem: PostItemUiState,
-                newItem: PostItemUiState
+                oldItem: PostModel,
+                newItem: PostModel
             ): Boolean {
-                return oldItem.uuid == newItem.uuid
+                if (oldItem is PostModel.ItemUiState && newItem is PostModel.ItemUiState) {
+                    return oldItem.uuid == newItem.uuid
+                }
+                return oldItem == newItem
             }
 
             override fun areContentsTheSame(
-                oldItem: PostItemUiState,
-                newItem: PostItemUiState
+                oldItem: PostModel,
+                newItem: PostModel
             ): Boolean {
                 return oldItem == newItem
             }

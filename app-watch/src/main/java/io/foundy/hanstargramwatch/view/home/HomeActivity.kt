@@ -42,7 +42,8 @@ class HomeActivity : ViewBindingActivity<ActivityHomeBinding>() {
 
         val adapter = PostAdapter(
             onClickLikeButton = ::onClickLikeButton,
-            onClickUser = ::onClickUser
+            onClickUser = ::onClickUser,
+            onExploreClick = ::startExploreActivity
         )
         initRecyclerView(adapter)
 
@@ -91,7 +92,7 @@ class HomeActivity : ViewBindingActivity<ActivityHomeBinding>() {
         }
     }
 
-    private fun onClickLikeButton(uiState: PostItemUiState) {
+    private fun onClickLikeButton(uiState: PostModel.ItemUiState) {
         viewModel.toggleLike(postUuid = uiState.uuid)
     }
 

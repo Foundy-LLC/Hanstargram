@@ -12,17 +12,18 @@ import com.bumptech.glide.Glide
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import io.foundy.hanstargramwatch.R
+import io.foundy.hanstargramwatch.databinding.ItemHomeFooterBinding
 import io.foundy.hanstargramwatch.databinding.ItemPostBinding
 
 class PostViewHolder(
     private val binding: ItemPostBinding,
     private val onClickUser: (userUuid: String) -> Unit,
-    private val onClickLikeButton: (PostItemUiState) -> Unit
+    private val onClickLikeButton: (PostModel.ItemUiState) -> Unit
 ) : RecyclerView.ViewHolder(binding.root) {
 
     private val storageReference = Firebase.storage.reference
 
-    fun bind(uiState: PostItemUiState) = with(binding) {
+    fun bind(uiState: PostModel.ItemUiState) = with(binding) {
         val glide = Glide.with(root)
 
         glide.load(uiState.writerProfileImageUrl?.let { storageReference.child(it) })
@@ -62,5 +63,17 @@ class PostViewHolder(
         content.isVisible = uiState.content.isNotEmpty()
 
         timeAgo.text = uiState.timeAgo
+    }
+}
+
+class PostFooterViewHolder(
+    private val binding: ItemHomeFooterBinding,
+    private val onExploreClick: () -> Unit
+) : RecyclerView.ViewHolder(binding.root) {
+
+    fun bind() {
+        binding.exploreButton.setOnClickListener {
+            onExploreClick()
+        }
     }
 }
