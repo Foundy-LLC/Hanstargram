@@ -3,13 +3,12 @@ package io.foundy.hanstargramwatch.view.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
+import androidx.paging.insertFooterItem
 import androidx.paging.map
 import io.foundy.data.repository.PostRepository
+import io.foundy.domain.model.Post
 import io.foundy.hanstargramwatch.R
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class HomeViewModel : ViewModel() {
@@ -22,7 +21,11 @@ class HomeViewModel : ViewModel() {
             PostRepository.getHomeFeeds().cachedIn(viewModelScope)
                 .collectLatest { pagingData ->
                     _uiState.update { uiState ->
-                        uiState.copy(pagingData = pagingData.map { it.toUiState() })
+                        uiState.copy(
+                            pagingData = pagingData
+                                .map<Post, PostModel> { it.toUiState() }
+                                .insertFooterItem(item = PostModel.Footer)
+                        )
                     }
                 }
         }
