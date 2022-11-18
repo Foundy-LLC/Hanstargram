@@ -59,7 +59,7 @@
     <string name="user_image">회원 사진</string>
     <string name="search_user">회원 검색…</string>
 
-  
+
     <!-- Profile -->
     <string name="profile_follow_success">팔로우 했습니다.</string>
     <string name="profile_follow_cancle">팔로우를 취소 했습니다.</string>
@@ -79,6 +79,8 @@
     <string name="uploading">게시중…</string>
     <string name="toolBar_post_add_button">게시글 추가 버튼</string>
     <string name="posting_title">게시글 작성</string>
+    <string name="image_oversized">이미지 최대 크키는 10MB 입니다.</string>
+    <string name="select_image">이미지를 선택하세요.</string>
 
     <!-- Profile Edit -->
     <string name="profile_edit_imgButton">프로필 사진 변경</string>
@@ -87,5 +89,6 @@
     <string name="profile_edit_title">프로필 편집</string>
     <string name="success_to_change_profile">프로필을 변경 하였습니다.</string>
     <string name="cant_name_is_empty">이름을 공백으로 설정할 수 없습니다.</string>
+
 
 </resources>

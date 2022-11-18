@@ -2,7 +2,14 @@ package io.foundy.hanstargram.view.posting
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.ImageDecoder
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
+import android.provider.OpenableColumns
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
@@ -20,6 +27,7 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import io.foundy.hanstargram.R
 import kotlinx.coroutines.launch
+import java.io.OutputStream
 
 class PostingActivity : AppCompatActivity() {
 
@@ -30,7 +38,9 @@ class PostingActivity : AppCompatActivity() {
     private val fileChooserContract =
         registerForActivityResult(ActivityResultContracts.GetContent()) { imageUri ->
             if (imageUri != null) {
-                viewModel.selectImage(imageUri)
+                if (checkImageSize(imageUri)) {
+                    viewModel.selectImage(imageUri)
+                }
             } else if (viewModel.uiState.value.selectedImage == null && viewModel.uiState.value.isCreating) {
                 finish()
             }
@@ -78,10 +88,14 @@ class PostingActivity : AppCompatActivity() {
         }
 
         postButton.setOnClickListener {
-            if (!viewModel.uiState.value.isCreating) {
-                viewModel.editContent(postUuid.toString(), contentEditText.text.toString())
+            if (imageView.drawable == null) {
+                showSnackBar(getString(R.string.select_image))
             } else {
-                viewModel.uploadContent(contentEditText.text.toString())
+                if (!viewModel.uiState.value.isCreating) {
+                    viewModel.editContent(postUuid.toString(), contentEditText.text.toString())
+                } else {
+                    viewModel.uploadContent(contentEditText.text.toString())
+                }
             }
         }
 
@@ -123,6 +137,28 @@ class PostingActivity : AppCompatActivity() {
     private fun showImagePicker() {
         if (!viewModel.uiState.value.isLoading) {
             fileChooserContract.launch("image/*")
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    private fun checkImageSize(imageUri: Uri): Boolean {
+        val selectedImage = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            ImageDecoder.decodeBitmap(
+                ImageDecoder.createSource(
+                    contentResolver,
+                    imageUri
+                )
+            )
+        } else {
+            MediaStore.Images.Media.getBitmap(contentResolver, imageUri)
+        }
+
+        return if (selectedImage.byteCount > 10000000) {
+            showSnackBar(getString(R.string.image_oversized))
+            println("size : ${selectedImage.byteCount}")
+            false
+        } else {
+            true
         }
     }
 
