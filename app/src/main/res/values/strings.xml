@@ -3,6 +3,7 @@
     <string name="home">홈</string>
     <string name="fail_to_connect">연결에 실패했습니다.</string>
     <string name="retry">다시 시도</string>
+    <string name="my_profile">내정보</string>
 
     <!-- preferences -->
     <string name="preference_file_key">hanstargram</string>

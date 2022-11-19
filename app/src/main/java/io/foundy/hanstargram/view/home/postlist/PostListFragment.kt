@@ -64,10 +64,6 @@ class PostListFragment(
         initRecyclerView(adapter)
         initBottomSheetDialog(adapter)
 
-        binding.toolbarPostButton.setOnClickListener {
-            startPostingActivity()
-        }
-
         launcher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             if (it.resultCode == RESULT_OK) {
                 adapter.refresh()
@@ -101,8 +97,26 @@ class PostListFragment(
                 title = this@PostListFragment.toolbarTitle
             }
             binding.toolbarTitle.isVisible = false
+        }
+
+        if (onBackButtonClick != null) {
             binding.toolBar.setNavigationOnClickListener {
-                onBackButtonClick?.invoke()
+                onBackButtonClick.invoke()
+            }
+        }
+
+        binding.toolBar.inflateMenu(R.menu.menu_home_option)
+        binding.toolBar.setOnMenuItemClickListener {
+            when (it.itemId) {
+                R.id.action_add_post -> {
+                    startPostingActivity()
+                    true
+                }
+                R.id.action_my_profile -> {
+                    startProfileActivity(viewModel.uiState.value.currentUserUuid)
+                    true
+                }
+                else -> throw IllegalArgumentException()
             }
         }
     }

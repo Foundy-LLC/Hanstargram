@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
+import io.foundy.data.repository.AuthRepository
 import io.foundy.hanstargram.R
 import io.foundy.data.repository.PostRepository
 import kotlinx.coroutines.Dispatchers
@@ -15,7 +16,9 @@ import kotlinx.coroutines.launch
 
 class PostListViewModel : ViewModel() {
 
-    private val _uiState = MutableStateFlow(PostListUiState())
+    private val _uiState = MutableStateFlow(
+        PostListUiState(currentUserUuid = requireNotNull(AuthRepository.currentUserUuid))
+    )
     val uiState = _uiState.asStateFlow()
 
     private var bounded = false

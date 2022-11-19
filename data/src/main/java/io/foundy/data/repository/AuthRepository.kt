@@ -11,6 +11,8 @@ object AuthRepository {
         return Firebase.auth.currentUser != null
     }
 
+    val currentUserUuid: String? = Firebase.auth.currentUser?.uid
+
     suspend fun signUp(email: String, password: String): Result<Unit> {
         return try {
             Firebase.auth.createUserWithEmailAndPassword(email, password).await()
