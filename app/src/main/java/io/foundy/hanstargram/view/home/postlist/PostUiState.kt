@@ -7,6 +7,7 @@ import io.foundy.domain.model.Post
 data class PostListUiState(
     val pagingData: PagingData<PostItemUiState> = PagingData.empty(),
     val selectedPostItem: PostItemUiState? = null,
+    val currentUserUuid: String,
     @StringRes
     val userMessage: Int? = null
 )

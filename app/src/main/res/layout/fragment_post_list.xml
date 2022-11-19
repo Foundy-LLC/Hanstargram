@@ -22,18 +22,6 @@
             android:text="@string/app_name"
             android:textSize="26sp" />
 
-        <ImageButton
-            android:id="@+id/toolbar_post_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:background="@android:color/transparent"
-            android:contentDescription="@string/toolBar_post_add_button"
-            android:minWidth="48dp"
-            android:minHeight="48dp"
-            android:src="@drawable/ic_outline_add_box_24"
-            app:tint="?attr/colorOnBackground" />
-
     </androidx.appcompat.widget.Toolbar>
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_add_post"
+        android:enabled="true"
+        android:icon="@drawable/ic_outline_add_box_24"
+        android:title="@string/toolBar_post_add_button"
+        app:showAsAction="ifRoom"
+        />
+
+    <item
+        android:id="@+id/action_my_profile"
+        android:enabled="true"
+        android:icon="@drawable/ic_baseline_account_circle_24"
+        android:title="@string/my_profile"
+        app:showAsAction="ifRoom" />
+</menu>
