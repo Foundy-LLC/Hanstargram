@@ -13,6 +13,7 @@ import com.google.firebase.storage.ktx.storage
 import io.foundy.data.model.FollowDto
 import io.foundy.data.model.UserDto
 import io.foundy.data.source.UserPagingSource
+import io.foundy.data.source.UserSearchPagingSource
 import io.foundy.domain.model.UserDetail
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
@@ -22,7 +23,7 @@ import java.util.*
 
 object UserRepository {
 
-    private const val PAGE_SIZE = 30
+    const val PAGE_SIZE = 30
 
     private var followingList: MutableList<FollowDto>? = null
 
@@ -68,10 +69,10 @@ object UserRepository {
             if (followeeUuids.isEmpty()) {
                 return emptyFlow()
             }
-            val followingUsersQuery = userCollection.whereIn("uuid", followeeUuids)
+            val userReferences = followeeUuids.map { userCollection.document(it) }
 
             return Pager(PagingConfig(pageSize = PAGE_SIZE)) {
-                UserPagingSource(userQuery = followingUsersQuery)
+                UserPagingSource(userReferences = userReferences)
             }.flow
         } catch (e: Exception) {
             throw e
@@ -92,10 +93,10 @@ object UserRepository {
             if (followerUuids.isEmpty()) {
                 return emptyFlow()
             }
-            val followersQuery = userCollection.whereIn("uuid", followerUuids)
+            val userReferences = followerUuids.map { userCollection.document(it) }
 
             return Pager(PagingConfig(pageSize = PAGE_SIZE)) {
-                UserPagingSource(userQuery = followersQuery)
+                UserPagingSource(userReferences = userReferences)
             }.flow
         } catch (e: Exception) {
             throw e
@@ -214,7 +215,7 @@ object UserRepository {
         }
 
         return Pager(PagingConfig(pageSize = PAGE_SIZE)) {
-            UserPagingSource(userQuery = queryUsersByName)
+            UserSearchPagingSource(userQuery = queryUsersByName)
         }.flow
     }
 
