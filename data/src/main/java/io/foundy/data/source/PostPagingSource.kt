@@ -22,6 +22,9 @@ class PostPagingSource(
     private val currentUserId = Firebase.auth.currentUser!!.uid
     private val likeCollection = Firebase.firestore.collection("likes")
     private val userCollection = Firebase.firestore.collection("users")
+    private val queryPosts = Firebase.firestore.collection("posts")
+        .orderBy("dateTime", Query.Direction.DESCENDING)
+        .limit(PostRepository.PAGE_SIZE.toLong())
 
     override fun getRefreshKey(state: PagingState<QuerySnapshot, Post>): QuerySnapshot? {
         return null
@@ -30,15 +33,10 @@ class PostPagingSource(
     override suspend fun load(
         params: LoadParams<QuerySnapshot>
     ): LoadResult<QuerySnapshot, Post> {
-        val db = Firebase.firestore
-        val postCollection = db.collection("posts")
-        val queryPostsByFollower = postCollection
-            .whereIn("writerUuid", getWriterUuids())
-            .orderBy("dateTime", Query.Direction.DESCENDING)
-            .limit(PostRepository.PAGE_SIZE.toLong())
+        val writerUuidList = getWriterUuids()
 
         return try {
-            val currentPage = params.key ?: queryPostsByFollower.get().await()
+            val currentPage = params.key ?: queryPosts.get().await()
             if (currentPage.isEmpty) {
                 return LoadResult.Page(
                     data = emptyList(),
@@ -47,28 +45,34 @@ class PostPagingSource(
                 )
             }
             val lastVisiblePost = currentPage.documents[currentPage.size() - 1]
-            val nextPage = queryPostsByFollower.startAfter(lastVisiblePost).get().await()
+            val nextPage = queryPosts.startAfter(lastVisiblePost).get().await()
             val postDtos = currentPage.toObjects(PostDto::class.java)
-            val posts = postDtos.map { postDto ->
-                val likes = likeCollection.whereEqualTo("postUuid", postDto.uuid).get().await()
-                    .toObjects(LikeDto::class.java)
-                val writer = userCollection.document(postDto.writerUuid).get().await()
-                    .toObject(UserDto::class.java)
-                val meLiked = likes.any { like -> like.userUuid == currentUserId }
+            val posts = postDtos
+                // TODO(민성): 쓸데없이 모든 포스트를 요청하고나서 필터링을 하고 있다. 보이지 않을 게시물까지 로드하여 낭비가
+                //  크기 때문에 차라리 한 번에 모든 게시글을 가져온 뒤 차례로 보이는 게 나을 수 있다.
+                .filter { postDto ->
+                    writerUuidList.contains(postDto.writerUuid)
+                }
+                .map { postDto ->
+                    val likes = likeCollection.whereEqualTo("postUuid", postDto.uuid).get().await()
+                        .toObjects(LikeDto::class.java)
+                    val writer = userCollection.document(postDto.writerUuid).get().await()
+                        .toObject(UserDto::class.java)
+                    val meLiked = likes.any { like -> like.userUuid == currentUserId }
 
-                Post(
-                    uuid = postDto.uuid,
-                    writerUuid = writer!!.uuid,
-                    writerName = writer.name,
-                    writerProfileImageUrl = writer.profileImageUrl,
-                    content = postDto.content,
-                    imageUrl = postDto.imageUrl,
-                    likeCount = likes.size,
-                    meLiked = meLiked,
-                    isMine = postDto.writerUuid == currentUserId,
-                    timeAgo = postDto.dateTime.timeAgoString()
-                )
-            }
+                    Post(
+                        uuid = postDto.uuid,
+                        writerUuid = writer!!.uuid,
+                        writerName = writer.name,
+                        writerProfileImageUrl = writer.profileImageUrl,
+                        content = postDto.content,
+                        imageUrl = postDto.imageUrl,
+                        likeCount = likes.size,
+                        meLiked = meLiked,
+                        isMine = postDto.writerUuid == currentUserId,
+                        timeAgo = postDto.dateTime.timeAgoString()
+                    )
+                }
 
             LoadResult.Page(
                 data = posts,
