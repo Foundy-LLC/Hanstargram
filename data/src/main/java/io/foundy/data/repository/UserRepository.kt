@@ -15,6 +15,7 @@ import io.foundy.data.model.UserDto
 import io.foundy.data.source.UserPagingSource
 import io.foundy.domain.model.UserDetail
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.tasks.await
 import java.io.ByteArrayOutputStream
 import java.util.*
@@ -64,6 +65,9 @@ object UserRepository {
                 .documents.map {
                     requireNotNull(it.toObject(FollowDto::class.java)).followeeUuid
                 }
+            if (followeeUuids.isEmpty()) {
+                return emptyFlow()
+            }
             val followingUsersQuery = userCollection.whereIn("uuid", followeeUuids)
 
             return Pager(PagingConfig(pageSize = PAGE_SIZE)) {
@@ -85,6 +89,9 @@ object UserRepository {
                 .documents.map {
                     requireNotNull(it.toObject(FollowDto::class.java)).followerUuid
                 }
+            if (followerUuids.isEmpty()) {
+                return emptyFlow()
+            }
             val followersQuery = userCollection.whereIn("uuid", followerUuids)
 
             return Pager(PagingConfig(pageSize = PAGE_SIZE)) {
