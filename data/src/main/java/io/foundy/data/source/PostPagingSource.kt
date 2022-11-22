@@ -22,7 +22,7 @@ class PostPagingSource(
     private val currentUserId = Firebase.auth.currentUser!!.uid
     private val likeCollection = Firebase.firestore.collection("likes")
     private val userCollection = Firebase.firestore.collection("users")
-    private val queryPostsByFollower = Firebase.firestore.collection("posts")
+    private val queryPosts = Firebase.firestore.collection("posts")
         .orderBy("dateTime", Query.Direction.DESCENDING)
         .limit(PostRepository.PAGE_SIZE.toLong())
 
@@ -36,7 +36,7 @@ class PostPagingSource(
         val writerUuidList = getWriterUuids()
 
         return try {
-            val currentPage = params.key ?: queryPostsByFollower.get().await()
+            val currentPage = params.key ?: queryPosts.get().await()
             if (currentPage.isEmpty) {
                 return LoadResult.Page(
                     data = emptyList(),
@@ -45,9 +45,11 @@ class PostPagingSource(
                 )
             }
             val lastVisiblePost = currentPage.documents[currentPage.size() - 1]
-            val nextPage = queryPostsByFollower.startAfter(lastVisiblePost).get().await()
+            val nextPage = queryPosts.startAfter(lastVisiblePost).get().await()
             val postDtos = currentPage.toObjects(PostDto::class.java)
             val posts = postDtos
+                // TODO(민성): 쓸데없이 모든 포스트를 요청하고나서 필터링을 하고 있다. 보이지 않을 게시물까지 로드하여 낭비가
+                //  크기 때문에 차라리 한 번에 모든 게시글을 가져온 뒤 차례로 보이는 게 나을 수 있다.
                 .filter { postDto ->
                     writerUuidList.contains(postDto.writerUuid)
                 }
