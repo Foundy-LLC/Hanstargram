@@ -4,6 +4,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
+import io.foundy.hanstargramwatch.R
 import io.foundy.hanstargramwatch.databinding.ItemUserBinding
 
 class UserViewHolder(
@@ -16,9 +17,9 @@ class UserViewHolder(
     fun bind(uiState: UserItemUiState) = with(binding) {
         val glide = Glide.with(root)
 
-        uiState.profileImageUrl?.let { imageUrl ->
-            glide.load(storageReference.child(imageUrl)).into(profileImage)
-        }
+        glide.load(uiState.profileImageUrl?.let { storageReference.child(it) })
+            .fallback(R.drawable.ic_baseline_person_24)
+            .into(profileImage)
 
         name.text = uiState.name
 
