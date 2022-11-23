@@ -1,15 +1,15 @@
 package io.foundy.hanstargram.view.posting
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.provider.MediaStore
-import android.provider.OpenableColumns
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
@@ -18,6 +18,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.net.toFile
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -27,7 +28,8 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import io.foundy.hanstargram.R
 import kotlinx.coroutines.launch
-import java.io.OutputStream
+import java.io.ByteArrayOutputStream
+import java.io.File
 
 class PostingActivity : AppCompatActivity() {
 
@@ -37,8 +39,9 @@ class PostingActivity : AppCompatActivity() {
 
     private val fileChooserContract =
         registerForActivityResult(ActivityResultContracts.GetContent()) { imageUri ->
+
             if (imageUri != null) {
-                if (checkImageSize(imageUri)) {
+                if (imageUri.toFile().length() < 10000000) {//checkImageSize(imageUri)
                     viewModel.selectImage(imageUri)
                 }
             } else if (viewModel.uiState.value.selectedImage == null && viewModel.uiState.value.isCreating) {
@@ -142,22 +145,23 @@ class PostingActivity : AppCompatActivity() {
 
     @Suppress("DEPRECATION")
     private fun checkImageSize(imageUri: Uri): Boolean {
-        val selectedImage = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            ImageDecoder.decodeBitmap(
-                ImageDecoder.createSource(
-                    contentResolver,
-                    imageUri
-                )
-            )
+        val bitmap: Bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            ImageDecoder.decodeBitmap(ImageDecoder.createSource(contentResolver, imageUri))
         } else {
             MediaStore.Images.Media.getBitmap(contentResolver, imageUri)
         }
 
-        return if (selectedImage.byteCount > 10000000) {
+        val stream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream)
+        val imageInByte = stream.toByteArray()
+        val size = imageInByte.size
+
+        return if (size > 10000000) {
+            println("size : $size")
             showSnackBar(getString(R.string.image_oversized))
-            println("size : ${selectedImage.byteCount}")
             false
         } else {
+            println("size : $size")
             true
         }
     }
@@ -167,3 +171,4 @@ class PostingActivity : AppCompatActivity() {
         Snackbar.make(root, message, Snackbar.LENGTH_LONG).show()
     }
 }
+
