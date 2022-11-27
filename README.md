@@ -24,25 +24,6 @@
 
 # 기타
 
-## 폴더 구조
-
-```console
-root
-    - base
-        ViewBindingActivity
-    - repository
-        AuthRepository
-    - source
-        DataSource
-    - util 
-        DateTimeExtension
-    - view
-        - login
-            LoginActivity or Fragment
-            LoginViewModel
-            LoginUiState
-```
-
 ## 작업 순서
 
 - 해당 이슈 본인에게 할당(없으면 생성)
