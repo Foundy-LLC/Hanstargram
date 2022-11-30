@@ -2,6 +2,21 @@
 
 한성대학교 3학년 2학기 고급모바일프로그래밍 과목 텀프로젝트에서 구현한 SNS 앱 입니다.
 
+# 기술
+
+- Firebase
+  - Authentication 
+  - Firestore Database
+  - Storage
+- ViewBinding
+- Coroutine
+- Glide
+- Paging3
+
+# 아키텍처
+
+![architecture](./assets/architecture.png)
+
 # 앱 스크린샷
 
 | 로그인                          | 홈                          |
