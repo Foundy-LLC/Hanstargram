@@ -4,6 +4,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
+import io.foundy.hanstargram.R
 import io.foundy.hanstargram.databinding.ItemSearchBinding
 
 class SearchViewHolder(
@@ -16,9 +17,10 @@ class SearchViewHolder(
     fun bind(uiState: SearchItemUiState) = with(binding) {
         val glide = Glide.with(root)
 
-        uiState.imageUrl?.let { imageUrl ->
-            glide.load(storageReference.child(imageUrl)).into(profileImage)
-        }
+        glide
+            .load(uiState.imageUrl?.let { storageReference.child(it) })
+            .fallback(R.drawable.ic_baseline_person_24)
+            .into(profileImage)
 
         name.text = uiState.name
 
